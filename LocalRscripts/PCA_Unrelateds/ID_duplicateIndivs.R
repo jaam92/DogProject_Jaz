@@ -9,16 +9,16 @@ library(SNPRelate)
 library(dplyr)
 
 # PLINK BED files for unpruned data aka random sample of 100000 snps
-bed.fn = ("~/Documents/DogProject_Jaz/PCA_Unrelateds/MergedFile_CornellCanineFitak.bed")
-bim.fn = ("~/Documents/DogProject_Jaz/PCA_Unrelateds/MergedFile_CornellCanineFitak.bim")
-fam.fn = ("~/Documents/DogProject_Jaz/PCA_Unrelateds/MergedFile_CornellCanineFitak.fam")
+bed.fn = ("~/Documents/DogProject_Jaz/LocalRscripts/PCA_Unrelateds/MergedFile_CornellCanineFitak.bed")
+bim.fn = ("~/Documents/DogProject_Jaz/LocalRscripts/PCA_Unrelateds/MergedFile_CornellCanineFitak.bim")
+fam.fn = ("~/Documents/DogProject_Jaz/LocalRscripts/PCA_Unrelateds/MergedFile_CornellCanineFitak.fam")
 
 #convert
-snpgdsBED2GDS(bed.fn, fam.fn, bim.fn, "~/Documents/DogProject_Jaz/PCA_Unrelateds/MergedFile_CornellCanineFitak.gds")
-snpgdsSummary("~/Documents/DogProject_Jaz/PCA_Unrelateds/MergedFile_CornellCanineFitak.gds")
+snpgdsBED2GDS(bed.fn, fam.fn, bim.fn, "~/Documents/DogProject_Jaz/LocalRscripts/PCA_Unrelateds/MergedFile_CornellCanineFitak.gds")
+snpgdsSummary("~/Documents/DogProject_Jaz/LocalRscripts/PCA_Unrelateds/MergedFile_CornellCanineFitak.gds")
 
 #Open file
-genofile = snpgdsOpen("~/Documents/DogProject_Jaz/PCA_Unrelateds/MergedFile_CornellCanineFitak.gds")
+genofile = snpgdsOpen("~/Documents/DogProject_Jaz/LocalRscripts/PCA_Unrelateds/MergedFile_CornellCanineFitak.gds")
 
 #LD prune
 snpset = snpgdsLDpruning(genofile, ld.threshold=0.8, maf = 0.05, missing.rate = 0.1, slide.max.n = 50, autosome.only = F)
@@ -67,7 +67,7 @@ names(dfRmDups)[2] = "breed"
 #write.table(dfRmDups, "Individuals_allBreeds_mergedFitakCornell.txt", sep = "\t", row.names = F, col.names = F, quote = F)
 
 #ID groups with at least 50 unrelateds
-wolfData = read.table("~/Documents/DogProject_Jaz/BreedCladeInfo/canine-cluster2.txt")
+wolfData = read.table("~/Documents/DogProject_Jaz/LocalRscripts/BreedCladeInfo/canine-cluster2.txt")
 UnrelatedsPerBreed_n50 = dfUnrelateds %>% group_by(breed) %>% tally() %>% filter(n>=50) #find breeds with at least 50 unrelateds
 Unrelated_sampsGrEql50 = dfUnrelateds %>% filter(breed %in% UnrelatedsPerBreed_n50$breed)
 Unrelated_sampsGrEql50$WolfType = wolfData$V3[match(Unrelated_sampsGrEql50$Unrelateds, wolfData$V2)]

@@ -12,21 +12,21 @@ library(randomcoloR)
 library(tidyverse)
 
 #Load Sample information
-setwd("~/Documents/DogProject_Jaz/PCA_Unrelateds")
-popmapMerge = read.delim("~/Documents/DogProject_Jaz/BreedCladeInfo/BreedAndCladeInfo_mergedFitakCornell.txt")
-orderPops = read.table("~/Documents/DogProject_Jaz/BreedCladeInfo/OrderPops.txt")
+setwd("~/Documents/DogProject_Jaz/LocalRscripts/PCA_Unrelateds")
+popmapMerge = read.delim("~/Documents/DogProject_Jaz/LocalRscripts/BreedCladeInfo/BreedAndCladeInfo_mergedFitakCornell.txt")
+orderPops = read.table("~/Documents/DogProject_Jaz/LocalRscripts/BreedCladeInfo/OrderPops.txt")
 
 # PLINK BED files for unpruned data aka random sample of 100000 snps
-#bed.fn = ("~/Documents/DogProject_Jaz/PCA_Unrelateds/MergedFile_CornellCanineFitak.bed")
-#bim.fn = ("~/Documents/DogProject_Jaz/PCA_Unrelateds/MergedFile_CornellCanineFitak.bim")
-#fam.fn = ("~/Documents/DogProject_Jaz/PCA_Unrelateds/MergedFile_CornellCanineFitak.fam")
+#bed.fn = ("~/Documents/DogProject_Jaz/LocalRscripts/PCA_Unrelateds/MergedFile_CornellCanineFitak.bed")
+#bim.fn = ("~/Documents/DogProject_Jaz/LocalRscripts/PCA_Unrelateds/MergedFile_CornellCanineFitak.bim")
+#fam.fn = ("~/Documents/DogProject_Jaz/LocalRscripts/PCA_Unrelateds/MergedFile_CornellCanineFitak.fam")
 
 #convert
-#snpgdsBED2GDS(bed.fn, fam.fn, bim.fn, "~/Documents/DogProject_Jaz/PCA_Unrelateds/MergedFile_CornellCanineFitak.gds")
-#snpgdsSummary("~/Documents/DogProject_Jaz/PCA_Unrelateds/MergedFile_CornellCanineFitak.gds")
+#snpgdsBED2GDS(bed.fn, fam.fn, bim.fn, "~/Documents/DogProject_Jaz/LocalRscripts/PCA_Unrelateds/MergedFile_CornellCanineFitak.gds")
+#snpgdsSummary("~/Documents/DogProject_Jaz/LocalRscripts/PCA_Unrelateds/MergedFile_CornellCanineFitak.gds")
 
 #Open file
-genofile = snpgdsOpen("~/Documents/DogProject_Jaz/PCA_Unrelateds/MergedFile_CornellCanineFitak.gds")
+genofile = snpgdsOpen("~/Documents/DogProject_Jaz/LocalRscripts/PCA_Unrelateds/MergedFile_CornellCanineFitak.gds")
 
 #LD prune
 snpset = snpgdsLDpruning(genofile, ld.threshold=0.8, maf = 0.05, missing.rate = 0.1, slide.max.n = 50, autosome.only = F)

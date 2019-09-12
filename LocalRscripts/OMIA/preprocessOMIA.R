@@ -1,12 +1,12 @@
 #####Set Directory
-setwd("~/Documents/DogProject_Jaz/OMIA")
+setwd("~/Documents/DogProject_Jaz/LocalRscripts/OMIA")
 
 #####Load Libraries
 library(dplyr)
 
 #####Load Files
-omiaGenes = read.delim("~/Documents/DogProject_Jaz/OMIA/omia-genes_v2.txt", fill = TRUE)
-causalVars = read.delim("~/Documents/DogProject_Jaz/OMIA/causalVars_OMIA.txt", fill = TRUE)
+omiaGenes = read.delim("~/Documents/DogProject_Jaz/LocalRscripts/OMIA/omia-genes_v2.txt", fill = TRUE)
+causalVars = read.delim("~/Documents/DogProject_Jaz/LocalRscripts/OMIA/causalVars_OMIA.txt", fill = TRUE)
 
 #####Modify Files
 ######Reformat OMIA files

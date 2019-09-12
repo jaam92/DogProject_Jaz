@@ -2,8 +2,8 @@
 library(dplyr)
 library(data.table)
 
-ibdSegs = fread("~/Documents/DogProject_Jaz/IBDNe/MakeInputFile/cornell_canine_allChroms_phasedHaplotypes_shapeIT.ibd")
-Unrelated_sampsGrEql30 = read.delim("~/Documents/DogProject_Jaz/IBDNe/MakeInputFile/UnrelatedIndividuals_grEql30.txt")
+ibdSegs = fread("~/Documents/DogProject_Jaz/LocalRscripts/IBDNe/MakeInputFile/cornell_canine_allChroms_phasedHaplotypes_shapeIT.ibd")
+Unrelated_sampsGrEql30 = read.delim("~/Documents/DogProject_Jaz/LocalRscripts/IBDNe/MakeInputFile/UnrelatedIndividuals_grEql30.txt")
 
 
 #Make data frame with only unrelateds

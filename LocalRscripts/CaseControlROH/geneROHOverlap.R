@@ -4,14 +4,14 @@ library(GenomicRanges)
 library(ggplot2)
 
 ####Read files in
-genes = read.delim("~/Documents/DogProject_Jaz/CaseControlROH/EnsemblGenes_CanFam3.1.bed")
-gene_names = read.table("~/Documents/DogProject_Jaz/CaseControlROH/EnsemblGenes_CanFam3.1_geneNames.txt")
+genes = read.delim("~/Documents/DogProject_Jaz/LocalRscripts/CaseControlROH/EnsemblGenes_CanFam3.1.bed")
+gene_names = read.table("~/Documents/DogProject_Jaz/LocalRscripts/CaseControlROH/EnsemblGenes_CanFam3.1_geneNames.txt")
 gene_names_HGNC = read.table("~/Documents/HIVProject/PopBranchStat/hgnc_symbol_pairs.txt")
-ROH = read.delim("~/Documents/DogProject_Jaz/CaseControlROH/TrueROH_propCoveredwithin1SDMean_allChroms_mergedFitakCornell.txt")
-goldenRetrievers = read.delim("~/Documents/DogProject_Jaz/CaseControlROH/GoldenRetrievers_lymphoma.txt")
-allBreeds_MitralValveDegen = read.delim("~/Documents/DogProject_Jaz/CaseControlROH/allBreeds_MitralValveDegeneration.txt")
-lymphomaGenes = read.table("~/Documents/DogProject_Jaz/CaseControlROH/Skibola2010_LymphomaAssocGenes.txt")
-mitralValveDegenGenes = read.delim("~/Documents/DogProject_Jaz/CaseControlROH/mitralValveDegenerationGenes.txt")
+ROH = read.delim("~/Documents/DogProject_Jaz/LocalRscripts/CaseControlROH/TrueROH_propCoveredwithin1SDMean_allChroms_mergedFitakCornell.txt")
+goldenRetrievers = read.delim("~/Documents/DogProject_Jaz/LocalRscripts/CaseControlROH/GoldenRetrievers_lymphoma.txt")
+allBreeds_MitralValveDegen = read.delim("~/Documents/DogProject_Jaz/LocalRscripts/CaseControlROH/allBreeds_MitralValveDegeneration.txt")
+lymphomaGenes = read.table("~/Documents/DogProject_Jaz/LocalRscripts/CaseControlROH/Skibola2010_LymphomaAssocGenes.txt")
+mitralValveDegenGenes = read.delim("~/Documents/DogProject_Jaz/LocalRscripts/CaseControlROH/mitralValveDegenerationGenes.txt")
 
 ####Make file with genes of interest
 ####Filter to only chromosomes 1-38 

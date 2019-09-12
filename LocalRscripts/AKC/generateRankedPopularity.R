@@ -5,8 +5,8 @@ library(ggplot2)
 library(DescTools)
 
 #Read Files in 
-setwd("~/Documents/DogProject_Jaz/AKC")
-AKC = read.table("~/Documents/DogProject_Jaz/AKC/AKC_1926thru2005_Ne.txt", check.names = F, header = T, fill = T)
+setwd("~/Documents/DogProject_Jaz/LocalRscripts/AKC")
+AKC = read.table("~/Documents/DogProject_Jaz/LocalRscripts/AKC/AKC_1926thru2005_Ne.txt", check.names = F, header = T, fill = T)
 
 #Make everything proportional
 propAKC = apply(AKC[,-c(1)], 2, function(x) (as.numeric(x)/sum(x, na.rm = T))) %>% as.data.frame() #rank data as proportion of reg dogs

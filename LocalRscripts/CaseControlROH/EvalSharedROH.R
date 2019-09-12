@@ -2,8 +2,8 @@ library(data.table)
 library(dplyr)
 
 #Load Files
-IW_pheno = read.delim("~/Documents/DogProject_Jaz/CaseControlROH/IrishWolfhounds_Epilepsy.txt")
-ROH = fread("~/Documents/DogProject_Jaz/CaseControlROH/MergedFile_CornellCanineFitak_UnrelatedsOnly.hom.overlap", fill = T)
+IW_pheno = read.delim("~/Documents/DogProject_Jaz/LocalRscripts/CaseControlROH/IrishWolfhounds_Epilepsy.txt")
+ROH = fread("~/Documents/DogProject_Jaz/LocalRscripts/CaseControlROH/MergedFile_CornellCanineFitak_UnrelatedsOnly.hom.overlap", fill = T)
 
 #separate ROH by case and control
 IW_control = IW_pheno %>% filter(epilepsy_irishWolfhounds == 1)

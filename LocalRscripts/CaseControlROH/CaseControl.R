@@ -4,12 +4,12 @@ library(data.table)
 library(ggplot2)
 
 #Load files
-popmapDryad = read.delim("~/Documents/DogProject_Jaz/BreedCladeInfo/breeds_dryad.txt")
-popmapMerge = read.delim("~/Documents/DogProject_Jaz/BreedCladeInfo/BreedAndCladeInfo_mergedFitakCornell.txt")
-phenotypes = read.delim("~/Documents/DogProject_Jaz/BreedCladeInfo/phenotypes.txt")
-unrelateds = read.table("~/Documents/DogProject_Jaz/PCA_Unrelateds/Hayward2016_ogFiles/UnrelatedIndividuals_allBreeds.txt")
-ROH = read.delim("~/Documents/DogProject_Jaz/CaseControlROH/TrueROH_propCoveredwithin1SDMean_allChroms_mergedFitakCornell.txt")
-IBD = fread("~/Documents/DogProject_Jaz/IBDSegs/IBDSeq/MergedFitakCornell_allChroms_Haplotypes_IBDSeq.ibd")
+popmapDryad = read.delim("~/Documents/DogProject_Jaz/LocalRscripts/BreedCladeInfo/breeds_dryad.txt")
+popmapMerge = read.delim("~/Documents/DogProject_Jaz/LocalRscripts/BreedCladeInfo/BreedAndCladeInfo_mergedFitakCornell.txt")
+phenotypes = read.delim("~/Documents/DogProject_Jaz/LocalRscripts/BreedCladeInfo/phenotypes.txt")
+unrelateds = read.table("~/Documents/DogProject_Jaz/LocalRscripts/PCA_Unrelateds/Hayward2016_ogFiles/UnrelatedIndividuals_allBreeds.txt")
+ROH = read.delim("~/Documents/DogProject_Jaz/LocalRscripts/CaseControlROH/TrueROH_propCoveredwithin1SDMean_allChroms_mergedFitakCornell.txt")
+IBD = fread("~/Documents/DogProject_Jaz/LocalRscripts/IBDSegs/IBDSeq/MergedFitakCornell_allChroms_Haplotypes_IBDSeq.ibd")
 
 #update files
 phenotypes_unrelateds = phenotypes %>% mutate(PSVA = ifelse(is.na(PSVA), PSVA_yorkshireTerriers, PSVA), MCT = ifelse(is.na(MCT), MCT_labradorRetrievers, MCT), lymphoma = ifelse(is.na(lymphoma), lymphoma_goldenRetrievers, lymphoma), Unrelated = ifelse(dogID %in% unrelateds$V1, 1, 0), breed = popmapDryad$breed[match(dogID, popmapDryad$dogID)]) %>% filter(Unrelated == 1)

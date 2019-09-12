@@ -1,4 +1,4 @@
-setwd("~/Documents/DogProject_Jaz/dog_genetic_maps/rmChromCol/")
+setwd("~/Documents/DogProject_Jaz/LocalRscripts/dog_genetic_maps/rmChromCol/")
 
 filenames = list.files(pattern ="chr*") 
 

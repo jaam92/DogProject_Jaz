@@ -4,8 +4,8 @@ library("TSA")
 library("tseries")
 library("quantmod")
 
-df = read.table("~/Documents/DogProject_Jaz/AKC/AKC_breedPopularity_1926thru2005_proportional.txt", header = T)
-IBDNe = read.table("~/Documents/DogProject_Jaz/IBDNe/AllSitesMerge/boxer_IBDNE_usingIBDSeqIBDSegs_May18ver.ne", header = T)
+df = read.table("~/Documents/DogProject_Jaz/LocalRscripts/AKC/AKC_breedPopularity_1926thru2005_proportional.txt", header = T)
+IBDNe = read.table("~/Documents/DogProject_Jaz/LocalRscripts/IBDNe/AllSitesMerge/boxer_IBDNE_usingIBDSeqIBDSegs_May18ver.ne", header = T)
 
 #Remake time axes
 df$TimeToPresent = abs(max(df$Time)-df$Time)

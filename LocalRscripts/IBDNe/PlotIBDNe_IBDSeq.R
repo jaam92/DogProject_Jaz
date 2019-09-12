@@ -1,4 +1,4 @@
-setwd("~/Documents/DogProject_Jaz/IBDNe/AllSitesMerge/")
+setwd("~/Documents/DogProject_Jaz/LocalRscripts/IBDNe/AllSitesMerge/")
 library(ggplot2)
 library(grid)
 library(gridExtra)

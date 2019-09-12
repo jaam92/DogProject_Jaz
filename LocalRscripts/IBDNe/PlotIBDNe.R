@@ -1,4 +1,4 @@
-#setwd("~/Documents/DogProject_Jaz/IBDNe/Beagle/IBDNe_Beagle")
+#setwd("~/Documents/DogProject_Jaz/LocalRscripts/IBDNe/Beagle/IBDNe_Beagle")
 library(ggplot2)
 library(grid)
 library(gridExtra)

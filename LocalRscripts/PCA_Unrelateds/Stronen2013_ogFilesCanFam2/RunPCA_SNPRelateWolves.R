@@ -12,14 +12,14 @@ library(cowplot)
 library(dplyr)
 
 #Load Sample information
-setwd("~/Documents/DogProject_Jaz/PCA_Unrelateds")
-popmap = read.delim("~/Documents/DogProject_Jaz/BreedCladeInfo/SamplesUsedInfoWolves.txt", fill = T)
+setwd("~/Documents/DogProject_Jaz/LocalRscripts/PCA_Unrelateds")
+popmap = read.delim("~/Documents/DogProject_Jaz/LocalRscripts/BreedCladeInfo/SamplesUsedInfoWolves.txt", fill = T)
 sample.id = as.character(popmap$IID_Col2)
 population = as.character(popmap$Population)
 cluster = as.character(popmap$Cluster)
 
 # PLINK BED files for unpruned data aka random sample of 100000 snps
-setwd("~/Documents/DogProject_Jaz/PCA_Unrelateds/")
+setwd("~/Documents/DogProject_Jaz/LocalRscripts/PCA_Unrelateds/")
 #bed.fn = ("WolvesAll_22feb2012.bed")
 #bim.fn = ("WolvesAll_22feb2012.bim")
 #fam.fn = ("WolvesAll_22feb2012.fam")

@@ -7,7 +7,7 @@ library(dplyr)
 library(data.table)
 
 #Read files in
-setwd("~/Documents/DogProject_Jaz/BreedCladeInfo/")
+setwd("~/Documents/DogProject_Jaz/LocalRscripts/BreedCladeInfo/")
 popmap = read.delim("MergedBreeds_CornellFitak.txt")
 cladeInfoWolves = read.table("popInfoWolves.txt")
 cladeInfoDogs = read.delim("cladeInfo.txt")

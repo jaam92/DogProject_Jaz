@@ -1,6 +1,6 @@
 #####Load Libraries
-source("~/Documents/DogProject_Jaz/OMIA/R_rainclouds.R")
-source("~/Documents/DogProject_Jaz/OMIA/SummarizeData.R")
+source("~/Documents/DogProject_Jaz/LocalRscripts/OMIA/R_rainclouds.R")
+source("~/Documents/DogProject_Jaz/LocalRscripts/OMIA/SummarizeData.R")
 library(cowplot)
 library(ggplot2)
 library(grid)

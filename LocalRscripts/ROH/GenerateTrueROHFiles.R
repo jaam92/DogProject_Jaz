@@ -2,8 +2,8 @@ library(dplyr)
 library(data.table)
 
 #Read ROH Files in 
-df = read.delim("~/Documents/DogProject_Jaz/ROH/mergedFile_FitakCornell_allChroms_vcfToolsROH_rmROHlessThan50snps.txt")
-#df = read.delim("~/Documents/DogProject_Jaz/ROH/Stronen2013_Wolves_Stronen2013_allChroms_vcfToolsROH_rmROHlessThan50snps.txt")
+df = read.delim("~/Documents/DogProject_Jaz/LocalRscripts/ROH/mergedFile_FitakCornell_allChroms_vcfToolsROH_rmROHlessThan50snps.txt")
+#df = read.delim("~/Documents/DogProject_Jaz/LocalRscripts/ROH/Stronen2013_Wolves_Stronen2013_allChroms_vcfToolsROH_rmROHlessThan50snps.txt")
 
 ##Length of autozygous segment
 df$AUTO_END = as.numeric(as.character(df$AUTO_END))

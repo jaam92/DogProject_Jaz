@@ -1,17 +1,17 @@
 #Set working directory and load libraries
-setwd("~/Documents/DogProject_Jaz/IBDSegs/")
+setwd("~/Documents/DogProject_Jaz/LocalRscripts/IBDSegs/")
 library(dplyr)
 library(data.table)
 library(cowplot)
 library(ggplot2)
 
 #Read Files in
-dfMerge = fread("~/Documents/DogProject_Jaz/IBDSegs/IBDSeq/MergedFitakCornell_allChroms_Haplotypes_IBDSeq.ibd")
-dfStronen = fread("~/Documents/DogProject_Jaz/IBDSegs/Stronen2013Wolves_allChroms_Haplotypes_IBDSeq.ibd")
-popmapMerge = read.delim("~/Documents/DogProject_Jaz/BreedCladeInfo/BreedAndCladeInfo_mergedFitakCornell.txt")
-popmapStronen = read.delim("~/Documents/DogProject_Jaz/BreedCladeInfo/Stronen2013_SamplesUsed.txt")
-orderPops = read.table("~/Documents/DogProject_Jaz/BreedCladeInfo/OrderPops.txt")
-#orderCluster = read.table("~/Documents/DogProject_Jaz/BreedCladeInfo/OrderCluster.txt")
+dfMerge = fread("~/Documents/DogProject_Jaz/LocalRscripts/IBDSegs/IBDSeq/MergedFitakCornell_allChroms_Haplotypes_IBDSeq.ibd")
+dfStronen = fread("~/Documents/DogProject_Jaz/LocalRscripts/IBDSegs/Stronen2013Wolves_allChroms_Haplotypes_IBDSeq.ibd")
+popmapMerge = read.delim("~/Documents/DogProject_Jaz/LocalRscripts/BreedCladeInfo/BreedAndCladeInfo_mergedFitakCornell.txt")
+popmapStronen = read.delim("~/Documents/DogProject_Jaz/LocalRscripts/BreedCladeInfo/Stronen2013_SamplesUsed.txt")
+orderPops = read.table("~/Documents/DogProject_Jaz/LocalRscripts/BreedCladeInfo/OrderPops.txt")
+#orderCluster = read.table("~/Documents/DogProject_Jaz/LocalRscripts/BreedCladeInfo/OrderCluster.txt")
 
 #Assign breed,clade,cluster etc. and bind dog and wolf together
 shortPopmapWolves = popmapStronen %>% select(IID_Col2,Population,Cluster)

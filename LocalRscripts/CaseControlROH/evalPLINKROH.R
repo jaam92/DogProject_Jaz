@@ -4,8 +4,8 @@ library(dplyr)
 library(tidyr)
 
 #Load Files
-IW_pheno = read.delim("~/Documents/DogProject_Jaz/ROH/IrishWolfhounds_Epilepsy.txt")
-ROH = read.delim("~/Documents/DogProject_Jaz/ROH/TrueROH_propCoveredwithin1SDMean_allChroms_mergedFitakCornell.txt")
+IW_pheno = read.delim("~/Documents/DogProject_Jaz/LocalRscripts/ROH/IrishWolfhounds_Epilepsy.txt")
+ROH = read.delim("~/Documents/DogProject_Jaz/LocalRscripts/ROH/TrueROH_propCoveredwithin1SDMean_allChroms_mergedFitakCornell.txt")
 
 #separate ROH by case and control
 IW_control = IW_pheno %>% filter(epilepsy_irishWolfhounds == 1)

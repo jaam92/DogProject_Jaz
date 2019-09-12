@@ -1,4 +1,4 @@
-setwd("~/Documents/DogProject_Jaz/IBDNe/AllSitesMerge/")
+setwd("~/Documents/DogProject_Jaz/LocalRscripts/IBDNe/AllSitesMerge/")
 library(ggplot2)
 library(grid)
 library(gridExtra)
@@ -35,9 +35,9 @@ for (i in seq_along(dfList)){
 }
 
 #Read in AKC data
-AKC_transposed = read.delim("~/Documents/DogProject_Jaz/AKC/AKC_1926thru2005_NeTransposed.txt", check.names = F)
+AKC_transposed = read.delim("~/Documents/DogProject_Jaz/LocalRscripts/AKC/AKC_1926thru2005_NeTransposed.txt", check.names = F)
 
-#pdf("~/Documents/DogProject_Jaz/AKC/AKC_vs_IBDNe.pdf")
+#pdf("~/Documents/DogProject_Jaz/LocalRscripts/AKC/AKC_vs_IBDNe.pdf")
 
 Plot1 = ggplot() + geom_point(data = AKC_transposed, aes(x=abs(Time-2005), y= log10(boxer), colour="red")) + geom_point(data=boxer, aes(x=GEN*4, y=log10(NE), colour="blue")) + xlim(0,200)  + scale_colour_manual(name="Data Source", values=c( blue="blue",red="red"), label=c("IBDNe","AKC")) + labs(x="Time (Years Ago)", y="Log10(Population Size)") + ggtitle("boxer") + theme_bw()+ theme(plot.title=element_text(size =18, face = "bold", hjust=0.5), axis.text.x = element_text(size  = 24, vjust=1, hjust=0.5), axis.text.y = element_text(size  = 24), axis.title=element_text(size=24),legend.title=element_text(size=24), legend.text=element_text(size=18))
 

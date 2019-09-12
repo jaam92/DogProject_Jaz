@@ -3,13 +3,13 @@ library(dplyr)
 library(data.table)
 
 #####Load Files
-omiaGenes = read.delim("~/Documents/DogProject_Jaz/OMIA/omia-genes_v2.txt", fill = TRUE)
-causalVars = read.delim("~/Documents/DogProject_Jaz/OMIA/causalVars_OMIA.txt")
-ibdSegs = fread("~/Documents/DogProject_Jaz/IBDNe/MakeInputFile/cornell_canine_allChroms_phasedHaplotypes_shapeIT.ibd")
-Unrelated_sampsGrEql30 = read.delim("~/Documents/DogProject_Jaz/IBDNe/MakeInputFile/UnrelatedIndividuals_grEql30.txt")
-popmap = read.delim("~/Documents/DogProject_Jaz/BreedCladeInfo/breeds_dryad.txt")
-cladeInfo = read.delim("~/Documents/DogProject_Jaz/BreedCladeInfo/BreedAndCladeInfo.txt")
-censusSizes = read.delim("~/Documents/DogProject_Jaz/BreedCladeInfo/CensusData_sorted_May2014.txt")
+omiaGenes = read.delim("~/Documents/DogProject_Jaz/LocalRscripts/OMIA/omia-genes_v2.txt", fill = TRUE)
+causalVars = read.delim("~/Documents/DogProject_Jaz/LocalRscripts/OMIA/causalVars_OMIA.txt")
+ibdSegs = fread("~/Documents/DogProject_Jaz/LocalRscripts/IBDNe/MakeInputFile/cornell_canine_allChroms_phasedHaplotypes_shapeIT.ibd")
+Unrelated_sampsGrEql30 = read.delim("~/Documents/DogProject_Jaz/LocalRscripts/IBDNe/MakeInputFile/UnrelatedIndividuals_grEql30.txt")
+popmap = read.delim("~/Documents/DogProject_Jaz/LocalRscripts/BreedCladeInfo/breeds_dryad.txt")
+cladeInfo = read.delim("~/Documents/DogProject_Jaz/LocalRscripts/BreedCladeInfo/BreedAndCladeInfo.txt")
+censusSizes = read.delim("~/Documents/DogProject_Jaz/LocalRscripts/BreedCladeInfo/CensusData_sorted_May2014.txt")
 #####Modify OMIA Files
 
 #Reformat OMIA files

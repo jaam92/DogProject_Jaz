@@ -5,10 +5,10 @@ library(cowplot)
 library(ggplot2)
 
 #Read Files in 
-IBDScores = read.delim("~/Documents/DogProject_Jaz/IBDSegs/IBDScoresPerPopulation.txt")
-ROHScores = read.delim("~/Documents/DogProject_Jaz/ROH/ROHScoresPerPopulation.txt")
-orderPops = read.table("~/Documents/DogProject_Jaz/BreedCladeInfo/OrderPops.txt")
-#orderCluster = read.table("~/Documents/DogProject_Jaz/BreedCladeInfo/OrderCluster.txt")
+IBDScores = read.delim("~/Documents/DogProject_Jaz/LocalRscripts/IBDSegs/IBDScoresPerPopulation.txt")
+ROHScores = read.delim("~/Documents/DogProject_Jaz/LocalRscripts/ROH/ROHScoresPerPopulation.txt")
+orderPops = read.table("~/Documents/DogProject_Jaz/LocalRscripts/BreedCladeInfo/OrderPops.txt")
+#orderCluster = read.table("~/Documents/DogProject_Jaz/LocalRscripts/BreedCladeInfo/OrderCluster.txt")
 
 #Rename column and merge
 names(IBDScores)[1] = "Population"

@@ -13,7 +13,7 @@ library(randomcoloR)
 library(dplyr)
 
 # PLINK BED files for unpruned data aka random sample of 100000 snps
-setwd("~/Documents/DogProject_Jaz/PCA_Unrelateds/Hayward2016_ogFiles/")
+setwd("~/Documents/DogProject_Jaz/LocalRscripts/PCA_Unrelateds/Hayward2016_ogFiles/")
 bed.fn = ("cornell_canine_updatedFID.bed")
 bim.fn = ("cornell_canine_updatedFID.bim")
 fam.fn = ("cornell_canine_updatedFID.fam")
@@ -39,11 +39,11 @@ pca$sample.id = gsub("-.*","",pca$sample.id) #remove the breed info from sampleI
 pc
 
 #Load Sample information
-popmap = read.delim("~/Documents/DogProject_Jaz/BreedCladeInfo/breeds_dryad.txt")
+popmap = read.delim("~/Documents/DogProject_Jaz/LocalRscripts/BreedCladeInfo/breeds_dryad.txt")
 popmap$breed = gsub("_dog_.*","",popmap$breed) #turn village dog to just village
 sample.id = as.character(popmap$dogID)
 population = as.character(popmap$breed)
-breedCladeInfo = read.delim("~/Documents/DogProject_Jaz/BreedCladeInfo/BreedAndCladeInfo_mergedFitakCornell.txt")
+breedCladeInfo = read.delim("~/Documents/DogProject_Jaz/LocalRscripts/BreedCladeInfo/BreedAndCladeInfo_mergedFitakCornell.txt")
 
 #Make data frame with first two pcs
 df_PCA = data.frame(sample.id = pca$sample.id, population = factor(population)[match(pca$sample.id, sample.id)], EV1 = pca$eigenvect[,1], EV2 = pca$eigenvect[,2], EV3 = pca$eigenvect[,3], EV4 = pca$eigenvect[,4],stringsAsFactors = FALSE)
