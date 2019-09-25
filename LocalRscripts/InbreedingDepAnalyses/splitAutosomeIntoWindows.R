@@ -18,7 +18,7 @@ for(i in 1:dim(chroms)[1]){
 }
 newGeneSet = bind_rows(dataList) %>%
   select(chrom, startPos, endPos) %>%
-  mutate(startPos = format(startPos, scientific = FALSE),
-         endPos = format(endPos, scientific = FALSE))
+  mutate(startPos = as.integer(startPos),
+         endPos = as.integer(endPos))
 
 write.table(newGeneSet, file = "~/DogProject_Jaz/LocalRscripts/InbreedingDepAnalyses/Autosome_50KbWindows.bed", col.names = F, row.names = F, quote = F, sep = "\t")
