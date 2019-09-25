@@ -8,7 +8,7 @@ chroms = read.delim("~/DogProject_Jaz/LocalRscripts/InbreedingDepAnalyses/chromo
 #Break chroms up into (50Kb) steps
 dataList = list()
 for(i in 1:dim(chroms)[1]){
-  ChromStepSize = seq.int(from = 0, to = chroms[i,2], by = 50000) %>%
+  ChromStepSize = seq.int(from = chroms[i,3], to = chroms[i,2], by = 50000) %>%
     as.data.frame() %>%
     dplyr::rename("endPos" = ".") %>%
     mutate(startPos = endPos - 50000,
@@ -21,4 +21,4 @@ newGeneSet = bind_rows(dataList) %>%
   mutate(startPos = format(startPos, scientific = FALSE),
          endPos = format(endPos, scientific = FALSE))
 
-#write.table(newGeneSet, file = "~/DogProject_Jaz/LocalRscripts/InbreedingDepAnalyses/Autosome_50KbWindows.bed", col.names = F, row.names = F, quote = F, sep = "\t")
+write.table(newGeneSet, file = "~/DogProject_Jaz/LocalRscripts/InbreedingDepAnalyses/Autosome_50KbWindows.bed", col.names = F, row.names = F, quote = F, sep = "\t")
