@@ -21,4 +21,4 @@ newGeneSet = bind_rows(dataList) %>%
   mutate(startPos = format(startPos, scientific = FALSE),
          endPos = format(endPos, scientific = FALSE))
 
-#write.table(newGeneSet, file = "~/DogProject_Jaz/LocalRscripts/InbreedingDepAnalyses/Autosome_50KbWindows.bed", col.names = F, row.names = F, quote = F, sep = " ", )
+#write.table(newGeneSet, file = "~/DogProject_Jaz/LocalRscripts/InbreedingDepAnalyses/Autosome_50KbWindows.bed", col.names = F, row.names = F, quote = F, sep = "\t")
