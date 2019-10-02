@@ -1,14 +1,12 @@
 #load libraries 
-library("dplyr")
-library("ggplot2")
+library("tidyverse")
 
 #set working directory and load files
-setwd("~/Desktop/abidata")
-ensemblGenes = read.table("ForAbi_EnsemblGenes_CanFam3.1_SingleTranscript.bed", col.names = c("chrom", "exonStart", "exonStop","GeneName"), stringsAsFactors = F)
+setwd("~/Documents/DogProject_Jaz/LocalRscripts/InbreedingDepAnalyses/")
+ensemblGenes = read.table("~/Documents/DogProject_Jaz/InbreedingDepression/ForAbi_EnsemblGenes_CanFam3.1_SingleTranscript.bed", col.names = c("chrom", "exonStart", "exonStop","GeneName"), stringsAsFactors = F)
 
-regionNonOverlaps = read.table("ExonRegion_NonOverlapsROH.bed",  col.names = c("chrom", "exonStart", "exonStop","GeneName"), stringsAsFactors = F) %>%
+regionNonOverlaps = read.table("~/Documents/DogProject_Jaz/InbreedingDepression/vcftools/ExonRegion_NonOverlapsROH_vcfTools.bed",  col.names = c("chrom", "exonStart", "exonStop","GeneName"), stringsAsFactors = F) %>%
         mutate(nonROH = "1")
-
 
 #gives the space in between exons within a gene
 ExonSpace = ensemblGenes %>%
