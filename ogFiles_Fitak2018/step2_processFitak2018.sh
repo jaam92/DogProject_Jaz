@@ -34,5 +34,5 @@
 
 
 ###Update the individual ID and FID to include breed and species
-#plink --bfile MERGED.clean.Fitak2018.LiftOverToCanFam3.updatedRSids --dog --update-ids update_IIDs_Fatik_final.txt --make-bed --out MERGED.clean.Fitak2018.LiftOverToCanFam3.updatedRSids.updateIID
+#plink --bfile MERGED.clean.Fitak2018.LiftOverToCanFam3.updatedRSids --dog --update-ids update_IIDs_Fitak_final.txt --make-bed --out MERGED.clean.Fitak2018.LiftOverToCanFam3.updatedRSids.updateIID
 
