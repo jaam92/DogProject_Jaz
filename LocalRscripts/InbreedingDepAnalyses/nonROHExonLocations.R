@@ -1,14 +1,12 @@
 #load libraries 
-library("dplyr")
-library("ggplot2")
+library("tidyverse")
 
 #set working directory and load files
-setwd("~/Desktop/abidata")
-ensemblGenes = read.table("ForAbi_EnsemblGenes_CanFam3.1_SingleTranscript.bed", col.names = c("chrom", "exonStart", "exonStop","GeneName"), stringsAsFactors = F)
-
-regionNonOverlaps = read.table("ExonRegion_NonOverlapsROH.bed",  col.names = c("chrom", "exonStart", "exonStop","GeneName"), stringsAsFactors = F) %>%
+setwd("~/Documents/DogProject_Jaz/LocalRscripts/InbreedingDepAnalyses/")
+ensemblGenes = read.table("~/Documents/DogProject_Jaz/InbreedingDepression/ForAbi_EnsemblGenes_CanFam3.1_SingleTranscript.bed", col.names = c("chrom", "exonStart", "exonStop","GeneName"), stringsAsFactors = F)
+genes = read.delim()
+regionNonOverlaps = read.table("~/Documents/DogProject_Jaz/InbreedingDepression/vcftools/ExonRegion_NonOverlapsROH_vcfTools.bed",  col.names = c("chrom", "exonStart", "exonStop","GeneName"), stringsAsFactors = F) %>%
         mutate(nonROH = "1")
-
 
 #gives the space in between exons within a gene
 ExonSpace = ensemblGenes %>%
@@ -23,9 +21,25 @@ nonROHExonLocation = ensemblGenes %>%
 
 nonROHExonLocation[is.na(nonROHExonLocation)] <- 0 #replace NA with 0
 
+
 #plot the location of exons in roh or not
-ggplot(nonROHExonLocation, aes(x = exonStart, y = nonROH)) +
-        geom_point() + 
-        facet_wrap(~ GeneName, scales = "free") +
+TSSLength = merge(nonROHExonLocation, ExonSpace) %>% 
+        group_by(chrom, GeneName) %>% 
+        summarise(TSSLength = sum(diff)) 
+TSSInfo = merge(nonROHExonLocation, ExonSpace) %>% 
+        group_by(chrom, GeneName) %>%
+        slice(which.min(exonStart)) %>%
+        select(chrom, exonStart, GeneName) %>%
+        mutate(TSSLength = TSSLength$TSSLength[match(GeneName, TSSLength$GeneName)]) %>%
+        ungroup()
+#rm(TSSLength)
+
+plotDF = merge(ExonSpace, TSSInfo)
+
+plotDF$distTSS = lag(plotDF$diff) + plotDF$diff
+plotDF$propGene = ifelse(is.na(plotDF$distTSS), "0", round(plotDF$distTSS/TSSLength$TSSLength[match(plotDF$GeneName, TSSLength$GeneName)], digits = 2))
+
+ggplot(plotDF, aes(x = propGene, fill=GeneName)) +
+        geom_density() + 
         theme_bw() +
-        theme(axis.text.x = element_blank())
+        theme(legend.position = "none")
