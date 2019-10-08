@@ -56,12 +56,12 @@ Relateds = KINGdf %>%
   filter(kinship >= 1/16)
 
 #check that individuals are at most first cousins
-unrelated.ibd.robust = snpgdsIBDKING(genofile, sample.id=newSampIds,family.id=gsub(".*-","",newSampIds),snp.id=snpset.id, num.thread=2)
-unrelatedKING = snpgdsIBDSelection(unrelated.ibd.robust)
-cat(sprintf("check that individuals are at most first cousins, max should be about 0.06"))
-summary(unrelatedKING$kinship)
-
 newSampIds  = gdsSampIDs[!(gdsSampIDs %in% unique(Relateds$ID1))]
+#unrelated.ibd.robust = snpgdsIBDKING(genofile, sample.id=newSampIds,family.id=gsub(".*-","",newSampIds),snp.id=snpset.id, num.thread=2)
+#unrelatedKING = snpgdsIBDSelection(unrelated.ibd.robust)
+#cat(sprintf("check that individuals are at most first cousins, max should be about 0.06"))
+#summary(unrelatedKING$kinship)
+
 dfUnrelateds = cbind.data.frame(gsub('(.*)-\\w+', '\\1', newSampIds), gsub(".*-","",newSampIds))
 names(dfUnrelateds)[1] = "Unrelateds"
 names(dfUnrelateds)[2] = "breed"
