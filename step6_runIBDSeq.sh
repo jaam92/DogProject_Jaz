@@ -7,10 +7,10 @@ in_dir='/u/home/j/jmooney3/klohmueldata/jazlyn_data/DogProject_Jaz/splitVCF'
 out_dir='/u/home/j/jmooney3/klohmueldata/jazlyn_data/DogProject_Jaz/IBDSeq'
 ibdSeq_dir='/u/home/j/jmooney3/klohmueldata/jazlyn_data/software/Phasing_IBD/IBDSeq'
 
-CHROM=${SGE_TASK_ID}
-
+#CHROM=${SGE_TASK_ID}
+CHROM=38
 #Files
-vcfin=${in_dir}/'MergedFile_CornellCanineFitak_UnrelatedsOnly_chr'${CHROM}'.vcf'
+vcfin=${in_dir}/'MergedFile_CornellCanineFitak_UnrelatedsOnly_chr'${CHROM}'.vcf.gz'
 ibdout=${out_dir}/'MergedFile_CornellCanineFitak_UnrelatedsOnly_chr'${CHROM}'_Haplotypes_IBDSeq'
 
 #Load Java Module
