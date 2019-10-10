@@ -1,6 +1,6 @@
 #####Load Libraries
-source("~/Documents/DogProject_Jaz/LocalRscripts/OMIA/R_rainclouds.R")
-source("~/Documents/DogProject_Jaz/LocalRscripts/OMIA/SummarizeData.R")
+source("~/DogProject_Jaz/LocalRscripts/OMIA/R_rainclouds.R")
+source("~/DogProject_Jaz/LocalRscripts/OMIA/SummarizeData.R")
 library(cowplot)
 library(ggplot2)
 library(grid)
@@ -11,27 +11,74 @@ library(randomcoloR)
 
 ######Plot Linear Regression Function###
 ggplotRegression = function (fit) {
-  require(ggplot2)
-  
-  ggplot(fit$model, aes_string(x = names(fit$model)[2], y = names(fit$model)[1])) + geom_point(size = 2) + stat_smooth( method = 'lm', col = "blue") +  theme_bw() + 
+  ggplot(fit$model, aes_string(x = names(fit$model)[2], y = names(fit$model)[1])) + 
+    geom_point(size = 2) + 
+    stat_smooth( method = 'lm', col = "blue") +  
+    theme_bw() + 
     labs(title = bquote(R^2== ~.(signif(summary(fit)$adj.r.squared, 5))~"&"~"p"==~.(signif(summary(fit)$coef[2,4], 5))))
   
 }
 
-######Plot
+######Plot Causal Vars Fxn ######
 ######Labelling the top 5% of Scores and ~1% of Causal Var Counts
+plotCausal = function(dataFrame, scoreCutOff, xaxisLabel){
+  ggplot(dataFrame, aes(x=dataFrame$NormPopScore, y=dataFrame$CausalVars)) + 
+  geom_point(aes(colour = cut(dataFrame$CausalVars, c(-Inf, 0, 1, 5, 20))),
+               size = 3) + 
+  scale_color_manual(name = "Count Causal Variants", 
+                       values = c("(-Inf,0]" = "black","(0,1]" = "yellow", "(1,5]" = "orange", "(5,20]" = "red"),
+                       labels = c("0","1", "1 < variants <= 5", "5 < variants <= 20")) + 
+  geom_text_repel(aes(label=ifelse(dataFrame$CausalVars >= 10 | dataFrame$NormPopScore > scoreCutOff, as.character(Population),''))) + 
+  theme_bw() +
+  theme(plot.title=element_text(size = 18, face = "bold", hjust= 0.5), 
+          axis.text.x = element_text(size = 24, vjust= 1, hjust= 0.5), 
+          axis.text.y = element_text(size = 24), 
+          axis.title=element_text(size= 24), 
+          legend.title=element_text(size= 24), 
+          legend.text=element_text(size= 18)) +
+  labs(x=paste(xaxisLabel), y="Count Causal Variants") 
+}
+
+######Plot Causal Vars with Correlation Fxn ######
+######Labelling the top 5% of Scores and ~1% of Causal Var Counts
+plotCausalCorrs = function(regModel, dataFrame, varOfInterest, scoreCutOff, xaxisLabel){
+  selectVarofInterestCol = enquo(varOfInterest)
+  ggplotRegression(regModel) + 
+  ggplot(dataFrame, aes(x=dataFrame$NormPopScore, y=dataFrame$CausalVars)) + 
+  geom_point(aes(colour = cut(dataFrame$CausalVars, c(-Inf, 0, 1, 5, 20))),
+               size = 3) + 
+    scale_color_manual(name = "Count Causal Variants", 
+                       values = c("(-Inf,0]" = "black","(0,1]" = "yellow", "(1,5]" = "orange", "(5,20]" = "red"),
+                       labels = c("0","1", "1 < variants <= 5", "5 < variants <= 20")) + 
+  geom_text_repel(aes(label=ifelse(dataFrame$CausalVars >= 10 | dataFrame$selectVarofInterestCol > scoreCutOff, as.character(Population),''))) + 
+  theme_bw() +
+  theme(plot.title=element_text(size = 18, face = "bold", hjust= 0.5), 
+          axis.text.x = element_text(size = 24, vjust= 1, hjust= 0.5), 
+          axis.text.y = element_text(size = 24), 
+          axis.title=element_text(size= 24), 
+          legend.title=element_text(size= 24), 
+          legend.text=element_text(size= 18)) +
+  labs(x=paste(xaxisLabel), y="Count Causal Variants") 
+}
 
 ####Plot without Correlation
-pROHScore = ggplot(FinalROHScores,aes(x=FinalROHScores$NormPopScore, y=FinalROHScores$CausalVars)) + geom_point(aes(colour = cut(FinalROHScores$CausalVars, c(-Inf, 0, 1, 5, 20))), size = 3)+ scale_color_manual(name = "Count Causal Variants", values = c("(-Inf,0]" = "black","(0,1]" = "yellow", "(1,5]" = "orange", "(5,20]" = "red"),labels = c("0","1", "1 < variants <= 5", "5 < variants <= 20")) + geom_text_repel(aes(label=ifelse(FinalROHScores$CausalVars >= 10 |FinalROHScores$NormPopScore > 200, as.character(Population),''))) + labs(x="ROH Score in Mb (Normalized)", y="Count Causal Variants") 
+pROHScore = plotCausal(FinalROHScores, 200, "ROH Score in Mb (Normalized)")
 
-pIBDScore = ggplot(FinalIBDScores,aes(x=FinalIBDScores$NormPopScore, y=FinalIBDScores$CausalVars)) + geom_point(aes(colour = cut(FinalIBDScores$CausalVars, c(-Inf, 0, 1, 5, 20))), size = 3)+ scale_color_manual(name = "Count Causal Variants", values = c("(-Inf,0]" = "black","(0,1]" = "yellow", "(1,5]" = "orange", "(5,20]" = "red"),labels = c("0","1", "1 < variants <= 5", "5 < variants <= 20")) + geom_text_repel(aes(label=ifelse(FinalIBDScores$CausalVars >= 10 |FinalIBDScores$NormPopScore > 900, as.character(Population),''))) + labs(x="IBD Score in Mb (Normalized)", y="Count Causal Variants") 
+pIBDScore = plotCausal(FinalROHScores, 900, "IBD Score in Mb (Normalized)")
 
 #####Multiplot scores and Causals
-AlternativeScoresCausal = plot_grid(pROHScore + theme(legend.position="none"), pIBDScore + theme(legend.position="none", axis.title.y = element_blank()), nrow = 1, align = "hv")
+AlternativeScoresCausal = plot_grid(pROHScore + theme(legend.position="none"), 
+                                    pIBDScore + theme(legend.position="none", axis.title.y = element_blank()),
+                                    nrow = 1, align = "hv")
+
 AlternativeFinalPlotScoresCausal= plot_grid(AlternativeScoresCausal, legendScores, rel_widths = c(2, 0.4))
 
 #####Plot with correlation
-plotPopularityCausVars = ggplotRegression(corrPopularitycausVars)  + geom_point(aes(colour = cut(PopularityDF$CausalVars, c(-Inf, 0, 1, 5, 20))), size = 3) + scale_color_manual(name = "Count Causal Variants", values = c("(-Inf,0]" = "black","(0,1]" = "yellow", "(1,5]" = "orange", "(5,20]" = "red"),labels = c("0","1", "1 < variants <= 5", "5 < variants <= 20")) + geom_text_repel(data=subset(PopularityDF, CausalVars >= 10 | OverallPopularityRank >= 160), aes(label=Population)) + labs(x="Ranked Overall Popularity", y="Count Causal Variants") + theme(plot.title=element_text(size =18, face = "bold", hjust=0.5), axis.text.x = element_text(size  = 24, vjust=1, hjust=0.5), axis.text.y = element_text(size  = 24), axis.title=element_text(size=24)) + theme(legend.title=element_text(size=24), legend.text=element_text(size=18)) 
+plotPopularityCausVars = ggplotRegression(corrPopularitycausVars)  +  
+  geom_point(aes(colour = cut(PopularityDF$CausalVars, c(-Inf, 0, 1, 5, 20))), size = 3) + 
+  scale_color_manual(name = "Count Causal Variants", values = c("(-Inf,0]" = "black","(0,1]" = "yellow", "(1,5]" = "orange", "(5,20]" = "red"),labels = c("0","1", "1 < variants <= 5", "5 < variants <= 20")) + 
+  geom_text_repel(data=subset(PopularityDF, CausalVars >= 10 | OverallPopularityRank >= 160), aes(label=Population)) + 
+  labs(x="Ranked Overall Popularity", y="Count Causal Variants") 
 
 plotFinalROHScoresCausVars = ggplotRegression(corrROHScorecausVars) + geom_point(aes(colour = cut(FinalROHScores$CausalVars, c(-Inf, 0, 1, 5, 20))), size = 3) + scale_color_manual(name = "Count Causal Variants", values = c("(-Inf,0]" = "black","(0,1]" = "yellow", "(1,5]" = "orange", "(5,20]" = "red"),labels = c("0","1", "1 < variants <= 5", "5 < variants <= 20")) + geom_text_repel(data=subset(FinalROHScores, CausalVars >= 10 | NormPopScore >= 200), aes(label=Population)) + labs(x="ROH Score in Mb (Normalized)", y="Count Causal Variants") + theme(plot.title=element_text(size =18, face = "bold", hjust=0.5), axis.text.x = element_text(size  = 24, vjust=1, hjust=0.5), axis.text.y = element_text(size  = 24), axis.title=element_text(size=24)) + theme(legend.title=element_text(size=24), legend.text=element_text(size=18)) 
 
