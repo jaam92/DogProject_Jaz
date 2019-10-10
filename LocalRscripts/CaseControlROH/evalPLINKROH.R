@@ -8,8 +8,10 @@ IW_pheno = read.delim("~/Documents/DogProject_Jaz/LocalRscripts/ROH/IrishWolfhou
 ROH = read.delim("~/Documents/DogProject_Jaz/LocalRscripts/ROH/TrueROH_propCoveredwithin1SDMean_allChroms_mergedFitakCornell.txt")
 
 #separate ROH by case and control
-IW_control = IW_pheno %>% filter(epilepsy_irishWolfhounds == 1)
-IW_case = IW_pheno %>% filter(epilepsy_irishWolfhounds == 2)
+IW_control = IW_pheno %>% 
+  filter(epilepsy_irishWolfhounds == 1)
+IW_case = IW_pheno %>% 
+  filter(epilepsy_irishWolfhounds == 2)
 
 #Make union of ROH
 DT = as.data.table(ROH)
@@ -26,10 +28,18 @@ UnionROH = DT[, list(AUTO_START=min(AUTO_START),AUTO_END=max(AUTO_END),INDV=list
 
 #Unnest split ROH
 names(UnionROH)[2] = "chrom"
-sepINDVconsensus = UnionROH %>% select(CHROM, AUTO_START,AUTO_END,INDV) %>% mutate(INDV= strsplit(as.character(INDV), ",")) %>% unnest(INDV) 
+sepINDVconsensus = UnionROH %>% select(CHROM, AUTO_START,AUTO_END,INDV) %>% mutate(INDV= strsplit(as.character(INDV), ",")) %>% 
+  unnest(INDV) 
 
 #Find case control
-IW_control_ROH = sepINDVconsensus %>% filter(INDV %in% IW_control$dogID) %>% group_by(AUTO_START,AUTO_END) %>% count() %>% rename(countControl = n) %>% as.data.frame() 
+IW_control_ROH = sepINDVconsensus %>% 
+  filter(INDV %in% IW_control$dogID) %>% 
+  group_by(AUTO_START,AUTO_END) %>% 
+  count() %>% 
+  rename(countControl = n) 
 
-IW_case_ROH = ROH %>% filter(FID %in% IW_case$dogID) %>% group_by(POOL) %>% count() %>% rename(countCase = n) %>% as.data.frame() 
-
+IW_case_ROH = ROH %>% 
+  filter(FID %in% IW_case$dogID) %>% 
+  group_by(POOL) %>% 
+  count() %>% 
+  rename(countCase = n)
