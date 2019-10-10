@@ -1,17 +1,17 @@
 #Set working directory and load libraries
-setwd("~/DogProject_Jaz/LocalRscripts/ROH")
+setwd("~/Documents/DogProject_Jaz/LocalRscripts/ROH")
 library(tidyverse)
 library(data.table)
 library(cowplot)
 
 #Read Files in
-dfMerge = read.delim("~/DogProject_Jaz/LocalRscripts/ROH/TrueROH_propCoveredwithin1SDMean_allChroms_mergedFitakCornell.txt")
-#dfMerge = read.delim("~/DogProject_Jaz/LocalRscripts/ROH/Stronen2013SitesOnlyTrueROH_propCoveredwithin1SDMean_allChroms_mergedFitakCornell.txt")
-dfStronen = read.delim("~/DogProject_Jaz/LocalRscripts/ROH/Stronen2013_WolvesTrueROH_propCoveredwithin1SDMean_allChroms.txt") 
-popmapMerge = read.delim("~/DogProject_Jaz/LocalRscripts/BreedCladeInfo/BreedAndCladeInfo_mergedFitakCornell.txt")
-popmapStronen = read.delim("~/DogProject_Jaz/LocalRscripts/BreedCladeInfo/Stronen2013_SamplesUsed.txt")
-orderPops = read.table("~/DogProject_Jaz/LocalRscripts/BreedCladeInfo/OrderPops.txt")
-#orderCluster = read.table("~/DogProject_Jaz/LocalRscripts/BreedCladeInfo/OrderCluster.txt")
+dfMerge = read.delim("~/Documents/DogProject_Jaz/LocalRscripts/ROH/TrueROH_propCoveredwithin1SDMean_allChroms_mergedFitakCornell.txt")
+#dfMerge = read.delim("~/Documents/DogProject_Jaz/LocalRscripts/ROH/Stronen2013SitesOnlyTrueROH_propCoveredwithin1SDMean_allChroms_mergedFitakCornell.txt")
+dfStronen = read.delim("~/Documents/DogProject_Jaz/LocalRscripts/ROH/Stronen2013_WolvesTrueROH_propCoveredwithin1SDMean_allChroms.txt") 
+popmapMerge = read.delim("~/Documents/DogProject_Jaz/LocalRscripts/BreedCladeInfo/BreedAndCladeInfo_mergedFitakCornell.txt")
+popmapStronen = read.delim("~/Documents/DogProject_Jaz/LocalRscripts/BreedCladeInfo/Stronen2013_SamplesUsed.txt")
+orderPops = read.table("~/Documents/DogProject_Jaz/LocalRscripts/BreedCladeInfo/OrderPops.txt")
+#orderCluster = read.table("~/Documents/DogProject_Jaz/LocalRscripts/BreedCladeInfo/OrderCluster.txt")
 
 #Concatenate dataframes 
 WolfDog = rbind.data.frame(dfMerge,dfStronen)
