@@ -1,7 +1,6 @@
+#Load libraries
 library(IRanges)
-library(data.table)
 library(dplyr)
-library(tidyr)
 
 #Load Files
 IW_pheno = read.delim("~/Documents/DogProject_Jaz/LocalRscripts/ROH/IrishWolfhounds_Epilepsy.txt")
@@ -28,7 +27,9 @@ UnionROH = DT[, list(AUTO_START=min(AUTO_START),AUTO_END=max(AUTO_END),INDV=list
 
 #Unnest split ROH
 names(UnionROH)[2] = "chrom"
-sepINDVconsensus = UnionROH %>% select(CHROM, AUTO_START,AUTO_END,INDV) %>% mutate(INDV= strsplit(as.character(INDV), ",")) %>% 
+sepINDVconsensus = UnionROH %>% 
+  select(CHROM, AUTO_START,AUTO_END,INDV) %>% 
+  mutate(INDV= strsplit(as.character(INDV), ",")) %>% 
   unnest(INDV) 
 
 #Find case control
