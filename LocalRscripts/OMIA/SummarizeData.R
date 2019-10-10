@@ -1,19 +1,19 @@
 #####Set Directory
-setwd("~/DogProject_Jaz/LocalRscripts/OMIA")
+setwd("~/Documents/Documents/DogProject_Jaz/LocalRscripts/OMIA")
 
 #####Load Libraries
 library(dplyr)
 library(tidyr)
 
 ######Read Files in 
-OMIA = read.delim("~/DogProject_Jaz/LocalRscripts/OMIA/processedCausalVarsOMIA.txt")
-#LifeSpanData = read.delim("~/Documents/DogProject_Jaz/LocalRscripts/AKC/Adams2010_BreedLifeSpan_addBreeds.txt")
-AKC = read.delim("~/DogProject_Jaz/LocalRscripts/AKC/AKC_breedPopularity_1926thru2005.txt", check.names = F)
-IBDScores = read.delim("~/DogProject_Jaz/LocalRscripts/IBDSegs/IBDScoresPerPopulation.txt")
-ROHScores = read.delim("~/DogProject_Jaz/LocalRscripts/ROH/ROHScoresPerPopulation.txt")
-popmapMerge = read.delim("~/DogProject_Jaz/LocalRscripts/BreedCladeInfo/BreedAndCladeInfo_mergedFitakCornell.txt")
-orderPops = read.table("~/DogProject_Jaz/LocalRscripts/BreedCladeInfo/OrderPops.txt")
-#orderCluster = read.table("~/Documents/DogProject_Jaz/LocalRscripts/BreedCladeInfo/OrderCluster.txt")
+OMIA = read.delim("~/Documents/DogProject_Jaz/LocalRscripts/OMIA/processedCausalVarsOMIA.txt")
+#LifeSpanData = read.delim("~/Documents/Documents/DogProject_Jaz/LocalRscripts/AKC/Adams2010_BreedLifeSpan_addBreeds.txt")
+AKC = read.delim("~/Documents/DogProject_Jaz/LocalRscripts/AKC/AKC_breedPopularity_1926thru2005.txt", check.names = F)
+IBDScores = read.delim("~/Documents/DogProject_Jaz/LocalRscripts/IBDSegs/IBDScoresPerPopulation.txt")
+ROHScores = read.delim("~/Documents/DogProject_Jaz/LocalRscripts/ROH/ROHScoresPerPopulation.txt")
+popmapMerge = read.delim("~/Documents/DogProject_Jaz/LocalRscripts/BreedCladeInfo/BreedAndCladeInfo_mergedFitakCornell.txt")
+orderPops = read.table("~/Documents/DogProject_Jaz/LocalRscripts/BreedCladeInfo/OrderPops.txt")
+#orderCluster = read.table("~/Documents/Documents/DogProject_Jaz/LocalRscripts/BreedCladeInfo/OrderCluster.txt")
 
 ###Create Data Frames to Process
 ###Set Populations and Clusters as factor so Wolves and dogs group together
