@@ -69,6 +69,8 @@ corrROHCountcausVars = lm(CausalVars~MeanROHperIndivCount, data = FinalROHScores
 corrIBDCountcausVars = lm(CausalVars~MeanIBDperIndivCount, data = FinalIBDScores)
 
 corrPopularitycausVars = lm(CausalVars~OverallPopularityRank, data = PopularityDF)
+corrPopularityROHScore = lm(NormPopScore~OverallPopularityRank, data = FinalROHScores)
+corrPopularityIBDScore = lm(NormPopScore~OverallPopularityRank, data = FinalIBDScores)
 
 #Does correcting for popularity improve associations with ROH and IBD
 multiVarcorrIBDScorecausVars = lm(CausalVars~NormPopScore + OverallPopularityRank, data = FinalIBDScores)
