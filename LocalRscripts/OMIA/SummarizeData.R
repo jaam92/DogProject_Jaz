@@ -1,6 +1,3 @@
-#####Set Directory
-setwd("~/Documents/Documents/DogProject_Jaz/LocalRscripts/OMIA")
-
 #####Load Libraries
 library(dplyr)
 library(tidyr)
