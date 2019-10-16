@@ -135,6 +135,7 @@ ggarrange(plotROHvsIBD,
           ncol = 2, 
           labels = c("A", "B"))
 
+
 #color by clade
 colourCount_pop = length(unique(comboDF$Clade)) 
 palette = distinctColorPalette(colourCount_pop)
@@ -161,3 +162,10 @@ RCIBD = plotRainClouds(FinalIBDScores, "IBD Score in Mb (Normalized)")
 
 ggarrange(RCROH, RCIBD + xlab(NULL))
 
+####Multiplot popularity with ROH and IBD Scores
+ggarrange(ggplotRegression(corrPopularityROHScore) + 
+            labs(x="Breed Popularity", y = "ROH Score(Mb) Normalized"), 
+          ggplotRegression(corrPopularityIBDScore) + 
+            labs(x="Breed Popularity", y = "IBD Score(Mb) Normalized"),
+          ncol = 2, 
+          labels = c("A", "B"))
