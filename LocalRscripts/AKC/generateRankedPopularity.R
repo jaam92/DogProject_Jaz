@@ -29,11 +29,20 @@ ggplot(percRankPerYear %>%
          filter(breed=="golden_retriever" | breed=="beagle" | breed == "affenpinscher" | breed== "yorkshire_terrier"), 
        aes(x=date,y=perRank, colour=breed, group=breed)) +
   geom_line(size=1) +
-  theme_bw()
+  scale_y_continuous(labels=scales::percent) +
+  labs(x = "Breed", y = "Popularity Percentile Rank") +
+  theme_bw() +
+  theme(plot.title=element_text(size =18, face = "bold", hjust=0.5), 
+        axis.text.x = element_text(size  = 24, vjust=1, hjust=0.5), 
+        axis.text.y = element_text(size  = 24), 
+        axis.title=element_text(size=24),
+        legend.title=element_text(size=24), 
+        legend.text=element_text(size=18), 
+        legend.position = "bottom") 
 
 
 #write out
-write.table(breedPop, "AKC_breedPopularity_1926thru2005.txt", sep = "\t", row.names = F, col.names = T, quote = F)
+#write.table(breedPop, "~/Documents/DogProject_Jaz/LocalRscripts/AKC/AKC_breedPopularity_1926thru2005.txt", sep = "\t", row.names = F, col.names = T, quote = F)
 
 
 
