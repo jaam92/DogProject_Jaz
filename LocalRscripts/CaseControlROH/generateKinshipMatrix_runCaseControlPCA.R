@@ -23,12 +23,6 @@ famIds = gsub(".*-","",sampIds) #make family ids
 snpset = snpgdsLDpruning(genofile, sample.id=sampIds, method="corr", slide.max.n=50, ld.threshold=0.3, maf = 0.05, autosome.only = F) 
 snpset.id = unlist(snpset)
 
-#IBD and kinship analysis with KING
-#Must be done on LD pruned data
-#Get sample ids and breed info from gds file
-gdsSampIDs = read.gdsn(index.gdsn(genofile, "sample.id"))
-breed.id = gsub(".*-","",gdsSampIDs)#remove everything before the dash to get breed
-
 ###Make a kinship matrix that accounts for known relatedness of samples
 #Run king
 king = snpgdsIBDKING(genofile, snp.id=snpset.id)
