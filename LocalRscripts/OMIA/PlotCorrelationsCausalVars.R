@@ -23,7 +23,7 @@ plotCausal = function(dataFrame, scoreCutOff, xaxisLabel){
   scale_color_manual(name = "Count Causal Variants", 
                        values = c("(-Inf,0]" = "black","(0,1]" = "yellow", "(1,5]" = "orange", "(5,20]" = "red"),
                        labels = c("0","1", "1 < variants <= 5", "5 < variants <= 20")) + 
-  geom_text_repel(aes(label=ifelse(dataFrame$CausalVars >= 10 | dataFrame$NormPopScore > scoreCutOff, as.character(Population),'')), size = 8) + 
+  geom_text_repel(aes(label=ifelse(dataFrame$CausalVars >= 10 | dataFrame$NormPopScore > scoreCutOff, as.character(Population),'')), size = 6) + 
   theme_bw() +
   theme(plot.title=element_text(size = 18, face = "bold", hjust= 0.5), 
           axis.text.x = element_text(size = 24, vjust= 1, hjust= 0.5), 
@@ -42,7 +42,7 @@ plotCausalCorrs = function(regModel, dataFrame, varOfInterest, scoreCutOff, xaxi
   scale_color_manual(name = "Count Causal Variants", 
                        values = c("(-Inf,0]" = "black","(0,1]" = "yellow", "(1,5]" = "orange", "(5,20]" = "red"),
                        labels = c("0","1", "1 < variants <= 5", "5 < variants <= 20")) + 
-  geom_text_repel(aes(label=ifelse(dataFrame$CausalVars >= 10 | dataFrame[,varOfInterest] > scoreCutOff, as.character(dataFrame$Population),'')), size = 8) + 
+  geom_text_repel(aes(label=ifelse(dataFrame$CausalVars >= 10 | dataFrame[,varOfInterest] > scoreCutOff, as.character(dataFrame$Population),'')), size = 6) + 
   theme_bw() +
   theme(plot.title=element_text(size = 18, face = "bold", hjust= 0.5), 
           axis.text.x = element_text(size = 24, vjust= 1, hjust= 0.5), 
@@ -107,6 +107,20 @@ OMIAplots_addAxes = annotate_figure(OMIAplots,
                                                      face = "bold", 
                                                      rot = 90))
 
+ROHvsIBDCausals = ggarrange(plotFinalROHScoresCausVars + theme(axis.title.y = element_blank()), 
+                            plotFinalIBDScoresCausVars + theme(axis.title.y = element_blank()),
+                            nrow = 1, 
+                            labels = c("A", "B"),
+                            common.legend = T,
+                            legend = "right")
+
+ROHvsIBDCausals_addAxes = annotate_figure(ROHvsIBDCausals, 
+                left = text_grob("Count Causal Variants", 
+                                 size = 24, 
+                                 face = "bold", 
+                                 rot = 90))
+print(OMIAplots_addAxes)
+print(ROHvsIBDCausals_addAxes)
 ###Plot the ROH vs IBD relationship
 plotROHvsIBD = ggplotRegression(corrROHvsIBD) + 
   labs(x="IBD Score (Mb)", y = "ROH Score (Mb)") +
@@ -142,7 +156,7 @@ palette = distinctColorPalette(colourCount_pop)
 plotNormROHScorevsNormIBDScore = ggplotRegression(corrROHScorevsIBDScore) +
   geom_point(aes(colour=comboDF$Clade), size=3) + 
   scale_colour_manual(name= "Clade", values = palette, na.value="grey") +
-  geom_text_repel(data=subset(comboDF, NormPopScore_ROH >= 200 | NormPopScore_IBD > 900), aes(label=paste(Population,",",CausalVars)), size = 8) + 
+  geom_text_repel(data=subset(comboDF, NormPopScore_ROH >= 200 | NormPopScore_IBD > 900), aes(label=paste(Population,",",CausalVars)), size = 6) + 
   labs(x="IBD Score in Mb (Normalized)", y="ROH Score in Mb (Normalized)") +
   theme(plot.title=element_text(size =18, face = "bold", hjust=0.5), 
         axis.text.x = element_text(size  = 24, vjust=1, hjust=0.5), 
