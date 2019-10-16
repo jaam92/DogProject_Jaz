@@ -4,6 +4,7 @@ library(gdsfmt)
 library(SNPRelate)
 
 #Load files
+popmapDryad = read.delim("~/Documents/DogProject_Jaz/LocalRscripts/BreedCladeInfo/breeds_dryad.txt")
 phenotypes = read.delim("~/Documents/DogProject_Jaz/LocalRscripts/BreedCladeInfo/phenotypes.txt")
 unrelateds = read.table("~/Documents/DogProject_Jaz/LocalRscripts/PCA_Unrelateds/UnrelatedIndividuals_allBreeds_mergedFitakCornell.txt")
 genofile = snpgdsOpen("~/Documents/DogProject_Jaz/LocalRscripts/CaseControlROH/MergedFile_CornellCanineFitak_UnrelatedsOnly.gds")
@@ -32,13 +33,14 @@ runPCA = function(phenoColName, plotTitle){
   #Run PCA
   pca = snpgdsPCA(genofile, snp.id = snpset.ids, sample.id = samp.ids, autosome.only = F)
   #Look at percentage of variance explained by each PC
-  pc.percent = pca_goldens$varprop*100
+  pc.percent = pca$varprop*100
   pc = head(round(pc.percent,2))
   pca$sample.id = gsub('(.*)-\\w+', '\\1', pca$sample.id)
   
   #Make data frame with first two pcs
   df_PCA = data.frame(sample.id = pca$sample.id, 
                       status = factor(as.character(phenoOfInterest$status))[match(pca$sample.id, phenoOfInterest$dogID)],
+                      breed = factor(as.character(phenoOfInterest$breed))[match(pca$sample.id, phenoOfInterest$dogID)],
                       EV1 = pca$eigenvect[,1], 
                       EV2 = pca$eigenvect[,2], 
                       EV3 = pca$eigenvect[,3], 
@@ -57,8 +59,9 @@ runPCA = function(phenoColName, plotTitle){
           axis.title=element_text(size=20),
           legend.title=element_text(size=20), 
           legend.text=element_text(size=18))
-
-  return(pc1vs2)
+  
+  dataFrameAndPCA = list("dataFrame" = df_PCA, "plot" = pc1vs2)
+  return(dataFrameAndPCA)
 }
 
 #Make phenotypes data frame
@@ -69,3 +72,16 @@ FinalPhenotypes = phenotypes %>%
          Unrelated = ifelse(dogID %in% unrelateds$V1, 1, 0), 
          breed = popmapDryad$breed[match(dogID, popmapDryad$dogID)]) %>% 
   filter(Unrelated == 1) 
+
+#Grab phenotypes of interest
+phenotypes = colnames(FinalPhenotypes)[3:13]
+
+pdf(file = "~/Documents/DogProject_Jaz/LocalRscripts/CaseControlROH/allTraits_PCA.pdf", height = 8, width = 10)
+
+for(i in phenotypes){
+  title = paste(i)
+  x = runPCA(i, title)
+  print(x["plot"])
+}
+
+dev.off()
