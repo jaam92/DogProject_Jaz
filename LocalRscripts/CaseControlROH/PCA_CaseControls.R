@@ -14,7 +14,7 @@ gdsSampIDs = read.gdsn(index.gdsn(genofile, "sample.id"))
 breed.id = gsub(".*-","",gdsSampIDs)#remove everything before the dash to get breed
 
 #function for PCA
-runPCA = function(phenoColName, plotTitle){
+runPCA = function(phenoColName, plotTitle, shapeIndicator){
   phenoCol = enquo(phenoColName)
   phenoOfInterest = FinalPhenotypes %>% 
     select("dogID", "breed", !!phenoCol) %>% 
@@ -48,17 +48,32 @@ runPCA = function(phenoColName, plotTitle){
                       stringsAsFactors = FALSE) %>%
     na.omit()
   
-  #Plot the pca
-  pc1vs2 = ggplot(df_PCA, aes(y=EV2, x=EV1, colour=status)) +
-    geom_point(size=2) +
-    labs(y=bquote('PC2' ~'('~.(pc[2])~'%'~')'), x=bquote('PC1'~'('~.(pc[1])~'%'~')'), title = paste(plotTitle)) +
-    theme_bw() + 
-    theme(axis.text.x = element_text(size = 20), 
-          axis.text.y = element_text(size = 10), 
-          plot.title=element_text(size=26, face = "bold", hjust=0.5), 
-          axis.title=element_text(size=20),
-          legend.title=element_text(size=20), 
-          legend.text=element_text(size=18))
+  if (shapeIndicator == "0") {
+    #Plot the pca
+    pc1vs2 = ggplot(df_PCA, aes(y=EV2, x=EV1, colour=status)) +
+      geom_point(size=2) +
+      labs(y=bquote('PC2' ~'('~.(pc[2])~'%'~')'), x=bquote('PC1'~'('~.(pc[1])~'%'~')'), title = paste(plotTitle)) +
+      theme_bw() + 
+      theme(axis.text.x = element_text(size = 20), 
+            axis.text.y = element_text(size = 10), 
+            plot.title=element_text(size=26, face = "bold", hjust=0.5), 
+            axis.title=element_text(size=20),
+            legend.title=element_text(size=20), 
+            legend.text=element_text(size=18))
+  }else{
+    #Plot the pca
+    pc1vs2 = ggplot(df_PCA, aes(y=EV2, x=EV1, colour=status, shape = breed)) +
+      geom_point(size=2) +
+      labs(y=bquote('PC2' ~'('~.(pc[2])~'%'~')'), x=bquote('PC1'~'('~.(pc[1])~'%'~')'), title = paste(plotTitle)) +
+      theme_bw() + 
+      theme(axis.text.x = element_text(size = 20), 
+            axis.text.y = element_text(size = 10), 
+            plot.title=element_text(size=26, face = "bold", hjust=0.5), 
+            axis.title=element_text(size=20),
+            legend.title=element_text(size=20), 
+            legend.text=element_text(size=18))
+  }
+  
   
   dataFrameAndPCA = list("dataFrame" = df_PCA, "plot" = pc1vs2)
   return(dataFrameAndPCA)
@@ -73,15 +88,22 @@ FinalPhenotypes = phenotypes %>%
          breed = popmapDryad$breed[match(dogID, popmapDryad$dogID)]) %>% 
   filter(Unrelated == 1) 
 
-#Grab phenotypes of interest
+#Grab phenotypes of interest and send all output into a pdf
+#denote the breed on the GC PCA
 phenotypes = colnames(FinalPhenotypes)[3:13]
 
 pdf(file = "~/Documents/DogProject_Jaz/LocalRscripts/CaseControlROH/allTraits_PCA.pdf", height = 8, width = 10)
 
 for(i in phenotypes){
   title = paste(i)
-  x = runPCA(i, title)
-  print(x["plot"])
+  if (i != "GC_boxers_bulldogs") {
+    x = runPCA(phenoColName = i, plotTitle = title, shapeIndicator = "0")
+    print(x["plot"])
+  }else{
+    x = runPCA(phenoColName = i, plotTitle = title, shapeIndicator = "1")
+    print(x["plot"])  
+  }
+
 }
 
 dev.off()
