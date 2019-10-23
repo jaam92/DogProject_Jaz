@@ -1,12 +1,10 @@
 #Set working directory and load libraries
 setwd("~/Documents/DogProject_Jaz/LocalRscripts/ROH")
-library(ggplot2)
-library(reshape2)
-library(dplyr)
+library(tidyverse)
 library(randomcoloR)
 library(data.table)
 library(ggpubr)
-library(cowplot)
+
 
 #Read Files in
 dfMerge = read.delim("~/Documents/DogProject_Jaz/LocalRscripts/ROH/TrueROH_propCoveredwithin1SDMean_allChroms_mergedFitakCornell.txt")
@@ -20,11 +18,26 @@ orderCluster = read.table("~/Documents/DogProject_Jaz/LocalRscripts/BreedCladeIn
 WolfDog = rbind.data.frame(dfMerge,dfStronen)
 
 #Split into length intervals, find length for each indiv, add column in Gb, add range column
-aggIntROH = WolfDog %>% select(AUTO_LEN, INDV) %>% filter(AUTO_LEN < 1000000) %>% group_by(INDV) %>% summarise(totalLen = sum(AUTO_LEN)) %>% mutate(totalLenGb = totalLen/10^9, Range = "[0.1-1)Mb") %>% as.data.frame()
+aggIntROH = WolfDog %>% 
+  select(AUTO_LEN, INDV) %>% 
+  filter(AUTO_LEN < 1000000) %>% 
+  group_by(INDV) %>% 
+  summarise(totalLen = sum(AUTO_LEN)) %>% 
+  mutate(totalLenGb = totalLen/10^9, Range = "[0.1-1)Mb")
 
-aggLongROH = WolfDog %>% select(AUTO_LEN, INDV) %>% filter(AUTO_LEN >= 1000000 & AUTO_LEN < 10000000) %>% group_by(INDV) %>% summarise(totalLen = sum(AUTO_LEN)) %>% mutate(totalLenGb = totalLen/10^9, Range = "[1-10)Mb")  %>% as.data.frame()
+aggLongROH = WolfDog %>% 
+  select(AUTO_LEN, INDV) %>% 
+  filter(AUTO_LEN >= 1000000 & AUTO_LEN < 10000000) %>% 
+  group_by(INDV) %>% 
+  summarise(totalLen = sum(AUTO_LEN)) %>% 
+  mutate(totalLenGb = totalLen/10^9, Range = "[1-10)Mb")  
 
-aggVLongROH = WolfDog %>% select(AUTO_LEN, INDV) %>% filter(AUTO_LEN >= 10000000) %>% group_by(INDV) %>% summarise(totalLen = sum(AUTO_LEN)) %>% mutate(totalLenGb = totalLen/10^9, Range = "[10-63)Mb") %>% as.data.frame()
+aggVLongROH = WolfDog %>% 
+  select(AUTO_LEN, INDV) %>% 
+  filter(AUTO_LEN >= 10000000) %>% 
+  group_by(INDV) %>% 
+  summarise(totalLen = sum(AUTO_LEN)) %>% 
+  mutate(totalLenGb = totalLen/10^9, Range = "[10-63)Mb") 
 
 #Merged interval data frames
 FinalDF = rbind(aggIntROH, aggLongROH, aggVLongROH)
@@ -37,8 +50,12 @@ names(shortPopmapWolves)[1] = "dogID"
 names(shortPopmapWolves)[2] = "breed"
 names(shortPopmapWolves)[3] = "clade"
 mergedPopmap = rbind.data.frame(popmapMerge, shortPopmapWolves)
-CountsPerBreed = popmapMerge %>% group_by(breed) %>% tally()
-CountsPerCluster = popmapMerge %>% group_by(clade) %>% tally()
+CountsPerBreed = popmapMerge %>% 
+  group_by(breed) %>% 
+  tally()
+CountsPerCluster = popmapMerge %>% 
+  group_by(clade) %>% 
+  tally()
 
 ##make sure names are unique (they are)
 #length(unique(mergedPopmap$dogID))
@@ -49,23 +66,46 @@ FinalDF$Population = mergedPopmap$breed[match(FinalDF$INDV,mergedPopmap$dogID)]
 FinalDF$Cluster = mergedPopmap$clade[match(FinalDF$INDV,mergedPopmap$dogID)]
 
 #Remove inidivudals without Cluster and outliers
-FinalDF_rmNA = FinalDF %>% filter(!is.na(Cluster) & Cluster!= "Outlier")
+FinalDF_rmNA = FinalDF %>% 
+  filter(!is.na(Cluster) & Cluster!= "Outlier")
 
 #Set Populations and Clusters as factor so Wolves and dogs group together
 FinalDF_rmNA$Population = factor(FinalDF_rmNA$Population, levels=orderPops$V1)
 FinalDF_rmNA$Cluster = factor(FinalDF_rmNA$Cluster, levels=orderCluster$V1)
 
 #Find mean per cluster and population
-MeanPerPopulationDF = FinalDF_rmNA %>% select(Population,Range,totalLen) %>% group_by(Population,Range) %>% summarise_all(mean) %>%as.data.frame()
-MeanPerClusterDF = FinalDF_rmNA %>% select(Cluster,Range,totalLen) %>% group_by(Cluster,Range) %>% summarise_all(mean) %>%as.data.frame()
+MeanPerPopulationDF = FinalDF_rmNA %>% 
+  select(Population,Range,totalLen) %>% 
+  group_by(Population,Range) %>% 
+  summarise_all(mean) 
+MeanPerClusterDF = FinalDF_rmNA %>% 
+  select(Cluster,Range,totalLen) %>% 
+  group_by(Cluster,Range) %>% 
+  summarise_all(mean) 
 
 #Plot by Cluster
-MeanROHperPopulation = ggplot(MeanPerPopulationDF, aes(x=Population, y=totalLen/10^6, fill=Range)) + geom_bar(stat="identity") + theme_bw() + coord_flip() + scale_fill_manual(values = c("[0.1-1)Mb"= "yellow", "[10-63)Mb" = "red", "[1-10)Mb" = "orange"), breaks = c("[0.1-1)Mb","[1-10)Mb", "[10-63)Mb"), name = "Range") + ylab("Mean ROH Length per Bin (Mb)") + xlab("Breed") + theme(axis.text.x = element_text(size = 20), axis.text.y = element_text(size = 10), plot.title=element_text(size=26, face = "bold", hjust=0.5), axis.title=element_text(size=20)) + theme(legend.title=element_text(size=20), legend.text=element_text(size=18))
+MeanROHperPopulation = ggplot(MeanPerPopulationDF, aes(x=Population, y=totalLen/10^6, fill=Range)) +
+  geom_bar(stat="identity") + 
+  theme_bw() + 
+  coord_flip() + 
+  scale_fill_manual(values = c("[0.1-1)Mb"= "yellow", "[10-63)Mb" = "red", "[1-10)Mb" = "orange"), breaks = c("[0.1-1)Mb","[1-10)Mb", "[10-63)Mb"), name = "Range") +
+  labs( y = "Mean ROH Length per Bin (Mb)", x= "Breed") + 
+  theme(axis.text.x = element_text(size = 20), axis.text.y = element_text(size = 10), plot.title=element_text(size=26, face = "bold", hjust=0.5), axis.title=element_text(size=20),legend.title=element_text(size=20), legend.text=element_text(size=18))
 
-MeanROHperCluster = ggplot(MeanPerClusterDF, aes(x=Cluster, y=totalLen/10^6, fill=Range)) + geom_bar(stat="identity") + theme_bw() + coord_flip() + scale_fill_manual(values = c("[0.1-1)Mb"= "yellow", "[10-63)Mb" = "red", "[1-10)Mb" = "orange"), breaks = c("[0.1-1)Mb","[1-10)Mb", "[10-63)Mb"), name = "Range") + ylab("Mean ROH Length per Bin (Mb)") + xlab("Clade") + theme(axis.text.x = element_text(size = 20), axis.text.y = element_text(size = 14), plot.title=element_text(size=26, face = "bold", hjust=0.5), axis.title=element_text(size=24)) + theme(legend.title=element_text(size=20), legend.text=element_text(size=20))
+MeanROHperCluster = ggplot(MeanPerClusterDF, aes(x=Cluster, y=totalLen/10^6, fill=Range)) + 
+geom_bar(stat="identity") + 
+  theme_bw() + 
+  coord_flip() + 
+  scale_fill_manual(values = c("[0.1-1)Mb"= "yellow", "[10-63)Mb" = "red", "[1-10)Mb" = "orange"), breaks = c("[0.1-1)Mb","[1-10)Mb", "[10-63)Mb"), name = "Range") +
+  labs( y = "Mean ROH Length per Bin (Mb)", x= "Clade") + 
+  theme(axis.text.x = element_text(size = 20), axis.text.y = element_text(size = 10), plot.title=element_text(size=26, face = "bold", hjust=0.5), axis.title=element_text(size=20),legend.title=element_text(size=20), legend.text=element_text(size=18))
 
 #####Plot FROH
-FROHdf = WolfDog %>% select(AUTO_LEN, INDV) %>% group_by(INDV) %>% summarise(totalLen = sum(AUTO_LEN)) %>% mutate(FROH = totalLen/2500000000) %>% as.data.frame() #Dog genome is 2.5 gigabases
+FROHdf = WolfDog %>% select(AUTO_LEN, INDV) %>% 
+  group_by(INDV) %>% 
+  summarise(totalLen = sum(AUTO_LEN)) %>% 
+  mutate(FROH = totalLen/2500000000) #Dog genome is 2.5 gigabases
+
 FROHdf$Population = mergedPopmap$breed[match(FROHdf$INDV,mergedPopmap$dogID)]
 FROHdf$Cluster = mergedPopmap$clade[match(FROHdf$INDV,mergedPopmap$dogID)]
 FROHdf_rmNA = FROHdf %>% filter(!is.na(Cluster) & Cluster!= "Outlier")
@@ -79,13 +119,32 @@ colourCount_pop = length(unique(FROHdf_rmNA$Population))
 palette = distinctColorPalette(colourCount_pop)
 
 #Plot
-FROH_perCluster = ggplot(FROHdf_rmNA, aes(x=Cluster, y=FROH, colour=Cluster)) + geom_boxplot(size=1) + geom_point(size=0.5) + scale_colour_manual(values = palette, na.value="grey") + theme_bw() + labs(x = "Cluster", y=expression(F[ROH])) + theme(axis.text.x = element_text(size  = 24,angle=40, vjust=1, hjust=1), axis.text.y = element_text(size  = 24), axis.title=element_text(size=24)) + theme(legend.title=element_text(size=24), legend.text=element_text(size=18), legend.position = "none") + guides(fill = guide_legend(nrow = 4))
+FROH_perCluster = ggplot(FROHdf_rmNA, aes(x=Cluster, y=FROH, colour=Cluster)) + 
+  geom_boxplot(size=1) + 
+  geom_point(size=0.5) + 
+  scale_colour_manual(values = palette, na.value="grey") + 
+  labs(x = "Cluster", y=expression(F[ROH])) + 
+  theme_bw() + 
+  theme(axis.text.x = element_text(size  = 24,angle=40, vjust=1, hjust=1), axis.text.y = element_text(size  = 24), axis.title=element_text(size=24),legend.title=element_text(size=24), legend.text=element_text(size=18), legend.position = "none") + 
+  guides(fill = guide_legend(nrow = 4))
 
-FROH_perPopulation = ggplot(FROHdf_rmNA, aes(x=Population, y=FROH, colour=Population)) + geom_boxplot(size=1) + geom_point(size=0.5) + scale_colour_manual(values = palette, na.value="grey") + theme_bw() + labs(x = "Population", y=expression(F[ROH])) + theme(axis.text.x = element_text(size  = 10, angle = 40, vjust=1, hjust=1), axis.text.y = element_text(size  = 24), axis.title=element_text(size=24)) + theme(legend.title=element_text(size=24), legend.text=element_text(size=18), legend.position = "none") + guides(fill = guide_legend(nrow = 4))
+FROH_perPopulation = ggplot(FROHdf_rmNA, aes(x=Population, y=FROH, colour=Population)) + 
+  geom_boxplot(size=1) + 
+  geom_point(size=0.5) + 
+  scale_colour_manual(values = palette, na.value="grey") + 
+  labs(x = "Population", y=expression(F[ROH])) + 
+  theme_bw() + 
+  theme(axis.text.x = element_text(size  = 24,angle=40, vjust=1, hjust=1), axis.text.y = element_text(size  = 24), axis.title=element_text(size=24),legend.title=element_text(size=24), legend.text=element_text(size=18), legend.position = "none") + 
+  guides(fill = guide_legend(nrow = 4))
 
 
 #Multiplot the ROH and FROH with Clade
-#ggarrange(FROH_perPopulation + xlab(NULL), ggarrange(MeanROHperPopulation, MeanROHperCluster + xlab(NULL), ncol = 2, labels = c("B", "C"),common.legend = TRUE, legend = "right"), nrow = 2,labels = "A") 
+ggarrange(FROH_perPopulation + xlab(NULL), 
+ggarrange(MeanROHperPopulation, 
+          MeanROHperCluster + xlab(NULL),
+          ncol = 2, labels = c("B", "C"),
+          common.legend = TRUE, legend = "right"), 
+nrow = 2,labels = "A") 
 plot_grid(FROH_perCluster + theme(axis.text.x = element_text(size=18)), MeanROHperCluster)
 
 
