@@ -5,7 +5,6 @@ library(randomcoloR)
 library(data.table)
 library(ggpubr)
 
-
 #Read Files in
 dfMerge = read.delim("~/Documents/DogProject_Jaz/LocalRscripts/ROH/TrueROH_propCoveredwithin1SDMean_allChroms_mergedFitakCornell.txt")
 dfStronen = read.delim("~/Documents/DogProject_Jaz/LocalRscripts/ROH/Stronen2013_WolvesTrueROH_propCoveredwithin1SDMean_allChroms.txt")
@@ -89,8 +88,13 @@ MeanROHperPopulation = ggplot(MeanPerPopulationDF, aes(x=Population, y=totalLen/
   theme_bw() + 
   coord_flip() + 
   scale_fill_manual(values = c("[0.1-1)Mb"= "yellow", "[10-63)Mb" = "red", "[1-10)Mb" = "orange"), breaks = c("[0.1-1)Mb","[1-10)Mb", "[10-63)Mb"), name = "Range") +
-  labs( y = "Mean ROH Length per Bin (Mb)", x= "Breed") + 
-  theme(axis.text.x = element_text(size = 20), axis.text.y = element_text(size = 10), plot.title=element_text(size=26, face = "bold", hjust=0.5), axis.title=element_text(size=20),legend.title=element_text(size=20), legend.text=element_text(size=18))
+  labs( y = "Mean ROH Length per Bin (Mb)", x= "Breed")  + 
+  theme(axis.text.x = element_text(size = 18), 
+        axis.text.y = element_text(size = 16),
+        plot.title=element_text(size=22, face = "bold", hjust=0.5), 
+        axis.title=element_text(size=20), 
+        legend.title=element_text(size=18), 
+        legend.text=element_text(size=16))
 
 MeanROHperCluster = ggplot(MeanPerClusterDF, aes(x=Cluster, y=totalLen/10^6, fill=Range)) + 
 geom_bar(stat="identity") + 
@@ -98,7 +102,12 @@ geom_bar(stat="identity") +
   coord_flip() + 
   scale_fill_manual(values = c("[0.1-1)Mb"= "yellow", "[10-63)Mb" = "red", "[1-10)Mb" = "orange"), breaks = c("[0.1-1)Mb","[1-10)Mb", "[10-63)Mb"), name = "Range") +
   labs( y = "Mean ROH Length per Bin (Mb)", x= "Clade") + 
-  theme(axis.text.x = element_text(size = 20), axis.text.y = element_text(size = 10), plot.title=element_text(size=26, face = "bold", hjust=0.5), axis.title=element_text(size=20),legend.title=element_text(size=20), legend.text=element_text(size=18))
+  theme(axis.text.x = element_text(size = 18), 
+        axis.text.y = element_text(size = 16),
+        plot.title=element_text(size=22, face = "bold", hjust=0.5), 
+        axis.title=element_text(size=20), 
+        legend.title=element_text(size=18), 
+        legend.text=element_text(size=16))
 
 #####Plot FROH
 FROHdf = WolfDog %>% select(AUTO_LEN, INDV) %>% 
@@ -125,7 +134,12 @@ FROH_perCluster = ggplot(FROHdf_rmNA, aes(x=Cluster, y=FROH, colour=Cluster)) +
   scale_colour_manual(values = palette, na.value="grey") + 
   labs(x = "Cluster", y=expression(F[ROH])) + 
   theme_bw() + 
-  theme(axis.text.x = element_text(size  = 24,angle=40, vjust=1, hjust=1), axis.text.y = element_text(size  = 24), axis.title=element_text(size=24),legend.title=element_text(size=24), legend.text=element_text(size=18), legend.position = "none") + 
+  theme(axis.text.x = element_text(size = 18, angle=40, vjust=1, hjust=1), 
+        axis.text.y = element_text(size = 18), 
+        axis.title=element_text(size=20),
+        legend.title=element_text(size=18), 
+        legend.text=element_text(size=16), 
+        legend.position = "none") + 
   guides(fill = guide_legend(nrow = 4))
 
 FROH_perPopulation = ggplot(FROHdf_rmNA, aes(x=Population, y=FROH, colour=Population)) + 
@@ -134,17 +148,21 @@ FROH_perPopulation = ggplot(FROHdf_rmNA, aes(x=Population, y=FROH, colour=Popula
   scale_colour_manual(values = palette, na.value="grey") + 
   labs(x = "Population", y=expression(F[ROH])) + 
   theme_bw() + 
-  theme(axis.text.x = element_text(size  = 24,angle=40, vjust=1, hjust=1), axis.text.y = element_text(size  = 24), axis.title=element_text(size=24),legend.title=element_text(size=24), legend.text=element_text(size=18), legend.position = "none") + 
+  theme(axis.text.x = element_text(size = 18, angle=40, vjust=1, hjust=1), 
+        axis.text.y = element_text(size = 18), 
+        axis.title=element_text(size=20),
+        legend.title=element_text(size=18), 
+        legend.text=element_text(size=16), 
+        legend.position = "none") + 
   guides(fill = guide_legend(nrow = 4))
 
 
 #Multiplot the ROH and FROH with Clade
-ggarrange(FROH_perPopulation + xlab(NULL), 
-ggarrange(MeanROHperPopulation, 
+ggarrange(FROH_perCluster, 
           MeanROHperCluster + xlab(NULL),
-          ncol = 2, labels = c("B", "C"),
-          common.legend = TRUE, legend = "right"), 
-nrow = 2,labels = "A") 
-plot_grid(FROH_perCluster + theme(axis.text.x = element_text(size=18)), MeanROHperCluster)
+          ncol = 2, 
+          labels = c("A", "B"),
+          legend = "none") 
+
 
 
