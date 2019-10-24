@@ -41,3 +41,9 @@ awk '{print $4}' ExonRegion_NonOverlapsROH_cornellData.bed | uniq -c | sed -e 1i
 
 #overlaps between all three
 cat CountExonRegion_NonOverlapsROH_cornellData.bed ../plink/CountExonRegion_NonOverlapsROH.bed ../vcftools/CountExonRegion_NonOverlapsROH_vcfTools.bed | grep -v "Count" | awk '{print $2}' | sort | uniq -c | awk '$1 ==3 {print}'
+
+#add HGNC gene names to results
+bedtools intersect -wa -wb -a ../HGNC/EnsemblGenes_CanFam3.1_SingleTranscript_hg19_HGNCrename.bed -b ExonRegion_NonOverlapsROH_cornellData.bed | awk '{print $1"\t"$6"\t"$7"\t"$4}' > ExonRegion_NonOverlapsROH_cornellData_HGNC.bed
+
+awk '{print $4}' ExonRegion_NonOverlapsROH_cornellData_HGNC.bed  | uniq -c | sed -e 1i'CountExon\tGeneNames' > CountExonRegion_NonOverlapsROH_cornellData_HGNC.bed
+

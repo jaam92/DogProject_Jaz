@@ -14,3 +14,8 @@ bedtools intersect -a ../ForAbi_EnsemblGenes_CanFam3.1_SingleTranscript.bed -b S
 #count how many exons per gene have no ROH
 awk '{print $4}' ExonRegion_NonOverlapsROH_vcfTools.bed | uniq -c | sed -e 1i'CountExon\tGeneNames' > CountExonRegion_NonOverlapsROH_vcfTools.bed
 
+
+#add HGNC gene names to results
+bedtools intersect -wa -wb -a ../HGNC/EnsemblGenes_CanFam3.1_SingleTranscript_hg19_HGNCrename.bed -b ExonRegion_NonOverlapsROH_vcfTools.bed | awk '{print $1"\t"$6"\t"$7"\t"$4}' > ExonRegion_NonOverlapsROH_vcfTools_HGNC.bed
+
+awk '{print $4}' ExonRegion_NonOverlapsROH_vcfTools_HGNC.bed  | uniq -c | sed -e 1i'CountExon\tGeneNames' > CountExonRegion_NonOverlapsROH_vcfTools_HGNC.bed
