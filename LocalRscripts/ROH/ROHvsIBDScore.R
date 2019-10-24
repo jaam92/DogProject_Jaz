@@ -1,4 +1,4 @@
-#Plot manuscript figures
+#Load Libraries
 library(tidyverse)
 library(ggpubr)
 
@@ -22,18 +22,18 @@ ROHScores$logRelToLab = log(ROHScores$RelToLab) #log ROH Scores
 midROH = mean(ROHScores$logRelToLab)
 PlotROHRel2Lab = ggplot(ROHScores, aes(y=logRelToLab, x=Population, fill=logRelToLab)) + 
   geom_bar(stat="identity") + 
-  coord_flip() + theme_bw() + 
-  labs(y = "Within Population ROH Score Relative to Labrador Retriever (Normalized by Sample Size)", x="Breed") + 
+  coord_flip() + 
+  theme_bw() + 
+  labs(y = "Within Population ROH Score\nRelative to Labrador Retriever (Normalized by Sample Size)", x="Breed") + 
   geom_hline(yintercept = midROH, linetype="dashed", colour = "black")  + 
-  geom_hline(yintercept = mid, linetype="dashed", colour = "black") + 
-  theme(axis.text.x = element_text(size = 20), 
-        axis.text.y = element_text(size = 10), 
-        plot.title=element_text(size=26, face = "bold", hjust=0.5), 
-        axis.title=element_text(size=20),
-        legend.title=element_text(size=20), 
-        legend.text=element_text(size=18)) + 
   scale_y_continuous(expand = c(0,0)) + 
-  scale_fill_gradient2(name= "Log Fold-Enrichment",midpoint=midROH, low="blue", mid="white",high="red", space ="Lab") 
+  scale_fill_gradient2(name= "Log Fold-Enrichment",midpoint=midROH, low="blue", mid="white",high="red", space ="Lab") + 
+  theme(axis.text.x = element_text(size = 18), 
+        axis.text.y = element_text(size = 16),
+        plot.title=element_text(size=22, face = "bold", hjust=0.5), 
+        axis.title=element_text(size=20), 
+        legend.title=element_text(size=18), 
+        legend.text=element_text(size=16)) 
 
 #Plot IBD Data
 midIBD = mean(IBDScores$RelToLab)
@@ -41,17 +41,16 @@ PlotIBDRelToLab = ggplot(IBDScores, aes(y=RelToLab, x=Population, fill=RelToLab)
   geom_bar(stat="identity") + 
   coord_flip() + 
   theme_bw() + 
-  labs(y = "Within Population IBD Score Relative to Labrador Retriever (Normalized by Sample Size)", x="Breed") + 
+  labs(y = "Within Population IBD Score\nRelative to Labrador Retriever (Normalized by Sample Size)", x="Breed") + 
   geom_hline(yintercept = midIBD, linetype="dashed", colour = "black") + 
-  geom_hline(yintercept = mid, linetype="dashed", colour = "black") + 
-  theme(axis.text.x = element_text(size = 20), 
-        axis.text.y = element_text(size = 10), 
-        plot.title=element_text(size=26, face = "bold", hjust=0.5), 
-        axis.title=element_text(size=20),
-        legend.title=element_text(size=20), 
-        legend.text=element_text(size=18)) + 
   scale_y_continuous(expand = c(0,0)) + 
-  scale_fill_gradient2(name= "Fold-Enrichment", midpoint=midIBD, low="blue", mid="white",high="red", space ="Lab")
+  scale_fill_gradient2(name= "Fold-Enrichment", midpoint=midIBD, low="blue", mid="white",high="red", space ="Lab") + 
+  theme(axis.text.x = element_text(size = 18), 
+        axis.text.y = element_text(size = 16),
+        plot.title=element_text(size=22, face = "bold", hjust=0.5), 
+        axis.title=element_text(size=20), 
+        legend.title=element_text(size=18), 
+        legend.text=element_text(size=16)) 
 
 #Multiplot
 ggarrange(PlotROHRel2Lab, 

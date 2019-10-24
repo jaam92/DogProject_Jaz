@@ -3,13 +3,13 @@ library(tidyverse)
 library(data.table)
 
 #Load files
-popmapDryad = read.delim("~/DogProject_Jaz/LocalRscripts/BreedCladeInfo/breeds_dryad.txt")
-popmapMerge = read.delim("~/DogProject_Jaz/LocalRscripts/BreedCladeInfo/BreedAndCladeInfo_mergedFitakCornell.txt") %>%
+popmapDryad = read.delim("~/Documents/DogProject_Jaz/LocalRscripts/BreedCladeInfo/breeds_dryad.txt")
+popmapMerge = read.delim("~/Documents/DogProject_Jaz/LocalRscripts/BreedCladeInfo/BreedAndCladeInfo_mergedFitakCornell.txt") %>%
   mutate(breed = gsub("large_munsterlander","munsterlander_large", breed))
-phenotypes = read.delim("~/DogProject_Jaz/LocalRscripts/BreedCladeInfo/phenotypes.txt")
-unrelateds = read.table("~/DogProject_Jaz/LocalRscripts/PCA_Unrelateds/Hayward2016_ogFiles/UnrelatedIndividuals_allBreeds.txt")
-ROH = read.delim("~/DogProject_Jaz/LocalRscripts/CaseControlROH/TrueROH_propCoveredwithin1SDMean_allChroms_mergedFitakCornell.txt")
-IBD = fread("~/DogProject_Jaz/LocalRscripts/IBDSegs/IBDSeq/MergedFitakCornell_allChroms_Haplotypes_IBDSeq.ibd")
+phenotypes = read.delim("~/Documents/DogProject_Jaz/LocalRscripts/BreedCladeInfo/phenotypes.txt")
+unrelateds = read.table("~/Documents/DogProject_Jaz/LocalRscripts/PCA_Unrelateds/UnrelatedIndividuals_allBreeds_mergedFitakCornell.txt")
+ROH = read.delim("~/Documents/DogProject_Jaz/LocalRscripts/CaseControlROH/TrueROH_propCoveredwithin1SDMean_allChroms_mergedFitakCornell.txt")
+IBD = fread("~/Documents/DogProject_Jaz/LocalRscripts/IBDSegs/IBDSeq/MergedFitakCornell_allChroms_Haplotypes_IBDSeq.ibd")
 
 #Define fxns
 #Function to pull phenotype data
