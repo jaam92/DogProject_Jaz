@@ -85,10 +85,6 @@ plotFinalROHScoresCausVars = plotCausalCorrs(corrROHScorecausVars, FinalROHScore
 
 plotFinalIBDScoresCausVars = plotCausalCorrs(corrIBDScorecausVars, FinalIBDScores, "NormPopScore", 900, "IBD Score in Mb (Normalized)") 
 
-plotMeanROHCountCausVars = plotCausalCorrs(corrROHCountcausVars, FinalROHScores, "MeanROHperIndivCount", 141.5, "Mean ROH (Mb) per Individual") 
-
-plotMeanIBDCountCausVars = plotCausalCorrs(corrIBDCountcausVars, FinalIBDScores, "MeanIBDperIndivCount", 3720.8, "Mean IBD (Mb) per Individual") 
-
 #####Multiplot scores and Causals
 OMIAplots = ggarrange(plotPopularityCausVars + theme(axis.title.y = element_blank()),
           ggarrange(plotFinalROHScoresCausVars + theme(axis.title.y = element_blank()), 

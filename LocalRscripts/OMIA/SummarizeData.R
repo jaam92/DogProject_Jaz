@@ -44,6 +44,10 @@ comboDF = merge(FinalROHScores, FinalIBDScores, by ="Population") %>%
   mutate(CausalVars = replace_na(CausalVars, 0),
          Population = factor(Population, levels=orderPops$V1))
 
+comboDF_noWolves = comboDF %>%  
+  filter(!grepl("grayWolf",Clade)) %>% #remove labelled wolves
+  na.omit() #remove Stronen Wolves (no clade)
+
 #Popularity data frame
 PopularityDF = popmapMerge %>%
   select("breed", "clade") %>%
@@ -59,18 +63,10 @@ PopularityDF = popmapMerge %>%
 corrROHvsIBD = lm(PopROHScore~PopIBDScore, data = comboDF)
 corrROHScorevsIBDScore = lm(NormPopScore_ROH~NormPopScore_IBD, data = comboDF)
 
-corrROHScorecausVars = lm(CausalVars~NormPopScore, data = FinalROHScores)
-corrIBDScorecausVars = lm(CausalVars~NormPopScore, data = FinalIBDScores)
-
-corrROHCountcausVars = lm(CausalVars~MeanROHperIndivCount, data = FinalROHScores)
-corrIBDCountcausVars = lm(CausalVars~MeanIBDperIndivCount, data = FinalIBDScores)
+corrROHScorecausVars = lm(CausalVars~NormPopScore_ROH, data = comboDF_noWolves)
+corrIBDScorecausVars = lm(CausalVars~NormPopScore_IBD, data = comboDF_noWolves)
 
 corrPopularitycausVars = lm(CausalVars~OverallPopularityRank, data = PopularityDF)
-corrPopularityROHScore = lm(NormPopScore~OverallPopularityRank, data = FinalROHScores)
-corrPopularityIBDScore = lm(NormPopScore~OverallPopularityRank, data = FinalIBDScores)
+corrPopularityROHScore = lm(NormPopScore_ROH~OverallPopularityRank, data = comboDF_noWolves)
+corrPopularityIBDScore = lm(NormPopScore_IBD~OverallPopularityRank, data = comboDF_noWolves)
 
-#Does correcting for popularity improve associations with ROH and IBD
-multiVarcorrIBDScorecausVars = lm(CausalVars~NormPopScore + OverallPopularityRank, data = FinalIBDScores)
-multiVarcorrIBDScorecausVars_plusInt = lm(CausalVars~NormPopScore + OverallPopularityRank + OverallPopularityRank*NormPopScore, data = FinalIBDScores)
-
-multiVarcorrROHScorecausVars = lm(CausalVars~NormPopScore + OverallPopularityRank, data = FinalROHScores)
