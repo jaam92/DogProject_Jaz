@@ -44,9 +44,6 @@ comboDF = merge(FinalROHScores, FinalIBDScores, by ="Population") %>%
   mutate(CausalVars = replace_na(CausalVars, 0),
          Population = factor(Population, levels=orderPops$V1))
 
-comboDF_noWolves = comboDF %>%  
-  filter(!grepl("grayWolf",Clade)) %>% #remove labelled wolves
-  na.omit() #remove Stronen Wolves (no clade)
 
 #Popularity data frame
 PopularityDF = popmapMerge %>%
@@ -58,6 +55,11 @@ PopularityDF = popmapMerge %>%
   filter(!is.na(OverallPopularityRank)) %>%
   mutate(CausalVars = replace_na(CausalVars, 0)) %>%
   rename(Population=breed)
+
+comboDF_noWolves = comboDF %>%  
+  filter(!grepl("grayWolf",Clade)) %>% #remove labelled wolves
+  na.omit() %>% #remove Stronen Wolves (no clade)
+  mutate(OverallPopularityRank = PopularityDF$OverallPopularityRank[match(Population, PopularityDF$Population)])
 
 #####Correlations
 corrROHvsIBD = lm(PopROHScore~PopIBDScore, data = comboDF)
