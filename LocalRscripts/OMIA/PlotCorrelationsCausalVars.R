@@ -91,7 +91,7 @@ pIBDScore = plotCausal(comboDF_noWolves, 900, "IBD Score in Mb (Normalized)", "I
 #####Plot with correlation
 plotPopularityCausVars = plotCausalCorrs(corrPopularitycausVars, PopularityDF, "OverallPopularityRank", 70, "Overall Popularity") 
 
-plotFinalROHScoresCausVars = plotCausalCorrs(corrROHScorecausVars, comboDF_noWolves, "NormPopScore_ROH", 200, "ROH Score in Mb (Normalized)") 
+plotFinalROHScoresCausVars = plotCausalCorrs(corrROHScorecausVars, comboDF_noWolves, "NormPopScore_ROH", 100, "ROH Score in Mb (Normalized)") 
 
 plotFinalIBDScoresCausVars = plotCausalCorrs(corrIBDScorecausVars, comboDF_noWolves, "NormPopScore_IBD", 900, "IBD Score in Mb (Normalized)") 
 
