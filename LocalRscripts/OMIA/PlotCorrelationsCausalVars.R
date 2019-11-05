@@ -16,14 +16,22 @@ ggplotRegression = function (fit) {
 }
 ######Plot Causal Vars Fxn######
 ######Labelling the top 5% of Scores and ~1% of Causal Var Counts
-plotCausal = function(dataFrame, scoreCutOff, xaxisLabel){
-  ggplot(dataFrame, aes(x=dataFrame$NormPopScore, y=dataFrame$CausalVars)) + 
-  geom_point(aes(colour = cut(dataFrame$CausalVars, c(-Inf, 0, 1, 5, 20))),
+plotCausal = function(dataFrame, scoreCutOff, xaxisLabel, indicator){
+  if (indicator == "ROH") {
+    newDF = dataFrame %>% 
+      rename("NormPopScore" = NormPopScore_ROH)
+  }else{
+    newDF = 
+      newDF = dataFrame %>% 
+      rename("NormPopScore" = NormPopScore_IBD)
+  }
+  Causualplot = ggplot(newDF, aes(x=newDF$NormPopScore, y=newDF$CausalVars)) + 
+  geom_point(aes(colour = cut(newDF$CausalVars, c(-Inf, 0, 1, 5, 20))),
                size = 3) + 
   scale_color_manual(name = "Count Causal Variants", 
                        values = c("(-Inf,0]" = "black","(0,1]" = "yellow", "(1,5]" = "orange", "(5,20]" = "red"),
                        labels = c("0","1", "1 < variants <= 5", "5 < variants <= 20")) + 
-  geom_text_repel(aes(label=ifelse(dataFrame$CausalVars >= 10 | dataFrame$NormPopScore > scoreCutOff, as.character(Population),'')), size = 6) + 
+  geom_text_repel(aes(label=ifelse(newDF$CausalVars >= 10 | newDF$NormPopScore > scoreCutOff, as.character(Population),'')), size = 6) + 
   theme_bw() +
   theme(plot.title=element_text(size = 18, face = "bold", hjust= 0.5), 
           axis.text.x = element_text(size = 24, vjust= 1, hjust= 0.5), 
@@ -32,6 +40,8 @@ plotCausal = function(dataFrame, scoreCutOff, xaxisLabel){
           legend.title=element_text(size= 24), 
           legend.text=element_text(size= 18)) +
   labs(x=paste(xaxisLabel), y="Count Causal Variants")
+  
+  return(Causualplot)
 }
 ######Plot Causal Vars with Correlation Fxn######
 ######Labelling the top 5% of Scores and ~1% of Causal Var Counts
@@ -75,15 +85,15 @@ plotRainClouds = function(dataFrame, ylabTitle){
   }
 
 ######without Correlation
-pROHScore = plotCausal(FinalROHScores, 200, "ROH Score in Mb (Normalized)")
-pIBDScore = plotCausal(FinalIBDScores, 900, "IBD Score in Mb (Normalized)")
+pROHScore = plotCausal(comboDF_noWolves, 200, "ROH Score in Mb (Normalized)", "ROH")
+pIBDScore = plotCausal(comboDF_noWolves, 900, "IBD Score in Mb (Normalized)", "IBD")
 
 #####Plot with correlation
 plotPopularityCausVars = plotCausalCorrs(corrPopularitycausVars, PopularityDF, "OverallPopularityRank", 70, "Overall Popularity") 
 
-plotFinalROHScoresCausVars = plotCausalCorrs(corrROHScorecausVars, FinalROHScores, "NormPopScore", 200, "ROH Score in Mb (Normalized)") 
+plotFinalROHScoresCausVars = plotCausalCorrs(corrROHScorecausVars, comboDF_noWolves, "NormPopScore_ROH", 200, "ROH Score in Mb (Normalized)") 
 
-plotFinalIBDScoresCausVars = plotCausalCorrs(corrIBDScorecausVars, FinalIBDScores, "NormPopScore", 900, "IBD Score in Mb (Normalized)") 
+plotFinalIBDScoresCausVars = plotCausalCorrs(corrIBDScorecausVars, comboDF_noWolves, "NormPopScore_IBD", 900, "IBD Score in Mb (Normalized)") 
 
 #####Multiplot scores and Causals
 OMIAplots = ggarrange(plotPopularityCausVars + theme(axis.title.y = element_blank()),
