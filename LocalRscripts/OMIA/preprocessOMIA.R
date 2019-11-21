@@ -10,9 +10,10 @@ causalVars = read.delim("~/Documents/DogProject_Jaz/LocalRscripts/OMIA/causalVar
 
 #####Modify Files
 ######Reformat OMIA files
-causalVars$NCBI_gene_ID = omiaGenes$ncbi_gene_id[match(causalVars$Gene, omiaGenes$gene_symbol)] #add ncbi gene id
-
-sepBreedCausalVars = causalVars %>% mutate(Breed.s.= strsplit(as.character(Breed.s.), ",")) %>% unnest(Breed.s.) #split the breeds that are comma delimited into separate rows with same info
+sepBreedCausalVars = causalVars %>% 
+  mutate(NCBI_gene_ID = omiaGenes$ncbi_gene_id[match(causalVars$Gene, omiaGenes$gene_symbol)], #add ncbi gene id
+         Breed.s.= strsplit(as.character(Breed.s.), ",")) %>% 
+  unnest(Breed.s.) #split the breeds that are comma delimited into separate rows with same info
 
 ######Rename breeds
 names(sepBreedCausalVars)[19] = "Breed"
@@ -33,7 +34,9 @@ sepBreedCausalVars$Breed = gsub("italian_spinone", "spinone_italiano", sepBreedC
 sepBreedCausalVars$Breed = gsub("wirehaired_fox_terrier", "wire_fox_terrier", sepBreedCausalVars$Breed)
 
 #Pull the info I want
-FinalCausalVars = sepBreedCausalVars %>% select("OMIA.ID.s.", "NCBI_gene_ID", "Gene","Breed") %>% rename(OMIA_ID = OMIA.ID.s.)
+FinalCausalVars = sepBreedCausalVars %>% 
+  select("OMIA.ID.s.", "NCBI_gene_ID", "Gene","Breed") %>% 
+  rename(OMIA_ID = OMIA.ID.s.)
 
 #write new file
 #write.table(FinalCausalVars, file = "processedCausalVarsOMIA.txt", quote = F, row.names = F, col.names = T, sep = "\t")
