@@ -26,12 +26,18 @@ plotCausal = function(dataFrame, scoreCutOff, xaxisLabel, indicator){
       rename("NormPopScore" = NormPopScore_IBD)
   }
   Causualplot = ggplot(newDF, aes(x=newDF$NormPopScore, y=newDF$CausalVars)) + 
-  geom_point(aes(colour = cut(newDF$CausalVars, c(-Inf, 0, 1, 5, 20))),
+  geom_point(aes(colour = cut(newDF$CausalVars, c(-Inf, 0, 1, 5, 25))),
                size = 3) + 
   scale_color_manual(name = "Count Causal Variants", 
-                       values = c("(-Inf,0]" = "black","(0,1]" = "yellow", "(1,5]" = "orange", "(5,20]" = "red"),
-                       labels = c("0","1", "1 < variants <= 5", "5 < variants <= 20")) + 
-  geom_text_repel(aes(label=ifelse(newDF$CausalVars >= 10 | newDF$NormPopScore > scoreCutOff, as.character(Population),'')), size = 6) + 
+                       values = c("(-Inf,0]" = "black",
+                                  "(0,1]" = "yellow", 
+                                  "(1,5]" = "orange", 
+                                  "(5,25]" = "red"),
+                       labels = c("0",
+                                  "1", 
+                                  "1 < variants <= 5", 
+                                  "5 < variants <= 25")) + 
+  geom_text_repel(aes(label=ifelse(newDF$CausalVars >= 10 | newDF$NormPopScore > scoreCutOff, gsub("_", " ", as.character(newDF$Population)),'')), size = 6) + 
   theme_bw() +
   theme(plot.title=element_text(size = 18, face = "bold", hjust= 0.5), 
           axis.text.x = element_text(size = 24, vjust= 1, hjust= 0.5), 
@@ -47,12 +53,18 @@ plotCausal = function(dataFrame, scoreCutOff, xaxisLabel, indicator){
 ######Labelling the top 5% of Scores and ~1% of Causal Var Counts
 plotCausalCorrs = function(regModel, dataFrame, varOfInterest, scoreCutOff, xaxisLabel){
   ggplotRegression(regModel)   + 
-  geom_point(aes(colour = cut(dataFrame$CausalVars, c(-Inf, 0, 1, 5, 20))),
+  geom_point(aes(colour = cut(dataFrame$CausalVars, c(-Inf, 0, 1, 5, 25))),
                size = 3) + 
-  scale_color_manual(name = "Count Causal Variants", 
-                       values = c("(-Inf,0]" = "black","(0,1]" = "yellow", "(1,5]" = "orange", "(5,20]" = "red"),
-                       labels = c("0","1", "1 < variants <= 5", "5 < variants <= 20")) + 
-  geom_text_repel(aes(label=ifelse(dataFrame$CausalVars >= 10 | dataFrame[,varOfInterest] > scoreCutOff, as.character(dataFrame$Population),'')), size = 6) + 
+    scale_color_manual(name = "Count Causal Variants", 
+                       values = c("(-Inf,0]" = "black",
+                                  "(0,1]" = "yellow", 
+                                  "(1,5]" = "orange", 
+                                  "(5,25]" = "red"),
+                       labels = c("0",
+                                  "1", 
+                                  "1 < variants <= 5", 
+                                  "5 < variants <= 25")) +
+  geom_text_repel(aes(label=ifelse(dataFrame$CausalVars >= 10 | dataFrame[,varOfInterest] > scoreCutOff, gsub("_", " ", as.character(dataFrame$Population)),'')), size = 6) + 
   theme_bw() +
   theme(plot.title=element_text(size = 18, face = "bold", hjust= 0.5), 
           axis.text.x = element_text(size = 24, vjust= 1, hjust= 0.5), 
@@ -64,7 +76,7 @@ plotCausalCorrs = function(regModel, dataFrame, varOfInterest, scoreCutOff, xaxi
 }
 ######Raincloud plotting fxns######
 plotRainClouds = function(dataFrame, ylabTitle){
-  dataFrame$Bin = cut(dataFrame$CausalVars, c(-Inf, 0, 1, 5, 20))
+  dataFrame$Bin = cut(dataFrame$CausalVars, c(-Inf, 0, 1, 5, 25))
   ggplot(dataFrame, aes(x=Bin, y= NormPopScore, fill = Bin, colour = Bin)) +
   geom_flat_violin(size=2,position = position_nudge(x = .25, y = 0),adjust =2, trim = FALSE) +
   geom_point(aes(x = as.numeric(Bin)-.15, y = NormPopScore, colour = Bin), position = position_jitter(width = .05), size = 1, shape = 20) +
@@ -73,7 +85,10 @@ plotRainClouds = function(dataFrame, ylabTitle){
   guides(fill = FALSE, colour = FALSE) +
   scale_colour_brewer(palette = "Dark2")+
   scale_fill_brewer(palette = "Dark2")+
-  scale_x_discrete(labels=c("(-Inf,0]" = "0", "(0,1]" = "1", "(1,5]" = "1 < variants <= 5", "(5,20]" = "5 < variants <= 20"))+ 
+  scale_x_discrete(labels=c("(-Inf,0]" = "0", 
+                            "(0,1]" = "1", 
+                            "(1,5]" = "1 < variants <= 5", 
+                            "(5,25]" = "5 < variants <= 25"))+ 
     theme_bw() +
     theme(plot.title=element_text(size = 18, face = "bold", hjust= 0.5), 
           axis.text.x = element_text(size = 24, vjust= 1, hjust= 0.5), 
