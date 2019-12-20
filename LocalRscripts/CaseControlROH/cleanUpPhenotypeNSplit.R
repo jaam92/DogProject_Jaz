@@ -106,3 +106,4 @@ FinalPhenotype = phenotypes %>%
 
 #write it out 
 #write.table(FinalPhenotype, file = "~/Documents/DogProject_Jaz/LocalRscripts/CaseControlROH/CleanedFinalizedPhenotypes.txt", col.names = TRUE, row.names = FALSE, quote = FALSE, sep = "\t")
+#write.table(FinalPhenotype, file = "~/Documents/DogProject_Jaz/LocalRscripts/BreedCladeInfo/CleanedFinalizedPhenotypes.txt", col.names = TRUE, row.names = FALSE, quote = FALSE, sep = "\t")
