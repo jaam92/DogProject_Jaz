@@ -42,15 +42,17 @@ runAssociation = function(phenoKinshipMatrix, phenotypeColName){
   return(LogRegOutput)
 }
 
-#Load kinship matrix, ROHs, and phenotype data
+#Load breed information, kinship matrix, ROHs, and phenotype data
+popmapDryad = read.delim("~/Documents/DogProject_Jaz/LocalRscripts/BreedCladeInfo/breeds_dryad.txt")
 pcRelateMat = readRDS("~/Documents/DogProject_Jaz/LocalRscripts/CaseControlROH/pcRelateMatrix_Unrelateds.rds")
 rohs = read.delim(file = "~/Documents/DogProject_Jaz/LocalRscripts/ROH/TrueROH_propCoveredwithin1SDMean_allChroms_mergedFitakCornell.txt") %>%
   group_by(INDV) %>%
   summarise(totalROH = sum(as.numeric(AUTO_LEN)))
-phenotypes = read.delim("~/Documents/DogProject_Jaz/LocalRscripts/BreedCladeInfo/phenotypes.txt")  %>% 
+phenotypes = read.delim("~/Documents/DogProject_Jaz/LocalRscripts/BreedCladeInfo/CleanedFinalizedPhenotypes.txt")  %>% 
   mutate(PSVA = ifelse(is.na(PSVA), PSVA_yorkshireTerriers, PSVA), 
          MCT = ifelse(is.na(MCT), MCT_labradorRetrievers, MCT), 
-         lymphoma = ifelse(is.na(lymphoma), lymphoma_goldenRetrievers, lymphoma))
+         lymphoma = ifelse(is.na(lymphoma), lymphoma_goldenRetrievers, lymphoma),
+         breed = popmapDryad$breed[match(dogID, popmapDryad$dogID)])
 
 #Make data frames for each phenotype of interest and run association test
 #Elbow Dysplasia
