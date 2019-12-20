@@ -3,31 +3,39 @@ library(tidyverse)
 
 #Function to make a list of data frames for a given phenotype of interest
 balancePhenoPerBreed = function(phenoColName){
-  #browser()
   ListOfFinalDFs = list() #make an empty list to hold my list of data frames
   phenoCol = enquo(phenoColName) #grab the phenotype column
   
   #Make a data frame with breed num case controls and indicator col for sampling
+  #This fxn will identify whether there may be more cases than controls for each breed (list is per breed)
+  #If there are more cases than controls downsample and output an equal number than match the sample size of controls 
+  #Only output data if there are at least 10 cases and controls
   dfList = phenotypes %>% 
-  select(dogID, breed, !!phenoCol) %>% 
+  select(dogID, breed, !!phenoCol) %>%
   filter(breed != "mix") %>% #remove mixed breed dogs
   na.omit() %>%
-  group_by(breed,!!phenoCol) %>%
+  dplyr::rename(trait = !!phenoCol) %>% #rename phenotype col makes things easier when pivotting dataframe 
+  group_by(breed,trait) %>%
   count() %>%
   ungroup() %>%
   group_by(breed) %>%
+  mutate(caseNcontrol = n()) %>% #count up number of occurences of each breed in data frame should be 2 (cases and controls) 
+  filter(caseNcontrol == "2") %>% #make sure there are cases and controls
   group_map(~ {
     
   .x %>%
-      pivot_wider(names_from  = PSVA, values_from = n )%>%
-      dplyr::rename(control=`1`, cases=`2`) %>%
+      pivot_wider(names_from = trait, values_from = n )%>%
+      dplyr::rename(control=`1`, case=`2`) %>%
       mutate(downSamp=case_when(
-        control > cases ~ as.integer(0), 
-        control == cases ~ as.integer(0),
-        cases > control ~ as.integer(control)
-    ))
+        control > case ~ as.integer(0), 
+        control == case ~ as.integer(0),
+        case > control ~ as.integer(control))) %>%
+      filter(control >= 10 & case >= 10) #keep only if there are at least 10 cases and controls
 
-}, keep=TRUE) #fxn to identify whether there may be more cases than controls and if there are output the sample size of controls 
+}, keep=TRUE)
+  
+  #Remove the empty dataframes from the list of dataframes
+  dfList = dfList[map(dfList, function(x) dim(x)[1]) > 0]
   
   #Make a final data frame with balanced case-control if there were more cases than. Otherwise output the original data frame
   for(i in 1:length(dfList)){
@@ -43,14 +51,14 @@ balancePhenoPerBreed = function(phenoColName){
       finalDF = phenotypes %>%
         select(dogID, breed, !!phenoCol) %>% 
         filter(breed == dfList[[i]]$breed) %>% 
-        na.omit()}
+        na.omit()
+    }
+    
+    #make list of data frames per trait
     ListOfFinalDFs[[i]] = finalDF
   }
-  
-  
   return(ListOfFinalDFs)
 }
-
 
 #Load file
   popmapDryad = read.delim("~/Documents/DogProject_Jaz/LocalRscripts/BreedCladeInfo/breeds_dryad.txt")
@@ -62,6 +70,7 @@ balancePhenoPerBreed = function(phenoColName){
 
 
 #Make data frames for each phenotype of interest and output new phenotype files
+set.seed(303)
 #Elbow Dysplasia
 ED_allBreeds = balancePhenoPerBreed("ED")
 
@@ -69,7 +78,7 @@ ED_allBreeds = balancePhenoPerBreed("ED")
 CLLD_allBreeds = balancePhenoPerBreed("CLLD")
 
 #Epilepsy Irish Wolfhounds
-IrishWolfhounds = balancePhenoPerBreed("epilepsy_irishWolfhounds")
+IrishWolfhounds_allBreeds = balancePhenoPerBreed("epilepsy_irishWolfhounds")
 
 #Lymphoma all Breeds
 #sample equal number of cases and controls
@@ -82,8 +91,18 @@ GC_allBreeds = balancePhenoPerBreed("GC_boxers_bulldogs")
 MCT_allBreeds = balancePhenoPerBreed("MCT") 
 
 #PSVA in all breeds
-#Add some more from the controls in Yorkshire Terrier data
 PSVA_allBreeds = balancePhenoPerBreed("PSVA")
 
 #Mitral Valve data
-MitralValve = balancePhenoPerBreed("MVD") 
+MitralValve_allBreeds = balancePhenoPerBreed("MVD") 
+
+#Get the dog ids for all those individuals we will be keeping
+getDogIDs = bind_rows(do.call(c, list(ED_allBreeds, CLLD_allBreeds, IrishWolfhounds_allBreeds, Lymphoma_allBreeds, GC_allBreeds, MCT_allBreeds, PSVA_allBreeds, MitralValve_allBreeds))) %>%
+  select(dogID) 
+
+#subset phenotype data to only those individuals
+FinalPhenotype = phenotypes %>%
+  filter(dogID %in% getDogIDs$dogID)
+
+#write it out 
+#write.table(FinalPhenotype, file = "~/Documents/DogProject_Jaz/LocalRscripts/CaseControlROH/CleanedFinalizedPhenotypes.txt", col.names = TRUE, row.names = FALSE, quote = FALSE, sep = "\t")
