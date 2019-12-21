@@ -55,8 +55,13 @@ balancePhenoPerBreed = function(phenoColName){
     }
     
     #make list of data frames per trait
-    ListOfFinalDFs[[i]] = finalDF
+    ListOfFinalDFs[[i]] = finalDF[,1:3] #remove weird extra col
+    
+    #write the final data frame to file
+    breed = unique(finalDF$breed)
+    write.table(finalDF, file=paste0("~/DogProject_Jaz/LocalRscripts/CaseControlROH/splitPhenotypeFile/", phenoColName, "_", breed, ".txt"), row.names = FALSE, col.names = TRUE, quote = FALSE, sep="\t")
   }
+  
   return(ListOfFinalDFs)
 }
 
@@ -95,15 +100,3 @@ PSVA_allBreeds = balancePhenoPerBreed("PSVA")
 
 #Mitral Valve data
 MitralValve_allBreeds = balancePhenoPerBreed("MVD") 
-
-#Get the dog ids for all those individuals we will be keeping
-getDogIDs = bind_rows(do.call(c, list(ED_allBreeds, CLLD_allBreeds, IrishWolfhounds_allBreeds, Lymphoma_allBreeds, GC_allBreeds, MCT_allBreeds, PSVA_allBreeds, MitralValve_allBreeds))) %>%
-  select(dogID) 
-
-#subset phenotype data to only those individuals
-FinalPhenotype = phenotypes %>%
-  filter(dogID %in% getDogIDs$dogID)
-
-#write it out 
-#write.table(FinalPhenotype, file = "~/Documents/DogProject_Jaz/LocalRscripts/CaseControlROH/CleanedFinalizedPhenotypes.txt", col.names = TRUE, row.names = FALSE, quote = FALSE, sep = "\t")
-#write.table(FinalPhenotype, file = "~/Documents/DogProject_Jaz/LocalRscripts/BreedCladeInfo/CleanedFinalizedPhenotypes.txt", col.names = TRUE, row.names = FALSE, quote = FALSE, sep = "\t")
