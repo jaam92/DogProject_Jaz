@@ -1,3 +1,6 @@
+####Based on the results from the PCA going to remove ID-14 wolf from all downstream analyses ####
+
+
 #Download packages
 #source("https://bioconductor.org/biocLite.R")
 #biocLite("gdsfmt")
@@ -12,21 +15,21 @@ library(randomcoloR)
 library(tidyverse)
 
 #Load Sample information
-setwd("~/DogProject_Jaz/LocalRscripts/PCA_Unrelateds")
-popmapMerge = read.delim("~/DogProject_Jaz/LocalRscripts/BreedCladeInfo/BreedAndCladeInfo_mergedFitakCornell.txt")
-orderPops = read.table("~/DogProject_Jaz/LocalRscripts/BreedCladeInfo/OrderPops.txt")
+setwd("~/Documents/DogProject_Jaz/LocalRscripts/PCA_Unrelateds")
+popmapMerge = read.delim("~/Documents/DogProject_Jaz/LocalRscripts/BreedCladeInfo/BreedAndCladeInfo_mergedFitakCornell.txt")
+orderPops = read.table("~/Documents/DogProject_Jaz/LocalRscripts/BreedCladeInfo/OrderPops.txt")
 
 # PLINK BED files for unpruned data aka random sample of 100000 snps
-#bed.fn = ("~/DogProject_Jaz/LocalRscripts/PCA_Unrelateds/MergedFile_CornellCanineFitak.bed")
-#bim.fn = ("~/DogProject_Jaz/LocalRscripts/PCA_Unrelateds/MergedFile_CornellCanineFitak.bim")
-#fam.fn = ("~/DogProject_Jaz/LocalRscripts/PCA_Unrelateds/MergedFile_CornellCanineFitak.fam")
+#bed.fn = ("~/Documents/DogProject_Jaz/LocalRscripts/PCA_Unrelateds/MergedFile_CornellCanineFitak.bed")
+#bim.fn = ("~/Documents/DogProject_Jaz/LocalRscripts/PCA_Unrelateds/MergedFile_CornellCanineFitak.bim")
+#fam.fn = ("~/Documents/DogProject_Jaz/LocalRscripts/PCA_Unrelateds/MergedFile_CornellCanineFitak.fam")
 
 #convert
-#snpgdsBED2GDS(bed.fn, fam.fn, bim.fn, "~/DogProject_Jaz/LocalRscripts/PCA_Unrelateds/MergedFile_CornellCanineFitak.gds")
-#snpgdsSummary("~/DogProject_Jaz/LocalRscripts/PCA_Unrelateds/MergedFile_CornellCanineFitak.gds")
+#snpgdsBED2GDS(bed.fn, fam.fn, bim.fn, "~/Documents/DogProject_Jaz/LocalRscripts/PCA_Unrelateds/MergedFile_CornellCanineFitak.gds")
+#snpgdsSummary("~/Documents/DogProject_Jaz/LocalRscripts/PCA_Unrelateds/MergedFile_CornellCanineFitak.gds")
 
 #Open file
-genofile = snpgdsOpen("~/DogProject_Jaz/LocalRscripts/PCA_Unrelateds/MergedFile_CornellCanineFitak.gds")
+genofile = snpgdsOpen("~/Documents/DogProject_Jaz/LocalRscripts/PCA_Unrelateds/MergedFile_CornellCanineFitak.gds")
 sampIds = read.gdsn(index.gdsn(genofile, "sample.id")) #grab sample ids 
 famIds = gsub(".*-","",sampIds) #make family ids
 
@@ -66,9 +69,6 @@ df_PCA = data.frame(sample.id = pca$sample.id,
                     EV2 = pca$eigenvect[,2], 
                     EV3 = pca$eigenvect[,3], 
                     EV4 = pca$eigenvect[,4],stringsAsFactors = FALSE)
-
-head(df_PCA)
-tail(df_PCA)
 
 #plot the nice version
 allSampsPC1vPC2 = ggplot(df_PCA, aes(y=EV2, x=EV1, colour=population)) +
@@ -119,7 +119,7 @@ print(allSampsPC1vPC2byClade)
 ggarrange(allSampsPC1vPC2 + theme(legend.text=element_text(size=12)), 
           allSampsPC1vPC2byClade + theme(legend.text=element_text(size=12)))
 
-###PCA on non-italian populations###
+###PCA on North American populations###
 gdsSampIDs = read.gdsn(index.gdsn(genofile, "sample.id"))
 sampleid_American = gdsSampIDs[grep("_NorthAmerica", gdsSampIDs)]
 samp.id.America = unlist(sampleid_American)
@@ -147,11 +147,8 @@ df_PCA_America = data.frame(sample.id = pca_America$sample.id,
                             EV4 = pca_America$eigenvect[,4], 
                             stringsAsFactors = FALSE)
 
-head(df_PCA_America)
-tail(df_PCA_America)
-
 #plot the nice version
-PC1vPC2_America = ggplot(df_PCA_America, aes(y=EV2, x=EV1, colour=cluster)) +
+PC1vPC2_America = ggplot(df_PCA_America, aes(y=EV2, x=EV1, colour=population)) +
   geom_point(size=2) +
   labs(y=bquote('PC2' ~'('~.(pc_America[2])~'%'~')'), x=bquote('PC1'~'('~.(pc_America[1])~'%'~')')) +
   theme_bw() +
