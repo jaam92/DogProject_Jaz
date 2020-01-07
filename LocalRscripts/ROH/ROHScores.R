@@ -1,6 +1,6 @@
 #Set working directory and load libraries
-setwd("~/Documents/DogProject_Jaz/LocalRscripts/ROH")
 library(tidyverse)
+setwd("~/Documents/DogProject_Jaz/LocalRscripts/ROH")
 
 #Read Files in
 dfMerge = read.delim("~/Documents/DogProject_Jaz/LocalRscripts/ROH/TrueROH_propCoveredwithin1SDMean_allChroms_mergedFitakCornell.txt")
@@ -12,7 +12,7 @@ orderPops = read.table("~/Documents/DogProject_Jaz/LocalRscripts/BreedCladeInfo/
 #orderCluster = read.table("~/Documents/DogProject_Jaz/LocalRscripts/BreedCladeInfo/OrderCluster.txt")
 
 #Concatenate dataframes 
-WolfDog = rbind.data.frame(dfMerge,dfStronen)
+WolfDog = rbind.data.frame(dfMerge, dfStronen)
 
 shortPopmapWolves = popmapStronen %>% 
   select(IID_Col2,Population,Cluster) %>%
