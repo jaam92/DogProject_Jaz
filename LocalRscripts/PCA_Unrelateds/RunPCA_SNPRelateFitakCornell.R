@@ -151,6 +151,7 @@ df_PCA_America = data.frame(sample.id = pca_America$sample.id,
 PC1vPC2_America = ggplot(df_PCA_America, aes(y=EV2, x=EV1, colour=population)) +
   geom_point(size=2) +
   labs(y=bquote('PC2' ~'('~.(pc_America[2])~'%'~')'), x=bquote('PC1'~'('~.(pc_America[1])~'%'~')')) +
+  scale_color_brewer(palette = "Set1") +
   theme_bw() +
   theme(axis.text.x = element_text(size  = 24), 
         axis.text.y = element_text(size  = 24), 
@@ -161,6 +162,7 @@ PC1vPC2_America = ggplot(df_PCA_America, aes(y=EV2, x=EV1, colour=population)) +
 PC2vPC3_America = ggplot(df_PCA_America, aes(y=EV3, x=EV2, colour=population))+
   geom_point(size=2) +
   labs(y=bquote('PC3' ~'('~.(pc_America[3])~'%'~')'), x=bquote('PC2'~'('~.(pc_America[2])~'%'~')')) +
+  scale_color_brewer(palette = "Set1") +
   theme_bw() +
   theme(axis.text.x = element_text(size  = 24), 
         axis.text.y = element_text(size  = 24), 
