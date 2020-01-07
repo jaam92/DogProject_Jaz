@@ -23,6 +23,7 @@ sampIds = read.gdsn(index.gdsn(genofile, "sample.id")) #grab sample ids
 famIds = gsub(".*-","",sampIds) #make family ids
 
 #LD prune because data set is small, set r2 = 0.7, maf 5%, and 50 snp window 
+set.seed(2020)
 snpset = snpgdsLDpruning(genofile, sample.id=sampIds, method="corr", slide.max.n=50, ld.threshold=0.3, maf = 0.05, autosome.only = F) 
 snpset.id = unlist(snpset)
 
@@ -49,6 +50,10 @@ notDupsSampIds  = gdsSampIDs[!(gdsSampIDs %in% excludeIndivs)]
 dfRmDups = cbind.data.frame(gsub('(.*)-\\w+', '\\1', notDupsSampIds), gsub(".*-","",notDupsSampIds))
 names(dfRmDups)[1] = "dogIDs"
 names(dfRmDups)[2] = "breed"
+
+dfRmDups = dfRmDups %>%
+  filter(dogIDs != "Wlf_LUb3" & dogIDs != "ID-14") #remove two wolves that were outliers in PCA
+
 write.table(dfRmDups, "Individuals_allBreeds_mergedFitakCornell.txt", sep = "\t", row.names = F, col.names = F, quote = F)
 
 ####Identify relateds then remove those closer than third degree relatives
@@ -65,24 +70,35 @@ newSampIds  = gdsSampIDs[!(gdsSampIDs %in% unique(Relateds$ID1))]
 dfUnrelateds = cbind.data.frame(gsub('(.*)-\\w+', '\\1', newSampIds), gsub(".*-","",newSampIds))
 names(dfUnrelateds)[1] = "Unrelateds"
 names(dfUnrelateds)[2] = "breed"
+#Remove two wolves that are major outliers in PCA
+dfUnrelateds = dfUnrelateds %>%
+  filter(Unrelateds != "Wlf_LUb3" & Unrelateds != "ID-14") 
+
 write.table(dfUnrelateds, "UnrelatedIndividuals_allBreeds_mergedFitakCornell.txt", sep = "\t", row.names = F, col.names = F, quote = F)
 
+#Reformat the population map files
+popmapMerge = read.delim("/u/home/j/jmooney3/klohmueldata/jazlyn_data/DogProject_Jaz/IndividualFiles/BreedAndCladeInfo_mergedFitakCornell.txt")
+popmapMerge$breed = gsub("large_munsterlander","munsterlander_large", popmapMerge$breed)
+popmapDog = popmapMerge[!(grepl("Wolf",popmapMerge$clade)),]
+popmapDog$Type = "BreedDog"
+popmapWolf = popmapMerge[grep("Wolf",popmapMerge$clade),]
+popmapWolf$Type = gsub(".*_", "", popmapWolf$breed)
+popmapMaster = rbind.data.frame(popmapDog,popmapWolf)
+
 #ID groups with at least 50 unrelateds
-wolfData = read.table("/u/home/j/jmooney3/klohmueldata/jazlyn_data/DogProject_Jaz/IndividualFiles/canine-cluster2.txt")
 UnrelatedsPerBreed_n50 = dfUnrelateds %>% 
   group_by(breed) %>% 
   tally() %>% 
   filter(n>=50) #find breeds with at least 50 unrelateds
-Unrelated_sampsGrEql50 = dfUnrelateds %>% 
-  filter(breed %in% UnrelatedsPerBreed_n50$breed)
-Unrelated_sampsGrEql50$WolfType = wolfData$V3[match(Unrelated_sampsGrEql50$Unrelateds, wolfData$V2)]
-Unrelated_sampsGrEql50 %>% 
-  group_by(WolfType) %>% 
-  tally() #only european breeds have at least 50 so use those
 
-#subset out dogs and european wolves
+Unrelated_sampsGrEql50 = dfUnrelateds %>% 
+  filter(breed %in% UnrelatedsPerBreed_n50$breed) %>%
+  mutate(Type = popmapMaster$Type[match(Unrelateds, popmapMaster$dogID)],
+         Clade = popmapMaster$clade[match(Unrelateds, popmapMaster$dogID)])
+
+#subset out dogs with at least 50 indivs per breed and group wolves by continent
 FinalUnrelatedDF = Unrelated_sampsGrEql50 %>% 
-  filter(is.na(WolfType) | WolfType == "EURO") %>% 
+  filter(Type == "BreedDog" | Clade == "grayWolf_Europe" | Clade == "grayWolf_NorthAmerica") %>% 
   select(Unrelateds, breed) %>% 
   as.data.frame()
 write.table(FinalUnrelatedDF, "UnrelatedIndividuals_grEql50_MergedFitakCornell.txt", sep = "\t", row.names = F, col.names = T, quote = F)
