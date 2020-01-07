@@ -23,6 +23,7 @@ sampIds = read.gdsn(index.gdsn(genofile, "sample.id")) #grab sample ids
 famIds = gsub(".*-","",sampIds) #make family ids
 
 #LD prune because data set is small, set r2 = 0.7, maf 5%, and 50 snp window 
+set.seed(2020)
 snpset = snpgdsLDpruning(genofile, sample.id=sampIds, method="corr", slide.max.n=50, ld.threshold=0.3, maf = 0.05, autosome.only = F) 
 snpset.id = unlist(snpset)
 
@@ -50,6 +51,9 @@ dfRmDups = cbind.data.frame(gsub('(.*)-\\w+', '\\1', notDupsSampIds),
                             gsub(".*-","",notDupsSampIds))
 names(dfRmDups)[1] = "dogIDs"
 names(dfRmDups)[2] = "breed"
+
+dfRmDups = dfRmDups %>%
+  filter(dogIDs != "Wlf_LUb3" & dogIDs != "ID-14") #remove two wolves that were outliers in PCA
 #write.table(dfRmDups, "Individuals_allBreeds_mergedFitakCornell.txt", sep = "\t", row.names = F, col.names = F, quote = F)
 
 ####Identify relateds then remove those closer than third degree relatives
@@ -91,16 +95,12 @@ UnrelatedsPerBreed_n50 = dfUnrelateds %>%
 
 Unrelated_sampsGrEql50 = dfUnrelateds %>% 
   filter(breed %in% UnrelatedsPerBreed_n50$breed) %>%
-  mutate(Type = popmapMaster$Type[match(Unrelated_sampsGrEql50$Unrelateds, popmapMaster$dogID)],
-         Clade = popmapMaster$clade[match(Unrelated_sampsGrEql50$Unrelateds, popmapMaster$dogID)])
+  mutate(Type = popmapMaster$Type[match(Unrelateds, popmapMaster$dogID)],
+         Clade = popmapMaster$clade[match(Unrelateds, popmapMaster$dogID)])
 
-Unrelated_sampsGrEql50 %>% 
-  group_by(Type) %>% 
-  tally() #only european breeds have at least 50 so use those
-
-#subset out dogs and european wolves
+#subset out dogs with at least 50 indivs per breed and group wolves by continent
 FinalUnrelatedDF = Unrelated_sampsGrEql50 %>% 
-  filter(Type == "BreedDog" | Type == "EURO") %>% 
+  filter(Type == "BreedDog" | Clade == "grayWolf_Europe" | Clade == "grayWolf_NorthAmerica") %>% 
   select(Unrelateds, breed) %>% 
   as.data.frame()
 #write.table(FinalUnrelatedDF, "UnrelatedIndividuals_grEql50_MergedFitakCornell.txt", sep = "\t", row.names = F, col.names = T, quote = F)
