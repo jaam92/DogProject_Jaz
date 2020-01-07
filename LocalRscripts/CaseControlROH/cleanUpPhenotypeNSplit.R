@@ -59,7 +59,7 @@ balancePhenoPerBreed = function(phenoColName){
     
     #write the final data frame to file
     breed = unique(finalDF$breed)
-    write.table(finalDF, file=paste0("~/DogProject_Jaz/LocalRscripts/CaseControlROH/splitPhenotypeFile/", phenoColName, "_", breed, ".txt"), row.names = FALSE, col.names = TRUE, quote = FALSE, sep="\t")
+    write.table(finalDF, file=paste0("~/Documents/DogProject_Jaz/LocalRscripts/CaseControlROH/splitPhenotypeFile/", phenoColName, "_", breed, ".txt"), row.names = FALSE, col.names = TRUE, quote = FALSE, sep="\t")
   }
   
   return(ListOfFinalDFs)
