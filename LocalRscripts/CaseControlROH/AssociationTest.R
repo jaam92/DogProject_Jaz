@@ -3,56 +3,44 @@ library(tidyverse)
 library(GMMAT)
 
 #Define fxns
-#Function to pull phenotype data
-phenoKinship = function(phenoColName){
-  phenoCol = enquo(phenoColName)
-  dogsOfInterest = phenotypes %>% 
-    select(dogID, !!phenoCol) %>% 
-    na.omit() 
-  #keep only those rows and columns that correspond to dogs of interest
-  kinshipMat = pcRelateMat %>%
-    as.matrix()
-  kinshipMat = kinshipMat[, colnames(kinshipMat) %in% dogsOfInterest$dogID]
-  kinshipMat = kinshipMat[ rownames(kinshipMat) %in% dogsOfInterest$dogID,]
-  return(kinshipMat)
-}
-#Run ROH score test
-#function to inverse normal transform the score
-qn <- function(exp_vector) {
+
+#Function to inverse normal transform the score
+qn = function(exp_vector) {
   result = qnorm(rank(exp_vector)/(length(exp_vector)+1))
   return(result)
 }
-
-#function to run the association
-runAssociation = function(phenoKinshipMatrix, phenotypeColName){
-  ROHLoad = colnames(phenoKinshipMatrix) %>% 
-    as.data.frame() %>% 
-    rename("dogID" = ".") %>%
-    mutate(ROHLoad = rohs$totalROH[match(dogID, rohs$INDV)],
-           QNSCORE = qn(as.numeric(ROHLoad)), 
-           pheno = phenotypes[,phenotypeColName][match(dogID, phenotypes$dogID)],
-           status = ifelse(pheno == "2", as.numeric(1), as.numeric(0)))
   
-  out.logistic<-glmmkin(status~QNSCORE,data=ROHLoad,kins=phenoKinshipMatrix*2,id = "dogID",family=binomial(link="logit"))
-  
-  LogisticCoef = out.logistic$coef[2]
-  LogisticStat = out.logistic$coef[2]/sqrt(out.logistic$cov[2,2])
-  LogisticPval = ifelse(out.logistic$coef[2]/sqrt(out.logistic$cov[2,2])<0, pnorm(out.logistic$coef[2]/sqrt(out.logistic$cov[2,2]),lower=TRUE)*2,pnorm(out.logistic$coef[2]/sqrt(out.logistic$cov[2,2]),lower=FALSE)*2)
-  LogRegOutput = cbind.data.frame(LogisticCoef,LogisticStat,LogisticPval)
-  return(LogRegOutput)
-}
+#keep only those rows and columns that correspond to dogs of interest
+kinshipMat = pcRelateMat %>%
+  as.matrix()
+kinshipMat = kinshipMat[, colnames(kinshipMat) %in% dogsOfInterest$dogID]
+kinshipMat = kinshipMat[ rownames(kinshipMat) %in% dogsOfInterest$dogID,]
 
-#Load breed information, kinship matrix, ROHs, and phenotype data
-popmapDryad = read.delim("~/Documents/DogProject_Jaz/LocalRscripts/BreedCladeInfo/breeds_dryad.txt")
-pcRelateMat = readRDS("~/Documents/DogProject_Jaz/LocalRscripts/CaseControlROH/pcRelateMatrix_Unrelateds.rds")
-rohs = read.delim(file = "~/Documents/DogProject_Jaz/LocalRscripts/ROH/TrueROH_propCoveredwithin1SDMean_allChroms_mergedFitakCornell.txt") %>%
+#Grab the ROH information
+ROHLoad = colnames(kinshipMat) %>% 
+  as.data.frame() %>% 
+  rename("dogID" = ".") %>%
+  mutate(ROHLoad = rohs$totalROH[match(dogID, rohs$INDV)],
+         QNSCORE = qn(as.numeric(ROHLoad)), 
+         pheno = phenotypes[,phenotypeColName][match(dogID, phenotypes$dogID)],
+         status = ifelse(pheno == "2", as.numeric(1), as.numeric(0)))
+
+out.logistic = glmmkin(status~QNSCORE,data=ROHLoad,kins=phenoKinshipMatrix*2,id = "dogID",family=binomial(link="logit"))
+
+LogisticCoef = out.logistic$coef[2]
+LogisticStat = out.logistic$coef[2]/sqrt(out.logistic$cov[2,2])
+LogisticPval = ifelse(out.logistic$coef[2]/sqrt(out.logistic$cov[2,2])<0, pnorm(out.logistic$coef[2]/sqrt(out.logistic$cov[2,2]),lower=TRUE)*2,pnorm(out.logistic$coef[2]/sqrt(out.logistic$cov[2,2]),lower=FALSE)*2)
+LogRegOutput = cbind.data.frame(LogisticCoef,LogisticStat,LogisticPval)
+
+#Load kinship matrix, ROHs, and phenotype data
+
+pcRelateMat = readRDS("~/DogProject_Jaz/LocalRscripts/CaseControlROH/pcRelateMatrix_Unrelateds.rds")
+
+rohs = read.delim(file = "~/DogProject_Jaz/LocalRscripts/ROH/TrueROH_propCoveredwithin1SDMean_allChroms_mergedFitakCornell.txt") %>%
   group_by(INDV) %>%
-  summarise(totalROH = sum(as.numeric(AUTO_LEN)))
-phenotypes = read.delim("~/Documents/DogProject_Jaz/LocalRscripts/BreedCladeInfo/CleanedFinalizedPhenotypes.txt")  %>% 
-  mutate(PSVA = ifelse(is.na(PSVA), PSVA_yorkshireTerriers, PSVA), 
-         MCT = ifelse(is.na(MCT), MCT_labradorRetrievers, MCT), 
-         lymphoma = ifelse(is.na(lymphoma), lymphoma_goldenRetrievers, lymphoma),
-         breed = popmapDryad$breed[match(dogID, popmapDryad$dogID)])
+  summarise(totalROH = sum(as.numeric(AUTO_LEN))) 
+
+phenotypes = read.delim("~/DogProject_Jaz/LocalRscripts/CaseControlROH/splitPhenotypeFile/CLLD_german_shepherd_dog.txt")
 
 #Make data frames for each phenotype of interest and run association test
 #Elbow Dysplasia
