@@ -9,12 +9,28 @@ qn = function(exp_vector) {
   result = qnorm(rank(exp_vector)/(length(exp_vector)+1))
   return(result)
 }
-  
+
+#Load kinship matrix, ROHs, and phenotype data
+pcRelateMat = readRDS("~/Documents/DogProject_Jaz/LocalRscripts/CaseControlROH/pcRelateMatrix_Unrelateds.rds")
+
+rohs = read.delim(file = "~/Documents/DogProject_Jaz/LocalRscripts/ROH/TrueROH_propCoveredwithin1SDMean_allChroms_mergedFitakCornell.txt") %>%
+  group_by(INDV) %>%
+  summarise(totalROH = sum(as.numeric(AUTO_LEN))) 
+
+fnames = list.files(path="~/Documents/DogProject_Jaz/LocalRscripts/CaseControlROH/splitPhenotypeFile", pattern = "\\.txt$")
+
+#Generate data frame
+##create columns with fileName, population, and compute pi 
+df = rbindlist(sapply(fnames, read.delim, simplify = FALSE), use.names = TRUE, idcol = "FileName")
+
+phenotypes = read.delim("~/Documents/DogProject_Jaz/LocalRscripts/CaseControlROH/splitPhenotypeFile/CLLD_german_shepherd_dog.txt")
+
+names(phenotypes)[3] = "trait"
 #keep only those rows and columns that correspond to dogs of interest
 kinshipMat = pcRelateMat %>%
   as.matrix()
-kinshipMat = kinshipMat[, colnames(kinshipMat) %in% dogsOfInterest$dogID]
-kinshipMat = kinshipMat[ rownames(kinshipMat) %in% dogsOfInterest$dogID,]
+kinshipMat = kinshipMat[, colnames(kinshipMat) %in% phenotypes$dogID]
+kinshipMat = kinshipMat[ rownames(kinshipMat) %in% phenotypes$dogID,]
 
 #Grab the ROH information
 ROHLoad = colnames(kinshipMat) %>% 
@@ -22,25 +38,17 @@ ROHLoad = colnames(kinshipMat) %>%
   rename("dogID" = ".") %>%
   mutate(ROHLoad = rohs$totalROH[match(dogID, rohs$INDV)],
          QNSCORE = qn(as.numeric(ROHLoad)), 
-         pheno = phenotypes[,phenotypeColName][match(dogID, phenotypes$dogID)],
+         pheno = phenotypes$trait[match(dogID, phenotypes$dogID)],
          status = ifelse(pheno == "2", as.numeric(1), as.numeric(0)))
 
-out.logistic = glmmkin(status~QNSCORE,data=ROHLoad,kins=phenoKinshipMatrix*2,id = "dogID",family=binomial(link="logit"))
+out.logistic = glmmkin(status~QNSCORE, data=ROHLoad, kins=kinshipMat*2, id = "dogID", family=binomial(link="logit"))
 
 LogisticCoef = out.logistic$coef[2]
 LogisticStat = out.logistic$coef[2]/sqrt(out.logistic$cov[2,2])
 LogisticPval = ifelse(out.logistic$coef[2]/sqrt(out.logistic$cov[2,2])<0, pnorm(out.logistic$coef[2]/sqrt(out.logistic$cov[2,2]),lower=TRUE)*2,pnorm(out.logistic$coef[2]/sqrt(out.logistic$cov[2,2]),lower=FALSE)*2)
-LogRegOutput = cbind.data.frame(LogisticCoef,LogisticStat,LogisticPval)
+LogRegOutput = cbind.data.frame(LogisticCoef,LogisticStat,LogisticPval,fname[i])
 
-#Load kinship matrix, ROHs, and phenotype data
 
-pcRelateMat = readRDS("~/DogProject_Jaz/LocalRscripts/CaseControlROH/pcRelateMatrix_Unrelateds.rds")
-
-rohs = read.delim(file = "~/DogProject_Jaz/LocalRscripts/ROH/TrueROH_propCoveredwithin1SDMean_allChroms_mergedFitakCornell.txt") %>%
-  group_by(INDV) %>%
-  summarise(totalROH = sum(as.numeric(AUTO_LEN))) 
-
-phenotypes = read.delim("~/DogProject_Jaz/LocalRscripts/CaseControlROH/splitPhenotypeFile/CLLD_german_shepherd_dog.txt")
 
 #Make data frames for each phenotype of interest and run association test
 #Elbow Dysplasia
