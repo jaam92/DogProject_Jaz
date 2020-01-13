@@ -3,7 +3,7 @@ library(tidyverse)
 
 #Function to make a list of data frames for a given phenotype of interest
 balancePhenoPerBreed = function(phenoColName){
-  ListOfFinalDFs = list() #make an empty list to hold my list of data frames
+  dfList = list() #make an empty list to hold my list of data frames
   phenoCol = enquo(phenoColName) #grab the phenotype column
   
   #Make a data frame with breed num case controls and indicator col for sampling
@@ -37,16 +37,18 @@ balancePhenoPerBreed = function(phenoColName){
   #Remove the empty dataframes from the list of dataframes
   dfList = dfList[map(dfList, function(x) dim(x)[1]) > 0]
   
-  #Make a final data frame with balanced case-control if there were more cases than. Otherwise output the original data frame
+  #Write each component of list to separate file and downsample if needed
   for(i in 1:length(dfList)){
-    
+    phenoCol = enquo(phenoColName)
     if(dfList[[i]]$downSamp != 0){
       finalDF = phenotypes %>%
         select(dogID, breed, !!phenoCol) %>% 
+        dplyr::rename(trait = !!phenoCol) %>% #rename column to get group_by to work
         filter(breed == dfList[[i]]$breed) %>% #remove mixed breed dogs
         na.omit() %>%
-        group_by(!!phenoCol) %>%
+        group_by(trait) %>%
         sample_n(size = dfList[[i]]$downSamp) #downsample cases to match controls
+      names(finalDF)[3] = phenoColName #put original column name back
     }else{
       finalDF = phenotypes %>%
         select(dogID, breed, !!phenoCol) %>% 
@@ -54,15 +56,13 @@ balancePhenoPerBreed = function(phenoColName){
         na.omit()
     }
     
-    #make list of data frames per trait
-    ListOfFinalDFs[[i]] = finalDF[,1:3] #remove weird extra col
-    
     #write the final data frame to file
     breed = unique(finalDF$breed)
     write.table(finalDF, file=paste0("~/Documents/DogProject_Jaz/LocalRscripts/CaseControlROH/splitPhenotypeFile/", phenoColName, "_", breed, ".txt"), row.names = FALSE, col.names = TRUE, quote = FALSE, sep="\t")
+    
   }
-  
-  return(ListOfFinalDFs)
+
+  return(dfList)
 }
 
 #Load file
@@ -86,7 +86,6 @@ CLLD_allBreeds = balancePhenoPerBreed("CLLD")
 IrishWolfhounds_allBreeds = balancePhenoPerBreed("epilepsy_irishWolfhounds")
 
 #Lymphoma all Breeds
-#sample equal number of cases and controls
 Lymphoma_allBreeds = balancePhenoPerBreed("lymphoma")
 
 #Crohn's in Boxer and Bulldog
