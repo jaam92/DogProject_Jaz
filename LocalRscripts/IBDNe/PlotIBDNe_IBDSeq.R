@@ -34,9 +34,10 @@ for (i in seq_along(dfList)){
   dfList[[i]]$Years = dfList[[i]]$GEN*4
 }
 
-#Merge to one data frame
+#Merge to one data frame and order data 
 allPopsDF = bind_rows(dfList)
-
+newOrder = c("boxer", "cocker_spaniel", "german_shepherd_dog", "golden_retriever", "labrador_retriever", "maltese", "newfoundland", "poodle", "rottweiler", "yorkshire_terrier", "mixed", "village_dog_peru", "grayWolf_Europe", "grayWolf_NorthAmerica")
+allPopsDF$Population =factor(allPopsDF$Population,levels=newOrder)
 #Plot
 #colourCount_breed = length(pops)
 #palette = distinctColorPalette(colourCount_breed)
