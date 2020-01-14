@@ -12,7 +12,7 @@ balancePhenoPerBreed = function(phenoColName){
   #Only output data if there are at least 10 cases and controls
   dfList = phenotypes %>% 
   select(dogID, breed, !!phenoCol) %>%
-  filter(breed != "mix") %>% #remove mixed breed dogs
+  filter(dogID %in% indivs$dogID & breed != "mix") %>% #remove mixed breed dogs
   na.omit() %>%
   dplyr::rename(trait = !!phenoCol) %>% #rename phenotype col makes things easier when pivotting dataframe 
   group_by(breed,trait) %>%
@@ -44,7 +44,7 @@ balancePhenoPerBreed = function(phenoColName){
       finalDF = phenotypes %>%
         select(dogID, breed, !!phenoCol) %>% 
         dplyr::rename(trait = !!phenoCol) %>% #rename column to get group_by to work
-        filter(breed == dfList[[i]]$breed) %>% #remove mixed breed dogs
+        filter(dogID %in% indivs$dogID & breed == dfList[[i]]$breed) %>% #remove mixed breed dogs
         na.omit() %>%
         group_by(trait) %>%
         sample_n(size = dfList[[i]]$downSamp) #downsample cases to match controls
@@ -52,7 +52,7 @@ balancePhenoPerBreed = function(phenoColName){
     }else{
       finalDF = phenotypes %>%
         select(dogID, breed, !!phenoCol) %>% 
-        filter(breed == dfList[[i]]$breed) %>% 
+        filter(dogID %in% indivs$dogID & breed == dfList[[i]]$breed) %>% 
         na.omit()
     }
     
@@ -66,13 +66,13 @@ balancePhenoPerBreed = function(phenoColName){
 }
 
 #Load file
-  popmapDryad = read.delim("~/Documents/DogProject_Jaz/LocalRscripts/BreedCladeInfo/breeds_dryad.txt")
-  phenotypes = read.delim("~/Documents/DogProject_Jaz/LocalRscripts/BreedCladeInfo/phenotypes.txt")  %>% 
+popmapDryad = read.delim("~/Documents/DogProject_Jaz/LocalRscripts/BreedCladeInfo/breeds_dryad.txt")
+phenotypes = read.delim("~/Documents/DogProject_Jaz/LocalRscripts/BreedCladeInfo/phenotypes.txt")  %>% 
     mutate(PSVA = ifelse(is.na(PSVA), PSVA_yorkshireTerriers, PSVA), 
            MCT = ifelse(is.na(MCT), MCT_labradorRetrievers, MCT), 
            lymphoma = ifelse(is.na(lymphoma), lymphoma_goldenRetrievers, lymphoma),
            breed = popmapDryad$breed[match(dogID, popmapDryad$dogID)])
-
+indivs = read.delim("~/Documents/DogProject_Jaz/LocalRscripts/BreedCladeInfo/Individuals_allBreeds_mergedFitakCornell.txt", col.names = c("dogID", "breed"))
 
 #Make data frames for each phenotype of interest and output new phenotype files
 set.seed(303)
