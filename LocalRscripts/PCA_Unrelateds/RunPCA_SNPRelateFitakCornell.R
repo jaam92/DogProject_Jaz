@@ -20,16 +20,16 @@ popmapMerge = read.delim("~/Documents/DogProject_Jaz/LocalRscripts/BreedCladeInf
 orderPops = read.table("~/Documents/DogProject_Jaz/LocalRscripts/BreedCladeInfo/OrderPops.txt")
 
 # PLINK BED files for unpruned data aka random sample of 100000 snps
-#bed.fn = ("~/Documents/DogProject_Jaz/LocalRscripts/PCA_Unrelateds/MergedFile_CornellCanineFitak.bed")
-#bim.fn = ("~/Documents/DogProject_Jaz/LocalRscripts/PCA_Unrelateds/MergedFile_CornellCanineFitak.bim")
-#fam.fn = ("~/Documents/DogProject_Jaz/LocalRscripts/PCA_Unrelateds/MergedFile_CornellCanineFitak.fam")
+#bed.fn = ("~/Documents/DogProject_Jaz/LocalRscripts/PCA_Unrelateds/MergedFile_CornellCanineFitak_allIndivs.bed")
+#bim.fn = ("~/Documents/DogProject_Jaz/LocalRscripts/PCA_Unrelateds/MergedFile_CornellCanineFitak_allIndivs.bim")
+#fam.fn = ("~/Documents/DogProject_Jaz/LocalRscripts/PCA_Unrelateds/MergedFile_CornellCanineFitak_allIndivs.fam")
 
 #convert
-#snpgdsBED2GDS(bed.fn, fam.fn, bim.fn, "~/Documents/DogProject_Jaz/LocalRscripts/PCA_Unrelateds/MergedFile_CornellCanineFitak.gds")
-#snpgdsSummary("~/Documents/DogProject_Jaz/LocalRscripts/PCA_Unrelateds/MergedFile_CornellCanineFitak.gds")
+#snpgdsBED2GDS(bed.fn, fam.fn, bim.fn, "~/Documents/DogProject_Jaz/LocalRscripts/PCA_Unrelateds/MergedFile_CornellCanineFitak_allIndivs.gds")
+#snpgdsSummary("~/Documents/DogProject_Jaz/LocalRscripts/PCA_Unrelateds/MergedFile_CornellCanineFitak_allIndivs.gds")
 
 #Open file
-genofile = snpgdsOpen("~/Documents/DogProject_Jaz/LocalRscripts/PCA_Unrelateds/MergedFile_CornellCanineFitak.gds")
+genofile = snpgdsOpen("~/Documents/DogProject_Jaz/LocalRscripts/PCA_Unrelateds/MergedFile_CornellCanineFitak_allIndivs.gds")
 sampIds = read.gdsn(index.gdsn(genofile, "sample.id")) #grab sample ids 
 famIds = gsub(".*-","",sampIds) #make family ids
 
