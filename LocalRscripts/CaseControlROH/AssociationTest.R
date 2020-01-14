@@ -52,9 +52,11 @@ for (i in seq_along(fnames)){
   LogisticCoef = out.logistic$coef[2]
   LogisticStat = out.logistic$coef[2]/sqrt(out.logistic$cov[2,2])
   LogisticPval = ifelse(out.logistic$coef[2]/sqrt(out.logistic$cov[2,2])<0, pnorm(out.logistic$coef[2]/sqrt(out.logistic$cov[2,2]),lower=TRUE)*2,pnorm(out.logistic$coef[2]/sqrt(out.logistic$cov[2,2]),lower=FALSE)*2)
+  confintUpper = out.logistic$coefficients + 1.96*diag(out.logistic$cov)
+  confintLower = out.logistic$coefficients - 1.96*diag(out.logistic$cov)
   
-  #Save Association Test output case-control count
-  LogRegOutput = cbind.data.frame(trait, CaseControlCount, LogisticCoef,LogisticStat,LogisticPval)
+  #Save Association Test output case-control count and the confidence interval of my fixed effect beta
+  LogRegOutput = cbind.data.frame(trait, CaseControlCount, LogisticCoef, confintUpper[2], confintLower[2], LogisticStat,LogisticPval)
   AssociationTestResults = rbind.data.frame(AssociationTestResults, LogRegOutput)
 }
 
