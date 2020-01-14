@@ -72,7 +72,8 @@ df_PCA = data.frame(sample.id = pca$sample.id,
 
 #plot the nice version
 allSampsPC1vPC2 = ggplot(df_PCA, aes(y=EV2, x=EV1, colour=population)) +
-  geom_point(size=2) + 
+  geom_point(size=2) +
+  scale_colour_manual(values = c("Breed dog"= "red", "Village dog"="black", "North American wolf" = "gray80", "European wolf" = "blue"), name="Population") + 
   labs(y=bquote('PC2' ~'('~.(pc[2])~'%'~')'), x=bquote('PC1'~'('~.(pc[1])~'%'~')')) +
   theme_bw() + 
   theme(axis.text.x = element_text(size  = 24), 
@@ -83,7 +84,8 @@ allSampsPC1vPC2 = ggplot(df_PCA, aes(y=EV2, x=EV1, colour=population)) +
         legend.position = "bottom")
 
 allSampsPC2vPC3 = ggplot(df_PCA, aes(y=EV3, x=EV2, colour=population)) +
-  geom_point(size=2) + 
+  geom_point(size=2) +
+  scale_colour_manual(values = c("Breed dog"= "red", "Village dog"="black", "North American wolf" = "gray80", "European wolf" = "blue"), name="Population") + 
   labs(y=bquote('PC3' ~'('~.(pc[3])~'%'~')'), x=bquote('PC2'~'('~.(pc[2])~'%'~')')) +
   theme_bw() + 
   theme(axis.text.x = element_text(size  = 24), 
