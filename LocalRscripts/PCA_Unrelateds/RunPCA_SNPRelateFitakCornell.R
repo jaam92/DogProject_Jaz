@@ -54,9 +54,9 @@ pca$sample.id = gsub('-flat', '', pca$sample.id)
 #Reformat the population map files
 popmapMerge$breed = gsub("large_munsterlander","munsterlander_large", popmapMerge$breed)
 popmapDog = popmapMerge[!(grepl("Wolf",popmapMerge$clade)),]
-popmapDog$Type = "BreedDog"
+popmapDog$Type = ifelse(popmapDog$clade != "Village", "Breed dog", "Village dog")
 popmapWolf = popmapMerge[grep("Wolf",popmapMerge$clade),]
-popmapWolf$Type = gsub(".*_", "", popmapWolf$breed)
+popmapWolf$Type = ifelse(popmapWolf$clade !="grayWolf_Europe", "North American wolf", "European wolf")
 popmapMaster = rbind.data.frame(popmapDog,popmapWolf)
 sample.id = as.character(popmapMerge$dogID)
 population = as.character(popmapMerge$breed)
