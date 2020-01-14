@@ -52,14 +52,31 @@ for (i in seq_along(fnames)){
   LogisticCoef = out.logistic$coef[2]
   LogisticStat = out.logistic$coef[2]/sqrt(out.logistic$cov[2,2])
   LogisticPval = ifelse(out.logistic$coef[2]/sqrt(out.logistic$cov[2,2])<0, pnorm(out.logistic$coef[2]/sqrt(out.logistic$cov[2,2]),lower=TRUE)*2,pnorm(out.logistic$coef[2]/sqrt(out.logistic$cov[2,2]),lower=FALSE)*2)
-  confintUpper = out.logistic$coefficients + 1.96*diag(out.logistic$cov)
-  confintLower = out.logistic$coefficients - 1.96*diag(out.logistic$cov)
+  confintUpper = out.logistic$coefficients + 1.96*sqrt(diag(out.logistic$cov)) #diagonal of cov matrix gives variance need SE so take the sqrt
+  confintLower = out.logistic$coefficients - 1.96*sqrt(diag(out.logistic$cov))
   
   #Save Association Test output case-control count and the confidence interval of my fixed effect beta
-  LogRegOutput = cbind.data.frame(trait, CaseControlCount, LogisticCoef, confintUpper[2], confintLower[2], LogisticStat,LogisticPval)
+  LogRegOutput = cbind.data.frame(trait, CaseControlCount, LogisticCoef, confintUpper[2], confintLower[2], LogisticStat,LogisticPval) %>%
+    dplyr::rename(lowerBound = `confintLower[2]`, upperBound = `confintUpper[2]`)
+  LogRegOutput$significant = ifelse(LogRegOutput$LogisticPval <= 0.05, "yes","no") #attach indicator 
   AssociationTestResults = rbind.data.frame(AssociationTestResults, LogRegOutput)
 }
 
+#Plot the output
+ggplot(AssociationTestResults, aes(x=gsub("_", " ", AssociationTestResults$trait), y = LogisticCoef, colour= significant)) +
+  geom_hline(yintercept = 0) + 
+  geom_errorbar(aes(ymin=lowerBound, ymax=upperBound), colour="gray40", width=.2) + 
+  geom_point() + 
+  coord_flip() +  
+  scale_colour_manual(values = c("yes"= "red", "no"="black")) + 
+  labs(x = "Trait", y="Effect Size") +
+  theme_bw() + 
+  theme(axis.text.x = element_text( hjust= 0.5, vjust=1, size=20), 
+        axis.text.y = element_text(size =20), 
+        plot.title=element_text(size =24, face = "bold", hjust=0.5), 
+        axis.title=element_text(size=24), 
+        legend.position = "none") 
+  
 
 
 
