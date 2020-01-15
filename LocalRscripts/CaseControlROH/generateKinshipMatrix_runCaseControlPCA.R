@@ -6,16 +6,16 @@ library(GENESIS)
 library(GWASTools)
 
 ####Make gds file
-#bed.fn = ("~/Documents/DogProject_Jaz/LocalRscripts/CaseControlROH/MergedFile_CornellCanineFitak_UnrelatedsOnly.bed")
-#bim.fn = ("~/Documents/DogProject_Jaz/LocalRscripts/CaseControlROH/MergedFile_CornellCanineFitak_UnrelatedsOnly.bim")
-#fam.fn = ("~/Documents/DogProject_Jaz/LocalRscripts/CaseControlROH/MergedFile_CornellCanineFitak_UnrelatedsOnly.fam")
+#bed.fn = ("~/Documents/DogProject_Jaz/LocalRscripts/CaseControlROH/MergedFile_CornellCanineFitak_allIndivs.bed")
+#bim.fn = ("~/Documents/DogProject_Jaz/LocalRscripts/CaseControlROH/MergedFile_CornellCanineFitak_allIndivs.bim")
+#fam.fn = ("~/Documents/DogProject_Jaz/LocalRscripts/CaseControlROH/MergedFile_CornellCanineFitak_allIndivs.fam")
 
 #convert
-#snpgdsBED2GDS(bed.fn, fam.fn, bim.fn, "~/Documents/DogProject_Jaz/LocalRscripts/CaseControlROH/MergedFile_CornellCanineFitak_UnrelatedsOnly.gds")
-#snpgdsSummary("~/Documents/DogProject_Jaz/LocalRscripts/CaseControlROH/MergedFile_CornellCanineFitak_UnrelatedsOnly.gds")
+#snpgdsBED2GDS(bed.fn, fam.fn, bim.fn, "~/Documents/DogProject_Jaz/LocalRscripts/CaseControlROH/MergedFile_CornellCanineFitak_allIndivs.gds")
+#snpgdsSummary("~/Documents/DogProject_Jaz/LocalRscripts/CaseControlROH/MergedFile_CornellCanineFitak_allIndivs.gds")
 
 #open the new gds file
-genofile = snpgdsOpen("~/Documents/DogProject_Jaz/LocalRscripts/CaseControlROH/MergedFile_CornellCanineFitak_UnrelatedsOnly.gds")
+genofile = snpgdsOpen("~/Documents/DogProject_Jaz/LocalRscripts/CaseControlROH/MergedFile_CornellCanineFitak_allIndivs.gds")
 sampIds = read.gdsn(index.gdsn(genofile, "sample.id")) #grab sample ids 
 famIds = gsub(".*-","",sampIds) #make family ids
 
@@ -31,7 +31,7 @@ colnames(kingMat) <- rownames(kingMat) <- king$sample.id
 snpgdsClose(genofile)#Close file
 
 #Re-Open GDS data 
-genoFile = GdsGenotypeReader(filename = "~/Documents/DogProject_Jaz/LocalRscripts/CaseControlROH/MergedFile_CornellCanineFitak_UnrelatedsOnly.gds")#read in GDS data
+genoFile = GdsGenotypeReader(filename = "~/Documents/DogProject_Jaz/LocalRscripts/CaseControlROH/MergedFile_CornellCanineFitak_allIndivs.gds")#read in GDS data
 genoData = GenotypeData(genoFile)#create a GenotypeData class object
 
 ##Partition data into relateds and unrelated (less than first cousins)
@@ -54,6 +54,6 @@ pcRelateMat = pcrelateToMatrix(canidpcRelate, scaleKin = 1) #convert pcrelate ou
 #only keep individuals that have a phenotype
 newRowNames = gsub('(.*)-\\w+', '\\1',rownames(pcRelateMat))
 colnames(pcRelateMat) <- rownames(pcRelateMat) <- newRowNames
-saveRDS(pcRelateMat, "~/Documents/DogProject_Jaz/LocalRscripts/CaseControlROH/pcRelateMatrix_Unrelateds.rds")
+saveRDS(pcRelateMat, "~/Documents/DogProject_Jaz/LocalRscripts/CaseControlROH/pcRelateMatrix_allIndivs.rds")
 
 snpgdsClose(genofile)
