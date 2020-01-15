@@ -135,7 +135,6 @@ CLLD_perBreed = balancePhenoPerBreed("CLLD")
 
 #Epilepsy Irish Wolfhounds
 IrishWolfhounds_allBreeds = balancePheno("epilepsy_irishWolfhounds")
-IrishWolfhounds_perBreed = balancePhenoPerBreed("epilepsy_irishWolfhounds")
 
 #Lymphoma all Breeds
 Lymphoma_allBreeds = balancePheno("lymphoma")
