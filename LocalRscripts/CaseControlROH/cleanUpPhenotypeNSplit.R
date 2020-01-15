@@ -2,10 +2,9 @@
 library(tidyverse)
 
 #Functions to make a list of data frames for a given phenotype of interest for each breed and over all breeds
-
 #all Breeds fxn
 balancePheno = function(phenoColName){
-  df = as.data.frame() #make an empty list to hold my list of data frames
+  df = data.frame() #make an empty list to hold my list of data frames
   phenoCol = enquo(phenoColName) #grab the phenotype column
   
   #Make a data frame with breed num case controls and indicator col for sampling
@@ -19,7 +18,7 @@ balancePheno = function(phenoColName){
     dplyr::rename(trait = !!phenoCol) %>% #rename phenotype col makes things easier when pivotting dataframe 
     group_by(trait) %>%
     count() %>%
-    pivot_wider(names_from = trait, values_from = n ) %>%
+    pivot_wider(names_from = trait, values_from = n) %>%
     dplyr::rename(control=`1`, case=`2`) %>%
     mutate(downSamp=case_when(
       control > case ~ as.integer(0), 
@@ -27,26 +26,27 @@ balancePheno = function(phenoColName){
       case > control ~ as.integer(control))) %>%
     filter(control >= 10 & case >= 10)
   
-  #Write each component of list to separate file and downsample if needed
-    if(df$downSamp != 0){
-      finalDF = phenotypes %>%
-        select(dogID, breed, !!phenoCol) %>% 
-        dplyr::rename(trait = !!phenoCol) %>% #rename column to get group_by to work
-        filter(dogID %in% indivs$dogID & breed != "mix") %>% #use only dogs that pass QC and aren't mixed breed
-        na.omit() %>%
-        group_by(trait) %>%
-        sample_n(size = dfList$downSamp) #downsample cases to match controls
-      names(finalDF)[3] = phenoColName #put original column name back
-    }else{
-      finalDF = phenotypes %>%
-        select(dogID, breed, !!phenoCol) %>% 
-        filter(dogID %in% indivs$dogID & breed != "mix") %>% #use only dogs that pass QC and aren't mixed breed
-        na.omit()
-    }
-    
-    #write the final data frame to file
-    write.table(finalDF, file=paste0("~/Documents/DogProject_Jaz/LocalRscripts/CaseControlROH/splitPhenotypeFile/", phenoColName, ".txt"), row.names = FALSE, col.names = TRUE, quote = FALSE, sep="\t")
-    
+  #Downsample if needed and write to output file
+  if(df$downSamp != 0){
+    finalDF = phenotypes %>%
+      select(dogID, breed, !!phenoCol) %>% 
+      dplyr::rename(trait = !!phenoCol) %>% #rename column to get group_by to work
+      filter(dogID %in% indivs$dogID & breed != "mix") %>% #use only dogs that pass QC and aren't mixed breed
+      na.omit() %>%
+      group_by(trait) %>%
+      sample_n(size = df$downSamp) #downsample cases to match controls
+    names(finalDF)[3] = phenoColName #put original column name back
+  }else{
+    finalDF = phenotypes %>%
+      select(dogID, breed, !!phenoCol) %>% 
+      filter(dogID %in% indivs$dogID & breed != "mix") %>% #use only dogs that pass QC and aren't mixed breed
+      na.omit()
+  }
+  
+  #write the final data frame to file
+  write.table(finalDF, file=paste0("~/Documents/DogProject_Jaz/LocalRscripts/CaseControlROH/splitPhenotypeFile/", phenoColName, ".txt"), row.names = FALSE, col.names = TRUE, quote = FALSE, sep="\t")
+  
+  return(finalDF)
   }
   
 
