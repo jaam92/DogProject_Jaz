@@ -111,15 +111,26 @@ plotFinalROHScoresCausVars = plotCausalCorrs(corrROHScorecausVars, comboDF_noWol
 plotFinalIBDScoresCausVars = plotCausalCorrs(corrIBDScorecausVars, comboDF_noWolves, "NormPopScore_IBD", 900, "IBD Score in Mb (Normalized)") 
 
 #####Multiplot scores and Causals
-OMIAplots = ggarrange(plotPopularityCausVars + theme(axis.title.y = element_blank()),
-          ggarrange(plotFinalROHScoresCausVars + theme(axis.title.y = element_blank()), 
-                    plotFinalIBDScoresCausVars + theme(axis.title.y = element_blank()), 
-                    ncol = 2, 
-                    labels = c("B", "C"), 
-                    legend = "none"), # Second row with ROH and IBD plots
-          nrow = 2, 
-          legend = "none",
-          labels = "A"                                        
+
+#Alternate way to plot with two rows
+#OMIAplots = ggarrange(plotPopularityCausVars  + theme(axis.title.y = element_blank()),
+#          ggarrange(plotFinalROHScoresCausVars + theme(axis.title.y = element_blank()), 
+#                    plotFinalIBDScoresCausVars + theme(axis.title.y = element_blank()), 
+#                    ncol = 2, 
+#                    labels = c("B", "C"), 
+#                    legend = "none"), # Second row with ROH and IBD plots
+#          nrow = 2, 
+#          legend = "none",
+#          labels = "A"                                        
+#) 
+
+OMIAplots = ggarrange(plotFinalROHScoresCausVars + theme(axis.title.y = element_blank()), 
+                      plotFinalIBDScoresCausVars + theme(axis.title.y = element_blank(), axis.text.y =element_blank()),
+                      plotPopularityCausVars  + theme(axis.title.y = element_blank(), axis.text.y =element_blank()), 
+                      ncol = 3, 
+                      labels = c("A","B","C") , 
+                      common.legend = T,
+                      legend = "bottom"
 ) 
 
 OMIAplots_addAxes = annotate_figure(OMIAplots, 
