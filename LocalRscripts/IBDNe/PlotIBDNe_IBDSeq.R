@@ -37,7 +37,7 @@ for (i in seq_along(dfList)){
 #Merge to one data frame and order data 
 allPopsDF = bind_rows(dfList)
 newOrder = c("boxer", "cocker_spaniel", "german_shepherd_dog", "golden_retriever", "labrador_retriever", "maltese", "newfoundland", "poodle", "rottweiler", "yorkshire_terrier", "mixed", "village_dog_peru", "grayWolf_Europe", "grayWolf_NorthAmerica")
-allPopsDF$Population =factor(allPopsDF$Population,levels=newOrder)
+allPopsDF$Population = factor(allPopsDF$Population, levels = newOrder)
 #Plot
 #colourCount_breed = length(pops)
 #palette = distinctColorPalette(colourCount_breed)
@@ -48,7 +48,13 @@ allTogether = ggplot(allPopsDF, aes(x=Years, y=NE, colour=Population)) +
   scale_y_log10() + 
   scale_colour_manual(values = c(boxer="#D6E1A2",cocker_spaniel ="#D1EB48",grayWolf_NorthAmerica="#E350D4",german_shepherd_dog="#DDC552", golden_retriever="#7EE7C2", labrador_retriever ="#749583", maltese = "#DB5265", mixed = "#D7DDD5", newfoundland = "#867BCF", rottweiler = "#867BCF", village_dog_peru = "#8447E4", grayWolf_Europe = "#8CDC83", poodle = "#7BD9E2", yorkshire_terrier = "#DAAAC7")) + 
   theme_bw() + 
-  theme(axis.text.x = element_text( hjust= 0.5, vjust=1,size=20), axis.text.y = element_text(size =20), plot.title=element_text(size =24, face = "bold", hjust=0.5), axis.title=element_text(size=24), legend.title=element_blank(), legend.text=element_text(size=14), legend.position = "bottom") 
+  theme(axis.text.x = element_text( hjust= 0.5, vjust=1,size=20), 
+        axis.text.y = element_text(size =20), 
+        plot.title=element_text(size =24, face = "bold", hjust=0.5), 
+        axis.title=element_text(size=24), 
+        legend.title=element_blank(), 
+        legend.text=element_text(size=14), 
+        legend.position = "bottom") 
 
 #Split onto individual
 separate = ggplot(allPopsDF, aes(x=Years, y=NE, colour=Population)) + 
@@ -58,7 +64,13 @@ separate = ggplot(allPopsDF, aes(x=Years, y=NE, colour=Population)) +
   scale_y_log10() + 
   scale_colour_manual(values = c(boxer="#D6E1A2",cocker_spaniel ="#D1EB48",grayWolf_NorthAmerica="#E350D4",german_shepherd_dog="#DDC552", golden_retriever="#7EE7C2", labrador_retriever ="#749583", maltese = "#DB5265", mixed = "#D7DDD5", newfoundland = "#867BCF", rottweiler = "#867BCF", village_dog_peru = "#8447E4", grayWolf_Europe = "#8CDC83", poodle = "#7BD9E2", yorkshire_terrier = "#DAAAC7")) + 
   theme_bw() + 
-  theme(axis.text.x = element_text( hjust= 0.5, vjust=1,size=20), axis.text.y = element_text(size =20), plot.title=element_text(size =24, face = "bold", hjust=0.5), axis.title=element_text(size=24), legend.title=element_blank(), legend.text=element_text(size=14), legend.position = "bottom") 
+  theme(axis.text.x = element_text( hjust= 0.5, vjust=1,size=20), 
+        axis.text.y = element_text(size =20), 
+        plot.title=element_text(size =24, face = "bold", hjust=0.5), 
+        axis.title=element_text(size=24), 
+        legend.title=element_blank(), 
+        legend.text=element_text(size=14), 
+        legend.position = "bottom") 
 
 #Plot 
 print(allTogether)
@@ -68,8 +80,15 @@ plotTogether = arrangeGrob(allTogether  +
                              labs(x = NULL, y = NULL) + 
                              theme(legend.position="none"), separate + 
                              labs(x = NULL, y = NULL) +
-                             theme(axis.text.x = element_text(angle = 40, vjust=0.8,size=20), legend.position="none"), ncol = 2,left=textGrob("Effective population (Ne)", gp=gpar(fontface="bold",fontsize=20), rot=90), bottom=textGrob("Time (years ago)", gp=gpar(fontface="bold",fontsize=20), vjust=0.3), widths=c(3/4,2)) #legend on bottom
+                             theme(axis.text.x = element_text(angle = 40, vjust=0.8,size=20), 
+                                   legend.position="none"), 
+                           ncol = 2,
+                           left=textGrob("Effective population (Ne)", gp=gpar(fontface="bold",fontsize=20), rot=90), 
+                           bottom=textGrob("Time (years ago)", gp=gpar(fontface="bold",fontsize=20), 
+                                           vjust=0.3), widths=c(3/4,2)) #legend on bottom
 
 legendIBDNe = gtable_filter(ggplotGrob(allTogether), "guide-box") #pull universal legend
-grid.arrange(arrangeGrob(plotTogether,legendIBDNe, heights=unit.c(unit(1, "npc") - legendIBDNe$heights, legendIBDNe$heights), ncol=1))
+grid.arrange(arrangeGrob(plotTogether, legendIBDNe, 
+                         heights=unit.c(unit(1, "npc") - legendIBDNe$heights, legendIBDNe$heights), 
+                         ncol=1))
 
