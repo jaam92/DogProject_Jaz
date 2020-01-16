@@ -110,3 +110,6 @@ Figure1 = ggplot(allPopsDF %>% filter(Population != "mixed"), aes(x=Years, y=NE,
         legend.title=element_blank(), 
         legend.text=element_text(size=14), 
         legend.position = "none") 
+
+source("~/Documents/DogProject_Jaz/LocalRscripts/PCA_Unrelateds/RunPCA_SNPRelateFitakCornell.R")
+ggarrange(allSampsPC1vPC2, Figure1, nrow = 1, labels = c("A", "B"))
