@@ -46,7 +46,7 @@ allPopsDF$Population = factor(allPopsDF$Population, levels = newOrder)
 allTogether = ggplot(allPopsDF, aes(x=Years, y=NE, colour=Population)) + 
   geom_line(size=1) + 
   scale_y_log10() + 
-  scale_colour_manual(values = c(boxer="#D6E1A2",cocker_spaniel ="#D1EB48",grayWolf_NorthAmerica="#E350D4",german_shepherd_dog="#DDC552", golden_retriever="#7EE7C2", labrador_retriever ="#749583", maltese = "#DB5265", mixed = "#D7DDD5", newfoundland = "#867BCF", rottweiler = "#867BCF", village_dog_peru = "#8447E4", grayWolf_Europe = "#8CDC83", poodle = "#7BD9E2", yorkshire_terrier = "#DAAAC7")) + 
+  scale_colour_manual(values = c(boxer="#D6E1A2",cocker_spaniel ="#D1EB48", grayWolf_NorthAmerica="#E350D4",german_shepherd_dog="#DDC552", golden_retriever="#7EE7C2", labrador_retriever ="#749583", maltese = "#DB5265", mixed = "#D7DDD5", newfoundland = "#867BCF", rottweiler = "#867BCF", village_dog_peru = "#8447E4", grayWolf_Europe = "#8CDC83", poodle = "#7BD9E2", yorkshire_terrier = "#DAAAC7")) + 
   theme_bw() + 
   theme(axis.text.x = element_text( hjust= 0.5, vjust=1,size=20), 
         axis.text.y = element_text(size =20), 
@@ -93,7 +93,7 @@ grid.arrange(arrangeGrob(plotTogether, legendIBDNe,
                          ncol=1))
 
 ###Larger labels remove mixed breed dogs for figure 1
-newNames <- c("boxer"="boxer","cocker_spaniel" ="cocker spaniel","grayWolf_NorthAmerica"="American wolf","german_shepherd_dog"="german shepherd", "golden_retriever"="golden retriever", "labrador_retriever" ="labrador retriever", "maltese" = "maltese", "mixed" = "mixed", "newfoundland" = "newfoundland", "rottweiler" = "rottweiler", "village_dog_peru" = "village dog", "grayWolf_Europe" = "European wolf", "poodle" = "poodle", "yorkshire_terrier" = "yorkshire terrier")
+newNames <- c("boxer"="boxer","cocker_spaniel" ="cocker spaniel","grayWolf_NorthAmerica"="North American wolf","german_shepherd_dog"="german shepherd", "golden_retriever"="golden retriever", "labrador_retriever" ="labrador retriever", "maltese" = "maltese", "mixed" = "mixed", "newfoundland" = "newfoundland", "rottweiler" = "rottweiler", "village_dog_peru" = "village dog", "grayWolf_Europe" = "European wolf", "poodle" = "poodle", "yorkshire_terrier" = "yorkshire terrier")
 
 Figure1 = ggplot(allPopsDF %>% filter(Population != "mixed"), aes(x=Years, y=NE, colour=Population)) + 
   geom_line(size=1) + 
