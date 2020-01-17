@@ -54,13 +54,14 @@ pca$sample.id = gsub('-flat', '', pca$sample.id)
 #Reformat the population map files
 popmapMerge$breed = gsub("large_munsterlander","munsterlander_large", popmapMerge$breed)
 popmapDog = popmapMerge[!(grepl("Wolf",popmapMerge$clade)),]
-popmapDog$Type = ifelse(popmapDog$clade != "Village", "Breed dog", "Village dog")
+popmapDog$Type = ifelse(popmapDog$clade != "Village", "breed dog", "village dog")
 popmapWolf = popmapMerge[grep("Wolf",popmapMerge$clade),]
 popmapWolf$Type = ifelse(popmapWolf$clade !="grayWolf_Europe", "North American wolf", "European wolf")
 popmapMaster = rbind.data.frame(popmapDog,popmapWolf)
+popmapMaster$Type = ifelse(is.na(popmapMaster$Type), "breed dog", popmapMaster$Type) #fill all the N/As in for breed dogs
 sample.id = as.character(popmapMerge$dogID)
 population = as.character(popmapMerge$breed)
-
+ 
 #Make data frame with first four pcs
 df_PCA = data.frame(sample.id = pca$sample.id, 
                     population = factor(as.character(popmapMaster$Type))[match(pca$sample.id, sample.id)], 
@@ -70,10 +71,13 @@ df_PCA = data.frame(sample.id = pca$sample.id,
                     EV3 = pca$eigenvect[,3], 
                     EV4 = pca$eigenvect[,4],stringsAsFactors = FALSE)
 
+newOrder_Legend = c("breed dog", "village dog", "European wolf", "North American wolf")
+df_PCA$population = factor(df_PCA$population, levels = newOrder_Legend)
+
 #plot the nice version
 allSampsPC1vPC2 = ggplot(df_PCA, aes(y=EV2, x=EV1, colour=population)) +
   geom_point(size=2) +
-  scale_colour_manual(values = c("Breed dog"= "red", "Village dog"="black", "North American wolf" = "gray80", "European wolf" = "blue"), name="Population") + 
+  scale_colour_manual(values = c("breed dog"= "#56B4E9", "village dog"="black", "North American wolf" = "#E69F00", "European wolf" = "#009E73"), name="Population") + 
   labs(y=bquote('PC2' ~'('~.(pc[2])~'%'~')'), x=bquote('PC1'~'('~.(pc[1])~'%'~')')) +
   theme_bw() + 
   theme(axis.text.x = element_text(size  = 24), 
