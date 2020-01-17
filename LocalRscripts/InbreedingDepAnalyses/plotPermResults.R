@@ -3,15 +3,11 @@ library(tidyverse)
 library(cowplot)
 
 #read data in
-set.seed(4000)
-dfPlink = read.table("~/DogProject_Jaz/LocalRscripts/InbreedingDepAnalyses/allPerms_plink.txt", col.names = c("count")) %>%
-  mutate(method= "plink") %>%
-  sample_n(4000) 
+dfPlink = read.table("~/Documents/DogProject_Jaz/LocalRscripts/InbreedingDepAnalyses/allPerms_plink.txt", col.names = c("count")) %>%
+  mutate(method= "plink") 
 
-dfVcf = read.table("~/DogProject_Jaz/LocalRscripts/InbreedingDepAnalyses/allPerms.txt", col.names = c("count")) %>%
+dfVcf = read.table("~/Documents/DogProject_Jaz/LocalRscripts/InbreedingDepAnalyses/allPerms.txt", col.names = c("count")) %>%
   mutate(method= "vcftools") 
-
-mergeDF = rbind.data.frame(dfPlink, dfVcf)
 
 #plot 
 inset = ggplot(dfVcf, aes(x=count)) +
@@ -74,6 +70,16 @@ plot2 = ggdraw() +
 #put it all together
 figure = ggarrange(plot1, plot2, nrow = 1)
 annotate_figure(figure,
-                bottom = text_grob("Number of genes without ROH", size = 20,face = "bold"),
+                bottom = text_grob("Count of genes containing at least one exon without ROH", size = 20,face = "bold"),
+                left = text_grob("Density", size = 20, rot = 90, face = "bold")
+)
+
+#plot only vcftools
+Figure4 = ggdraw() +
+  draw_plot(vcfTools + ggtitle("")) +
+  draw_plot(inset + xlab(paste("Count of genes containing", "at least one exon without ROH", sep="\n")), x = 0.6, y = .64, width = .3, height = .3)
+
+annotate_figure(Figure4,
+                bottom = text_grob("Count of genes containing at least one exon without ROH", size = 20,face = "bold"),
                 left = text_grob("Density", size = 20, rot = 90, face = "bold")
 )
