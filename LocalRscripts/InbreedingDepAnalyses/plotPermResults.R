@@ -1,6 +1,7 @@
 #set libraries
 library(tidyverse)
 library(cowplot)
+library(ggpubr)
 
 #read data in
 dfPlink = read.table("~/Documents/DogProject_Jaz/LocalRscripts/InbreedingDepAnalyses/allPerms_plink.txt", col.names = c("count")) %>%
