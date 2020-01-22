@@ -55,5 +55,11 @@ ggplot(plotDF %>%
 
 ggplot(plotDF, aes(x=exonStart, y=nonROH)) +
   geom_point() +
-  facet_wrap(~GeneName, scales = "free")+ 
-  theme_bw()
+  labs(x = "nonROH status", y= "exon location") +
+  facet_wrap(~GeneName, scales = "free") +  
+  theme_bw()+ 
+  theme(axis.text.x = element_text( hjust= 0.5, vjust=0.75, size=14, angle = 40), 
+        axis.text.y = element_text(size =20), 
+        plot.title=element_text(size = 24, face = "bold", hjust=0.5), 
+        axis.title=element_text(size=24),
+        strip.text = element_text(size=14)) 
