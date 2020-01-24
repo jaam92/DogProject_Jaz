@@ -130,8 +130,8 @@ ED_allBreeds = balancePheno("ED")
 ED_perBreed = balancePhenoPerBreed("ED")
 
 #Collagen Disorder
-CLLD_allBreeds = balancePheno("CLLD")
-CLLD_perBreed = balancePhenoPerBreed("CLLD")
+CCLD_allBreeds = balancePheno("CCLD")
+CCLD_perBreed = balancePhenoPerBreed("CCLD")
 
 #Epilepsy Irish Wolfhounds
 IrishWolfhounds_allBreeds = balancePheno("epilepsy_irishWolfhounds")
