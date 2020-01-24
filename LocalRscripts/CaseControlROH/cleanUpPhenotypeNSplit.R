@@ -13,7 +13,8 @@ balancePheno = function(phenoColName){
   #Only output data if there are at least 10 cases and controls
   df = phenotypes %>% 
     select(dogID, breed, !!phenoCol) %>%
-    filter(dogID %in% indivs$dogID & breed != "mix") %>% #remove mixed breed dogs
+    filter(dogID %in% indivs$dogID) %>%
+    #filter(dogID %in% indivs$dogID & breed != "mix") %>% #remove mixed breed dogs
     na.omit() %>%
     dplyr::rename(trait = !!phenoCol) %>% #rename phenotype col makes things easier when pivotting dataframe 
     group_by(trait) %>%
@@ -31,7 +32,8 @@ balancePheno = function(phenoColName){
     finalDF = phenotypes %>%
       select(dogID, breed, !!phenoCol) %>% 
       dplyr::rename(trait = !!phenoCol) %>% #rename column to get group_by to work
-      filter(dogID %in% indivs$dogID & breed != "mix") %>% #use only dogs that pass QC and aren't mixed breed
+      filter(dogID %in% indivs$dogID) %>%
+      #filter(dogID %in% indivs$dogID & breed != "mix") %>% #use only dogs that pass QC and aren't mixed breed
       na.omit() %>%
       group_by(trait) %>%
       sample_n(size = df$downSamp) #downsample cases to match controls
@@ -39,7 +41,8 @@ balancePheno = function(phenoColName){
   }else{
     finalDF = phenotypes %>%
       select(dogID, breed, !!phenoCol) %>% 
-      filter(dogID %in% indivs$dogID & breed != "mix") %>% #use only dogs that pass QC and aren't mixed breed
+      filter(dogID %in% indivs$dogID) %>%
+      #filter(dogID %in% indivs$dogID & breed != "mix") %>% #use only dogs that pass QC and aren't mixed breed
       na.omit()
   }
   
@@ -61,7 +64,8 @@ balancePhenoPerBreed = function(phenoColName){
   #Only output data if there are at least 10 cases and controls
   dfList = phenotypes %>% 
   select(dogID, breed, !!phenoCol) %>%
-  filter(dogID %in% indivs$dogID & breed != "mix") %>% #remove mixed breed dogs
+  filter(dogID %in% indivs$dogID) %>%
+  #filter(dogID %in% indivs$dogID & breed != "mix") %>% #remove mixed breed dogs
   na.omit() %>%
   dplyr::rename(trait = !!phenoCol) %>% #rename phenotype col makes things easier when pivotting dataframe 
   group_by(breed,trait) %>%
