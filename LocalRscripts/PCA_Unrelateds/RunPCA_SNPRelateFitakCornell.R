@@ -102,16 +102,45 @@ allSampsPC2vPC3 = ggplot(df_PCA, aes(y=EV3, x=EV2, colour=population)) +
 print(allSampsPC1vPC2)
 print(allSampsPC2vPC3)
 
+#Run just the dog data
+gdsSampIDs = read.gdsn(index.gdsn(genofile, "sample.id"))
+sampleid_dog = gdsSampIDs[!(grepl("grayWolf",gdsSampIDs))]
+samp.id.dog = unlist(sampleid_dog)
+
+#LD prune
+snpset_dog = snpgdsLDpruning(genofile, sample.id = samp.id.dog, method="corr", slide.max.n=50, ld.threshold=0.3, maf = 0.05, autosome.only = F)
+snpset.id.dog = unlist(snpset_dog)
+
+#Run PCA
+pca_dog = snpgdsPCA(genofile, snp.id = snpset.id.dog, sample.id = samp.id.dog, autosome.only = F)
+
+#Look at percentage of variance explained by each PC
+pc.percent_dog = pca_dog$varprop*100
+pc_dog = head(round(pc.percent_dog,2))
+pc_dog
+pca_dog$sample.id = gsub('(.*)-\\w+', '\\1', pca_dog$sample.id)
+
+#Make data frame with first two pcs
+df_PCA_dog = data.frame(sample.id = pca_dog$sample.id, 
+                         clade = factor(as.character(popmapMaster$clade))[match(pca_dog$sample.id, sample.id)], 
+                         breed = popmapMaster$breed[match(pca_dog$sample.id, sample.id)],
+                         EV1 = pca_dog$eigenvect[,1], 
+                         EV2 = pca_dog$eigenvect[,2], 
+                         EV3 = pca_dog$eigenvect[,3], 
+                         EV4 = pca_dog$eigenvect[,4], 
+                         stringsAsFactors = FALSE)
+
+
 #Evaluate data frame with breed and clade information
 #expand color palette of choice to have number of colors equal to number of clades
-colourCount = length(unique(df_PCA$clade))
+colourCount = length(unique(df_PCA_dog$clade))
 palette = distinctColorPalette(colourCount)
 
 #plot the nice version
-allSampsPC1vPC2byClade = ggplot(df_PCA, aes(y=EV2, x=EV1, colour=clade)) +
+allSampsPC1vPC2byClade = ggplot(df_PCA_dog, aes(y=EV2, x=EV1, colour=clade)) +
   geom_point(size=2) + 
-  scale_colour_manual(values = palette) +
-  labs(y=bquote('PC2' ~'('~.(pc[2])~'%'~')'), x=bquote('PC1'~'('~.(pc[1])~'%'~')')) +
+  scale_colour_manual(values = palette, na.value = "black") +
+  labs(y=bquote('PC2' ~'('~.(pc_dog[2])~'%'~')'), x=bquote('PC1'~'('~.(pc_dog[1])~'%'~')')) +
   theme_bw() + 
   theme(axis.text.x = element_text(size  = 24), 
         axis.text.y = element_text(size  = 24), 
@@ -122,11 +151,7 @@ allSampsPC1vPC2byClade = ggplot(df_PCA, aes(y=EV2, x=EV1, colour=clade)) +
 
 print(allSampsPC1vPC2byClade)
 
-ggarrange(allSampsPC1vPC2 + theme(legend.text=element_text(size=12)), 
-          allSampsPC1vPC2byClade + theme(legend.text=element_text(size=12)))
-
 ###PCA on wolf populations###
-gdsSampIDs = read.gdsn(index.gdsn(genofile, "sample.id"))
 sampleid_wolf = gdsSampIDs[grep("grayWolf", gdsSampIDs)]
 samp.id.wolf = unlist(sampleid_wolf)
 
