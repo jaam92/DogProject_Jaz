@@ -7,7 +7,7 @@
 #biocLite("SNPRelate")
 
 #Load libraries
-#library(GWASTools)
+library(mgsub)
 library(gdsfmt)
 library(SNPRelate)
 library(ggpubr)
@@ -15,21 +15,21 @@ library(randomcoloR)
 library(tidyverse)
 
 #Load Sample information
-setwd("~/Documents/DogProject_Jaz/LocalRscripts/CaseControlROH")
-popmapMerge = read.delim("~/Documents/DogProject_Jaz/LocalRscripts/BreedCladeInfo/BreedAndCladeInfo_mergedFitakCornell.txt")
-orderPops = read.table("~/Documents/DogProject_Jaz/LocalRscripts/BreedCladeInfo/OrderPops.txt")
+setwd("~/DogProject_Jaz/LocalRscripts/CaseControlROH")
+popmapMerge = read.delim("~/DogProject_Jaz/LocalRscripts/BreedCladeInfo/BreedAndCladeInfo_mergedFitakCornell.txt")
+orderPops = read.table("~/DogProject_Jaz/LocalRscripts/BreedCladeInfo/OrderPops.txt")
 
 #PLINK BED files for unpruned data aka random sample of 100000 snps
-#bed.fn = ("~/Documents/DogProject_Jaz/LocalRscripts/CaseControlROH/MergedFile_CornellCanineFitak_allIndivs.bed")
-#bim.fn = ("~/Documents/DogProject_Jaz/LocalRscripts/CaseControlROH/MergedFile_CornellCanineFitak_allIndivs.bim")
-#fam.fn = ("~/Documents/DogProject_Jaz/LocalRscripts/CaseControlROH/MergedFile_CornellCanineFitak_allIndivs.fam")
+#bed.fn = ("~/DogProject_Jaz/LocalRscripts/CaseControlROH/MergedFile_CornellCanineFitak_allIndivs.bed")
+#bim.fn = ("~/DogProject_Jaz/LocalRscripts/CaseControlROH/MergedFile_CornellCanineFitak_allIndivs.bim")
+#fam.fn = ("~/DogProject_Jaz/LocalRscripts/CaseControlROH/MergedFile_CornellCanineFitak_allIndivs.fam")
 
 #convert
-#snpgdsBED2GDS(bed.fn, fam.fn, bim.fn, "~/Documents/DogProject_Jaz/LocalRscripts/CaseControlROH/MergedFile_CornellCanineFitak_allIndivs.gds")
-#snpgdsSummary("~/Documents/DogProject_Jaz/LocalRscripts/CaseControlROH/MergedFile_CornellCanineFitak_allIndivs.gds")
+#snpgdsBED2GDS(bed.fn, fam.fn, bim.fn, "~/DogProject_Jaz/LocalRscripts/CaseControlROH/MergedFile_CornellCanineFitak_allIndivs.gds")
+#snpgdsSummary("~/DogProject_Jaz/LocalRscripts/CaseControlROH/MergedFile_CornellCanineFitak_allIndivs.gds")
 
 #Open file
-genofile = snpgdsOpen("~/Documents/DogProject_Jaz/LocalRscripts/CaseControlROH/MergedFile_CornellCanineFitak_allIndivs.gds")
+genofile = snpgdsOpen("~/DogProject_Jaz/LocalRscripts/CaseControlROH/MergedFile_CornellCanineFitak_allIndivs.gds")
 sampIds = read.gdsn(index.gdsn(genofile, "sample.id")) #grab sample ids 
 famIds = gsub(".*-","",sampIds) #make family ids
 
@@ -125,39 +125,44 @@ print(allSampsPC1vPC2byClade)
 ggarrange(allSampsPC1vPC2 + theme(legend.text=element_text(size=12)), 
           allSampsPC1vPC2byClade + theme(legend.text=element_text(size=12)))
 
-###PCA on North American populations###
+###PCA on wolf populations###
 gdsSampIDs = read.gdsn(index.gdsn(genofile, "sample.id"))
-sampleid_American = gdsSampIDs[grep("_NorthAmerica", gdsSampIDs)]
-samp.id.America = unlist(sampleid_American)
+sampleid_wolf = gdsSampIDs[grep("grayWolf", gdsSampIDs)]
+samp.id.wolf = unlist(sampleid_wolf)
 
 #LD prune
-snpset_America = snpgdsLDpruning(genofile, sample.id = samp.id.America, method="corr", slide.max.n=50, ld.threshold=0.3, maf = 0.05, autosome.only = F)
-snpset.id.America = unlist(snpset_America)
+snpset_wolf = snpgdsLDpruning(genofile, sample.id = samp.id.wolf, method="corr", slide.max.n=50, ld.threshold=0.3, maf = 0.05, autosome.only = F)
+snpset.id.wolf = unlist(snpset_wolf)
 
 #Run PCA
-pca_America = snpgdsPCA(genofile, snp.id = snpset.id.America, sample.id = samp.id.America, autosome.only = F)
+pca_wolf = snpgdsPCA(genofile, snp.id = snpset.id.wolf, sample.id = samp.id.wolf, autosome.only = F)
 
 #Look at percentage of variance explained by each PC
-pc.percent_America = pca_America$varprop*100
-pc_America = head(round(pc.percent_America,2))
-pc_America
-pca_America$sample.id = gsub('(.*)-\\w+', '\\1', pca_America$sample.id)
+pc.percent_wolf = pca_wolf$varprop*100
+pc_wolf = head(round(pc.percent_wolf,2))
+pc_wolf
+pca_wolf$sample.id = gsub('(.*)-\\w+', '\\1', pca_wolf$sample.id)
 
 #Make data frame with first two pcs
-df_PCA_America = data.frame(sample.id = pca_America$sample.id, 
-                            population = factor(as.character(popmapMaster$Type))[match(pca_America$sample.id, sample.id)], 
-                            clade = factor(as.character(popmapMaster$clade))[match(pca_America$sample.id, sample.id)], 
-                            EV1 = pca_America$eigenvect[,1], 
-                            EV2 = pca_America$eigenvect[,2], 
-                            EV3 = pca_America$eigenvect[,3], 
-                            EV4 = pca_America$eigenvect[,4], 
+df_PCA_Wolf = data.frame(sample.id = pca_wolf$sample.id, 
+                            population = factor(as.character(popmapMaster$Type))[match(pca_wolf$sample.id, sample.id)], 
+                            clade = factor(as.character(popmapMaster$clade))[match(pca_wolf$sample.id, sample.id)], 
+                            location = popmapMaster$breed[match(pca_wolf$sample.id, sample.id)],
+                            EV1 = pca_wolf$eigenvect[,1], 
+                            EV2 = pca_wolf$eigenvect[,2], 
+                            EV3 = pca_wolf$eigenvect[,3], 
+                            EV4 = pca_wolf$eigenvect[,4], 
                             stringsAsFactors = FALSE)
 
+#replace location labels
+df_PCA_Wolf$location = mgsub(df_PCA_Wolf$location, pattern=c("EURO", "WO_BC", "WO_ID", "WO_INTAK", "WO_MN", "WO_MAT", "X", "MB", "WO_SEAK", "WO_WO", "WO_LUPA", "GR", "AR"), replacement=c("Europe", "British Columbia", "Idaho", "Interior Alaska", "Minnesota", "Montana", "Mexican","McBride", "Southeast Alaska", "Wyoming", "LUPA", "Ghost Ranch", "Aragon"))
+
 #plot the nice version
-PC1vPC2_America = ggplot(df_PCA_America, aes(y=EV2, x=EV1, colour=population)) +
+palette = distinctColorPalette(13)
+PC1vPC2_wolf = ggplot(df_PCA_Wolf, aes(y=EV2, x=EV1, colour=population)) +
   geom_point(size=2) +
-  labs(y=bquote('PC2' ~'('~.(pc_America[2])~'%'~')'), x=bquote('PC1'~'('~.(pc_America[1])~'%'~')')) +
-  scale_color_brewer(palette = "Set1") +
+  labs(y=bquote('PC2' ~'('~.(pc_wolf[2])~'%'~')'), x=bquote('PC1'~'('~.(pc_wolf[1])~'%'~')')) +
+  scale_colour_manual(values = c("North American wolf" = "gray80", "European wolf" = "blue"), name="Population") +
   theme_bw() +
   theme(axis.text.x = element_text(size  = 24), 
         axis.text.y = element_text(size  = 24), 
@@ -165,10 +170,10 @@ PC1vPC2_America = ggplot(df_PCA_America, aes(y=EV2, x=EV1, colour=population)) +
         legend.title=element_text(size=24), 
         legend.text=element_text(size=24))
 
-PC2vPC3_America = ggplot(df_PCA_America, aes(y=EV3, x=EV2, colour=population))+
+PC2vPC3_wolf = ggplot(df_PCA_Wolf, aes(y=EV3, x=EV2, colour=location))+
   geom_point(size=2) +
-  labs(y=bquote('PC3' ~'('~.(pc_America[3])~'%'~')'), x=bquote('PC2'~'('~.(pc_America[2])~'%'~')')) +
-  scale_color_brewer(palette = "Set1") +
+  labs(y=bquote('PC3' ~'('~.(pc_wolf[3])~'%'~')'), x=bquote('PC2'~'('~.(pc_wolf[2])~'%'~')')) +
+  scale_colour_manual(values = palette, na.value = "black", name = "Location") +
   theme_bw() +
   theme(axis.text.x = element_text(size  = 24), 
         axis.text.y = element_text(size  = 24), 
@@ -176,6 +181,6 @@ PC2vPC3_America = ggplot(df_PCA_America, aes(y=EV3, x=EV2, colour=population))+
         legend.title=element_text(size=24), 
         legend.text=element_text(size=24))
 
-print(PC1vPC2_America)
-print(PC2vPC3_America)
+print(PC1vPC2_wolf)
+print(PC2vPC3_wolf)
 
