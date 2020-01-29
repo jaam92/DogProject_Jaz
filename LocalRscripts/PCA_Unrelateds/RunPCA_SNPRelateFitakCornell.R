@@ -180,7 +180,7 @@ df_PCA_Wolf = data.frame(sample.id = pca_wolf$sample.id,
                             stringsAsFactors = FALSE)
 
 #replace location labels
-df_PCA_Wolf$location = mgsub(df_PCA_Wolf$location, pattern=c("EURO", "WO_BC", "WO_ID", "WO_INTAK", "WO_MN", "WO_MAT", "X", "MB", "WO_SEAK", "WO_WO", "WO_LUPA", "GR", "AR"), replacement=c("Europe", "British Columbia", "Idaho", "Interior Alaska", "Minnesota", "Montana", "Mexican","McBride", "Southeast Alaska", "Wyoming", "LUPA", "Ghost Ranch", "Aragon"))
+df_PCA_Wolf$location = mgsub(df_PCA_Wolf$location, pattern=c("EURO", "WO_BC", "WO_ID", "WO_INTAK", "WO_MN", "WO_MAT", "X", "MB", "WO_SEAK", "WO_WO", "WO_LUPA", "GR", "AR"), replacement=c("Europe", "British Columbia", "Idaho", "Interior Alaska", "Minnesota", "Montana", "Mexico","McBride", "Southeast Alaska", "Wyoming", "LUPA", "Ghost Ranch", "Aragon"))
 
 #plot the nice version
 palette = distinctColorPalette(13)
@@ -204,7 +204,8 @@ PC2vPC3_wolf = ggplot(df_PCA_Wolf, aes(y=EV3, x=EV2, colour=location))+
         axis.text.y = element_text(size  = 24), 
         axis.title=element_text(size=24),
         legend.title=element_text(size=24), 
-        legend.text=element_text(size=24))
+        legend.text=element_text(size=24),
+        legend.position = "bottom")
 
 print(PC1vPC2_wolf)
 print(PC2vPC3_wolf)
