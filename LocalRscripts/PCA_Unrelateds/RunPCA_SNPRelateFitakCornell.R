@@ -56,7 +56,7 @@ popmapMerge$breed = gsub("large_munsterlander","munsterlander_large", popmapMerg
 popmapDog = popmapMerge[!(grepl("Wolf",popmapMerge$clade)),]
 popmapDog$Type = ifelse(popmapDog$clade != "Village", "breed dog", "village dog")
 popmapWolf = popmapMerge[grep("Wolf",popmapMerge$clade),]
-popmapWolf$Type = ifelse(popmapWolf$clade !="grayWolf_Europe", "North American wolf", "European wolf")
+popmapWolf$Type = ifelse(popmapWolf$clade !="grayWolf_Europe" | popmapWolf$breed!= "WO_LUPA", "North American wolf", "European wolf")
 popmapMaster = rbind.data.frame(popmapDog,popmapWolf)
 popmapMaster$Type = ifelse(is.na(popmapMaster$Type), "breed dog", popmapMaster$Type) #fill all the N/As in for breed dogs
 sample.id = as.character(popmapMerge$dogID)
@@ -74,7 +74,7 @@ df_PCA = data.frame(sample.id = pca$sample.id,
 newOrder_Legend = c("breed dog", "village dog", "European wolf", "North American wolf")
 df_PCA$population = factor(df_PCA$population, levels = newOrder_Legend)
 
-#plot the nice version
+#plot results with dogs and wolves
 allSampsPC1vPC2 = ggplot(df_PCA, aes(y=EV2, x=EV1, colour=population)) +
   geom_point(size=2) +
   scale_colour_manual(values = c("breed dog"= "#56B4E9", "village dog"="black", "North American wolf" = "#E69F00", "European wolf" = "#009E73"), name="Population") + 
@@ -183,7 +183,8 @@ df_PCA_Wolf = data.frame(sample.id = pca_wolf$sample.id,
 df_PCA_Wolf$location = mgsub(df_PCA_Wolf$location, pattern=c("EURO", "WO_BC", "WO_ID", "WO_INTAK", "WO_MN", "WO_MAT", "X", "MB", "WO_SEAK", "WO_WO", "WO_LUPA", "GR", "AR"), replacement=c("Europe", "British Columbia", "Idaho", "Interior Alaska", "Minnesota", "Montana", "Mexico","McBride", "Southeast Alaska", "Wyoming", "LUPA", "Ghost Ranch", "Aragon"))
 
 #plot the nice version
-palette = distinctColorPalette(13)
+wolfPalette =c("#896ED7","#C9A981","#78DEA8","#D6A9D0","#7BA6D6","#87E95A","#E17368","#DBCB4B","#D3DDD5","#C047E8","#DD60B2","#CEE499","#78D7D6")
+
 PC1vPC2_wolf = ggplot(df_PCA_Wolf, aes(y=EV2, x=EV1, colour=population)) +
   geom_point(size=2) +
   labs(y=bquote('PC2' ~'('~.(pc_wolf[2])~'%'~')'), x=bquote('PC1'~'('~.(pc_wolf[1])~'%'~')')) +
@@ -198,7 +199,7 @@ PC1vPC2_wolf = ggplot(df_PCA_Wolf, aes(y=EV2, x=EV1, colour=population)) +
 PC2vPC3_wolf = ggplot(df_PCA_Wolf, aes(y=EV3, x=EV2, colour=location))+
   geom_point(size=2) +
   labs(y=bquote('PC3' ~'('~.(pc_wolf[3])~'%'~')'), x=bquote('PC2'~'('~.(pc_wolf[2])~'%'~')')) +
-  scale_colour_manual(values = palette, na.value = "black", name = "Location") +
+  scale_colour_manual(values = wolfPalette, na.value = "black", name = "Location") +
   theme_bw() +
   theme(axis.text.x = element_text(size  = 24), 
         axis.text.y = element_text(size  = 24), 
