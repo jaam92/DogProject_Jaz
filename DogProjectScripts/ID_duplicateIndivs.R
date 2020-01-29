@@ -44,15 +44,16 @@ id1_PotDups = unique(PotentialDuplicates$ID1)
 id2_PotDups = unique(PotentialDuplicates$ID2)
 mergePotDups = unique(c(id1_PotDups, id2_PotDups))
 #manually picked individuals to keep that also matched with dfUnrelateds
-keepIndivs = c("Box_LU132-boxer", "Box_LU134-boxer","MB-858-mexWolf","Pdl_GT332-poodle", "Pdl_GT333-poodle", "BoC_GT62-border_collie", "CKC_GT90-cavalier_king_charles_spaniel","CWD_GT107-czechoslovakian_wolf_dog", "EBT_GT147-english_bull_terrier", "GRe_GT218-golden_retriever", "PFZ43A03-irish_wolfhound","Ter_GT386-mix","Ter_GT387-mix","Wlf_LUb2-grayWolf", "WO_SoutheastAK_02zPOWIS-63-grayWolf")
+keepIndivs = c("Box_LU132-boxer", "Box_LU134-boxer","MB-858-mexWolf","Pdl_GT332-poodle", "Pdl_GT333-poodle", "BoC_GT62-border_collie", "CKC_GT90-cavalier_king_charles_spaniel","CWD_GT107-czechoslovakian_wolf_dog", "EBT_GT147-english_bull_terrier", "GRe_GT218-golden_retriever", "PFZ43A03-irish_wolfhound","Ter_GT386-mix","Ter_GT387-mix", "Wlf_LU1655-grayWolf_Europe", "Wlf_LUb2-grayWolf_Europe", "WO_SoutheastAK_02zPOWIS-63-grayWolf_NorthAmerica")
 excludeIndivs = mergePotDups[!(mergePotDups %in% keepIndivs)]
 notDupsSampIds  = gdsSampIDs[!(gdsSampIDs %in% excludeIndivs)]
 dfRmDups = cbind.data.frame(gsub('(.*)-\\w+', '\\1', notDupsSampIds), gsub(".*-","",notDupsSampIds))
 names(dfRmDups)[1] = "dogIDs"
 names(dfRmDups)[2] = "breed"
 
+#remove two wolves that were outliers in PCA
 dfRmDups = dfRmDups %>%
-  filter(dogIDs != "Wlf_LUb3" & dogIDs != "ID-14") #remove two wolves that were outliers in PCA
+  filter(dogIDs != "Wlf_LUb3" & dogIDs != "ID-14")
 
 write.table(dfRmDups, "Individuals_allBreeds_mergedFitakCornell.txt", sep = "\t", row.names = F, col.names = F, quote = F)
 
@@ -70,6 +71,7 @@ newSampIds  = gdsSampIDs[!(gdsSampIDs %in% unique(Relateds$ID1))]
 dfUnrelateds = cbind.data.frame(gsub('(.*)-\\w+', '\\1', newSampIds), gsub(".*-","",newSampIds))
 names(dfUnrelateds)[1] = "Unrelateds"
 names(dfUnrelateds)[2] = "breed"
+
 #Remove two wolves that are major outliers in PCA
 dfUnrelateds = dfUnrelateds %>%
   filter(Unrelateds != "Wlf_LUb3" & Unrelateds != "ID-14") 
@@ -91,16 +93,15 @@ UnrelatedsPerBreed_n50 = dfUnrelateds %>%
   tally() %>% 
   filter(n>=50) #find breeds with at least 50 unrelateds
 
-Unrelated_sampsGrEql50 = dfUnrelateds %>% 
+#Subset out dogs per breed and group wolves by continent
+FinalUnrelatedDF = dfUnrelateds %>% 
   filter(breed %in% UnrelatedsPerBreed_n50$breed) %>%
   mutate(Type = popmapMaster$Type[match(Unrelateds, popmapMaster$dogID)],
-         Clade = popmapMaster$clade[match(Unrelateds, popmapMaster$dogID)])
-
-#subset out dogs with at least 50 indivs per breed and group wolves by continent
-FinalUnrelatedDF = Unrelated_sampsGrEql50 %>% 
-  filter(Type == "BreedDog" | Clade == "grayWolf_Europe" | Clade == "grayWolf_NorthAmerica") %>% 
+         Clade = popmapMaster$clade[match(Unrelateds, popmapMaster$dogID)]) %>% 
+  filter(Type == "BreedDog" | Clade != "grayWolf_Mexico") %>% #remove wolves from Mexico from inference 
   select(Unrelateds, breed) %>% 
   as.data.frame()
+
 write.table(FinalUnrelatedDF, "UnrelatedIndividuals_grEql50_MergedFitakCornell.txt", sep = "\t", row.names = F, col.names = T, quote = F)
 
 #Close file
