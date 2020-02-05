@@ -7,7 +7,7 @@ df = read.table("~/Documents/DogProject_Jaz/LocalRscripts/InbreedingDepAnalyses/
          proportion = V4/4342) %>%
   arrange(chrom) 
 
-perms = read.delim("~/Documents/DogProject_Jaz/LocalRscripts/InbreedingDepAnalyses/SummaryFile_Merge_CountPermutedOverlaps_100Kb_AutosomalSplits.txt") 
+perms = read.delim("~/Documents/DogProject_Jaz/LocalRscripts/InbreedingDepAnalyses/SummaryFile_Merge_CountPermutedOverlaps_100Kb_AutosomalSplits_chromFirst.txt") 
 
 avgPerChrom = df %>%
   group_by(chrom) %>%
