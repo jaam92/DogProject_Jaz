@@ -7,6 +7,8 @@ df = read.table("~/Documents/DogProject_Jaz/LocalRscripts/InbreedingDepAnalyses/
          proportion = V4/4342) %>%
   arrange(chrom) 
 
+perms = read.delim("~/Documents/DogProject_Jaz/LocalRscripts/InbreedingDepAnalyses/SummaryFile_Merge_CountPermutedOverlaps_100Kb_AutosomalSplits.txt") 
+
 avgPerChrom = df %>%
   group_by(chrom) %>%
   summarise(mean = mean(proportion)) 
@@ -49,6 +51,25 @@ ggplot(data = df, aes(x=V3,y=proportion)) +
   facet_wrap(~chrom, scales = "free") +
   scale_linetype_manual(name = "Region", values = c(1, 2), 
                         guide = guide_legend(override.aes = list(color = c("blue", "red")))) +
+  scale_y_continuous(labels=scales::percent) +
+  
+  labs(x="Position along chromosome (base pairs)", y="Number of overlapping ROHs") +
+  theme_bw()  + 
+  theme(axis.text.x = element_text(hjust= 0.8, vjust=0.8, angle = 45, size=14), 
+        axis.text.y = element_text(size = 16), 
+        plot.title=element_text(size = 20, face = "bold", hjust=0.5), 
+        axis.title=element_text(size= 18),
+        strip.text = element_text(size= 14),
+        legend.title=element_text(size= 18), 
+        legend.text=element_text(size= 16)) 
+
+#plot the permutations
+ggplot(data = perms, aes(x=start,y=avg)) +
+  geom_point() +
+  geom_errorbar(aes(ymin=lower, ymax=upper), width=0.1) +
+  geom_point(data = df, aes(x=V3,y=proportion), colour="red") +
+  facet_wrap(~chrom, scales = "free") +
+  
   scale_y_continuous(labels=scales::percent) +
   
   labs(x="Position along chromosome (base pairs)", y="Number of overlapping ROHs") +
