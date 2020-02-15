@@ -15,21 +15,21 @@ library(randomcoloR)
 library(tidyverse)
 
 #Load Sample information
-setwd("~/DogProject_Jaz/LocalRscripts/CaseControlROH")
-popmapMerge = read.delim("~/DogProject_Jaz/LocalRscripts/BreedCladeInfo/BreedAndCladeInfo_mergedFitakCornell.txt")
-orderPops = read.table("~/DogProject_Jaz/LocalRscripts/BreedCladeInfo/OrderPops.txt")
+setwd("~/Documents/DogProject_Jaz/LocalRscripts/CaseControlROH")
+popmapMerge = read.delim("~/Documents/DogProject_Jaz/LocalRscripts/BreedCladeInfo/BreedAndCladeInfo_mergedFitakCornell.txt")
+orderPops = read.table("~/Documents/DogProject_Jaz/LocalRscripts/BreedCladeInfo/OrderPops.txt")
 
 #PLINK BED files for unpruned data aka random sample of 100000 snps
-#bed.fn = ("~/DogProject_Jaz/LocalRscripts/CaseControlROH/MergedFile_CornellCanineFitak_allIndivs.bed")
-#bim.fn = ("~/DogProject_Jaz/LocalRscripts/CaseControlROH/MergedFile_CornellCanineFitak_allIndivs.bim")
-#fam.fn = ("~/DogProject_Jaz/LocalRscripts/CaseControlROH/MergedFile_CornellCanineFitak_allIndivs.fam")
+#bed.fn = ("~/Documents/DogProject_Jaz/LocalRscripts/CaseControlROH/MergedFile_CornellCanineFitak_allIndivs.bed")
+#bim.fn = ("~/Documents/DogProject_Jaz/LocalRscripts/CaseControlROH/MergedFile_CornellCanineFitak_allIndivs.bim")
+#fam.fn = ("~/Documents/DogProject_Jaz/LocalRscripts/CaseControlROH/MergedFile_CornellCanineFitak_allIndivs.fam")
 
 #convert
-#snpgdsBED2GDS(bed.fn, fam.fn, bim.fn, "~/DogProject_Jaz/LocalRscripts/CaseControlROH/MergedFile_CornellCanineFitak_allIndivs.gds")
-#snpgdsSummary("~/DogProject_Jaz/LocalRscripts/CaseControlROH/MergedFile_CornellCanineFitak_allIndivs.gds")
+#snpgdsBED2GDS(bed.fn, fam.fn, bim.fn, "~/Documents/DogProject_Jaz/LocalRscripts/CaseControlROH/MergedFile_CornellCanineFitak_allIndivs.gds")
+#snpgdsSummary("~/Documents/DogProject_Jaz/LocalRscripts/CaseControlROH/MergedFile_CornellCanineFitak_allIndivs.gds")
 
 #Open file
-genofile = snpgdsOpen("~/DogProject_Jaz/LocalRscripts/CaseControlROH/MergedFile_CornellCanineFitak_allIndivs.gds")
+genofile = snpgdsOpen("~/Documents/DogProject_Jaz/LocalRscripts/CaseControlROH/MergedFile_CornellCanineFitak_allIndivs.gds")
 sampIds = read.gdsn(index.gdsn(genofile, "sample.id")) #grab sample ids 
 famIds = gsub(".*-","",sampIds) #make family ids
 
@@ -150,6 +150,32 @@ allSampsPC1vPC2byClade = ggplot(df_PCA_dog, aes(y=EV2, x=EV1, colour=clade)) +
         legend.position = "bottom")
 
 print(allSampsPC1vPC2byClade)
+
+
+#color by roh burden
+rohs = read.delim(file = "~/Documents/DogProject_Jaz/LocalRscripts/ROH/TrueROH_propCoveredwithin1SDMean_allChroms_mergedFitakCornell.txt") %>%
+  group_by(INDV) %>%
+  summarise(ROHBurden = as.numeric(sum(AUTO_LEN))) %>% 
+  ungroup() %>%
+  mutate(ROHBurdenNorm = as.numeric((ROHBurden-min(ROHBurden))/(max(ROHBurden)-min(ROHBurden)))) %>%
+  select(INDV, ROHBurdenNorm) %>%
+  mutate(breed = popmapMaster$breed[match(INDV, popmapMaster$dogID)])
+
+df_PCA_dog$ROHBurden = rohs$ROHBurdenNorm[match(df_PCA_dog$sample.id, rohs$INDV)]
+
+rohBurden = ggplot(df_PCA_dog, aes(y=EV2, x=EV1, colour=ROHBurden)) +
+  geom_point(size=2) + 
+  scale_colour_gradientn(colours = terrain.colors(10)) +
+  labs(y=bquote('PC2' ~'('~.(pc_dog[2])~'%'~')'), x=bquote('PC1'~'('~.(pc_dog[1])~'%'~')')) +
+  theme_bw() + 
+  theme(axis.text.x = element_text(size  = 24), 
+        axis.text.y = element_text(size  = 24), 
+        axis.title=element_text(size=24),
+        legend.title=element_text(size=18),
+        legend.text=element_text(size=18), 
+        legend.position = "right")
+
+print(rohBurden)
 
 ###PCA on wolf populations###
 sampleid_wolf = gdsSampIDs[grep("grayWolf", gdsSampIDs)]
