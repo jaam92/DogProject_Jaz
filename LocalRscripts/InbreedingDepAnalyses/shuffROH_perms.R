@@ -1,16 +1,19 @@
 #Load libraries
 library(tidyverse)
-library(GenomicRanges)
 
 #Load breed info, ROHs, and kinship matrix
-rohs = read.delim(file = "~/Documents/DogProject_Jaz/LocalRscripts/ROH/TrueROH_propCoveredwithin1SDMean_allChroms_mergedFitakCornell.txt", stringsAsFactors = F) %>% 
+rohs = read.delim(file = "~/DogProject_Jaz/LocalRscripts/ROH/TrueROH_propCoveredwithin1SDMean_allChroms_mergedFitakCornell.txt", stringsAsFactors = F) %>% 
   filter(INDV == "30") 
 
-autosome = read.delim(file = "~/Documents/DogProject_Jaz/LocalRscripts/InbreedingDepAnalyses/chromosomeLengths.txt", check.names = F, stringsAsFactors = F, sep = " ") %>%
-  mutate(CHROM = as.numeric(gsub("chr", "", CHROM)))
+autosome = read.delim(file = "~/DogProject_Jaz/LocalRscripts/InbreedingDepAnalyses/chromosomeLengths.txt", check.names = F, stringsAsFactors = F, sep = " ") %>%
+  mutate(CHROM = as.numeric(gsub("chr", "", CHROM)),
+         endUnif = cumsum(as.numeric(LENGTH)),
+         START = as.numeric(endUnif) - as.numeric(LENGTH))
 
+#compute the length of the autsome since we are making the genome circular to eliminate edge effects then we will map everything back at the end
 autoLen = sum(as.numeric(autosome$LENGTH))
 
+#Shuffle the ROH
 #Move runs on same chrom by sampling uniformly
 newCoords = data.frame() #keep first set of rohs
 updatedROHs = data.frame() #keep rohs when overlaps are detected
@@ -80,4 +83,16 @@ for(i in rohs$AUTO_LEN){
 #print(finalROH)
 }
 
-autosome$START = lag(autosome$LENGTH, default = 0)+1
+#use data table to find overlaps
+mapChrom = autosome %>%
+  mutate(start = START/10^3,
+         end = endUnif/10^3,
+         chrom = "chr1") %>%
+  select(start, end, chrom,CHROM)
+
+#Find overlaps
+rangeA = with(finalROH, GRanges(chrom, IRanges(start=start, end =end)))
+rangeB = with(mapChrom, GRanges(chrom, IRanges(start=start, end =end, names= CHROM)))
+type2 = findOverlaps(query = rangeA, subject = rangeB, type = 'any')
+type2.df = data.frame(newROH[queryHits(type2),], mapChrom[subjectHits(type2),])
+
