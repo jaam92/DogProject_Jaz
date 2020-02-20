@@ -21,7 +21,7 @@ finalROH = data.frame() #permuted rohs
 
 for(i in rohs$AUTO_LEN){
   rohLength = i
-  start = runif(1, min = 0, max = autoLen)
+  start = runif(1, min = 1, max = autoLen)
   end = start + rohLength
   #Next check whether rohs fall within a chromosome, if they do not make new roh until it does
     if (end <= autoLen) {
@@ -29,7 +29,7 @@ for(i in rohs$AUTO_LEN){
       newCoords = rbind(newCoords, newROH)
     }else{
       while (end > autoLen) {
-        start = runif(1, min = 0, max = autoLen)
+        start = runif(1, min = 1, max = autoLen)
         end = start + rohLength
                             }
       newROH = cbind(start, end)
@@ -54,14 +54,14 @@ for(i in rohs$AUTO_LEN){
       cat(sprintf("overlaps detected generating new set of rohs"), sep = "\n")
       
       #Re-run everything from the top
-      start = runif(1, min = 0, max = autoLen)
+      start = runif(1, min = 1, max = autoLen)
       end = start + rohLength
       if (end <= autoLen) {
         retryROH = cbind(start, end)
         updatedROHs = rbind(finalROH, retryROH)
       }else{
         while (end > autoLen) {
-          start = runif(1, min = 0, max = autoLen)
+          start = runif(1, min = 1, max = autoLen)
           end = start + rohLength
         }
         retryROH = cbind(start, end)
@@ -94,5 +94,8 @@ mapChrom = autosome %>%
 rangeA = with(finalROH, GRanges(chrom, IRanges(start=start, end =end)))
 rangeB = with(mapChrom, GRanges(chrom, IRanges(start=start, end =end, names= CHROM)))
 type2 = findOverlaps(query = rangeA, subject = rangeB, type = 'any')
-type2.df = data.frame(newROH[queryHits(type2),], mapChrom[subjectHits(type2),])
+type2.df = data.frame(finalROH[queryHits(type2),], mapChrom[subjectHits(type2),]) %>%
+  select(CHROM, start, end) %>%
+  mutate(start = start*10^3,
+         end = end*10^3)
 
