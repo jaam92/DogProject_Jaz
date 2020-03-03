@@ -19,7 +19,7 @@ opt = parse_args(OptionParser(option_list=option_list))
 SGETaskID = opt$SGETaskID
 outFilePath = opt$outFilePath
 #autosome = read.delim(file = opt$genomeFile, check.names = F, stringsAsFactors = F, sep = " ") 
-#rohs = read.delim(file = file = opt$rohInfile, stringsAsFactors = F)
+#rohs = read.delim(file = opt$rohInfile, stringsAsFactors = F)
 
 #Read autosome length and roh files in 
 autosome = read.delim(file = "~/DogProject_Jaz/LocalRscripts/InbreedingDepAnalyses/chromosomeLengths.txt", check.names = F, stringsAsFactors = F, sep = " ") 
