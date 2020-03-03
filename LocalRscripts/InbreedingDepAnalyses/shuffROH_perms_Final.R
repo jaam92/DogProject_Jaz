@@ -1,9 +1,29 @@
 #Load Libraries 
-library(tidyverse)
+suppressPackageStartupMessages(library(tidyverse))
+library(optparse)
 library(tictoc)
 
-#Read autosome length file in 
+#Input parameters from command line if not found set to default
+option_list <- list( 
+  make_option(c("--SGETaskID"), type="integer", 
+              help="SGE Task ID for job array"),
+  make_option(c("--genomeFile"), type="character", default="/u/scratch/j/jmooney3/PermuteROH/test/chromosomeLengths.txt", 
+              help="file with chrom number in one column and length of chrom in second column", metavar="character"),
+  make_option(c("--rohInfile"), type="character", default="/u/home/j/jmooney3/klohmueldata/jazlyn_data/DogProject_Jaz/InbreedingDepression/HaywardData/TrueROH_propCoveredwithin1SDMean_allChroms_mergedFile_Cornell_allChroms_vcfToolsROH_rmROHlessThan50snps.txt", 
+              help="file with true ROHs in it from my pipeline", metavar="character"),
+  make_option(c("--outFilePath"), type="character", default="/u/scratch/j/jmooney3/",
+              help="specify output file path", metavar="character"))
+
+#Parse the options
+opt = parse_args(OptionParser(option_list=option_list))
+SGETaskID = opt$SGETaskID
+outFilePath = opt$outFilePath
+#autosome = read.delim(file = opt$genomeFile, check.names = F, stringsAsFactors = F, sep = " ") 
+#rohs = read.delim(file = file = opt$rohInfile, stringsAsFactors = F)
+
+#Read autosome length and roh files in 
 autosome = read.delim(file = "~/DogProject_Jaz/LocalRscripts/InbreedingDepAnalyses/chromosomeLengths.txt", check.names = F, stringsAsFactors = F, sep = " ") 
+rohs = read.delim(file = "~/DogProject_Jaz/LocalRscripts/ROH/TrueROH_propCoveredwithin1SDMean_allChroms_mergedFitakCornell.txt", stringsAsFactors = F)
 
 #Fxn for rounding this rounds down 
 round_any = function(x, accuracy, f=round){f(x/ accuracy) * accuracy}
@@ -38,7 +58,7 @@ tic("total time all indivs and chroms")
 for(i in 1:38){
   print(i)
   
-  mylist = read.delim(file = "~/DogProject_Jaz/LocalRscripts/ROH/TrueROH_propCoveredwithin1SDMean_allChroms_mergedFitakCornell.txt", stringsAsFactors = F) %>%
+  mylist = rohs %>%
     filter(CHROM == i) %>%
     arrange(INDV, AUTO_START) %>%
     select(INDV, CHROM, AUTO_START, AUTO_END, AUTO_LEN) %>%
@@ -48,7 +68,10 @@ for(i in 1:38){
     group_by(INDV) %>%
     group_map(~ permuteROH(dataFrame = .x, chromosomeNumber = i))
   
-  lapply(mylist, function(x) write.table(x, "~/DogProject_Jaz/LocalRscripts/InbreedingDepAnalyses/test.bed", quote = F, sep = "\t", row.names = F, col.names = F, append = T))
+  lapply(mylist, function(x) write.table(x,"~/DogProject_Jaz/LocalRscripts/InbreedingDepAnalyses/test.bed", quote = F, sep = "\t", row.names = F, col.names = F, append = T))
+  
+  #output when using optparse
+  #lapply(mylist, function(x) write.table(x, paste0(outFilePath,"newCoords",SGETaskID,".bed"), quote = F, sep = "\t", row.names = F, col.names = F, append = T))
 }
 
 
