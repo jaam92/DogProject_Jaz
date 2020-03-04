@@ -47,7 +47,7 @@ permuteROH = function(dataFrame, chromosomeNumber){
              start = lag(lengths, default = 0),
              end = cumsum(lengths) - 1) %>% 
       filter(values != "0") %>%
-      mutate(chrom = chromosomeNumber) %>%
+      mutate(chrom = paste0("chr", chromosomeNumber)) %>%
       select(chrom, start, end) 
     return(permuted)
 
