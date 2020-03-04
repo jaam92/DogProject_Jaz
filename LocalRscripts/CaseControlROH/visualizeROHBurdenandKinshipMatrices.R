@@ -103,3 +103,9 @@ kinshipHeatMap = ggplot(test, aes(x = V1, y = V2)) +
         axis.ticks.x = element_blank(),
         axis.text.y = element_blank(),
         axis.ticks.y = element_blank())
+
+#plot them together
+ggarrange(rohHeatMap, kinshipHeatMap, 
+          nrow = 1, 
+          common.legend = T, 
+          legend = "bottom")
