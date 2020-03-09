@@ -12,10 +12,11 @@ qn = function(exp_vector) {
 pcRelateMat = readRDS("~/Documents/DogProject_Jaz/LocalRscripts/CaseControlROH/pcRelateMatrix_allIndivs.rds")
 
 rohs = read.delim(file = "~/Documents/DogProject_Jaz/LocalRscripts/ROH/TrueROH_propCoveredwithin1SDMean_allChroms_mergedFitakCornell.txt") %>%
+  filter(AUTO_LEN >= 2e+06) %>%
   group_by(INDV) %>%
   summarise(totalROH = sum(as.numeric(AUTO_LEN))) 
 
-fnames = paste0("~/Documents/DogProject_Jaz/LocalRscripts/CaseControlROH/splitPhenotypeFile/", list.files(path="~/Documents/DogProject_Jaz/LocalRscripts/CaseControlROH/splitPhenotypeFile", pattern = "\\.txt$")) #paste the path in front of the filename
+fnames = paste0("~/Documents/DogProject_Jaz/LocalRscripts/CaseControlROH/splitPhenotypeFile/IncludeMixedBreeds/", list.files(path="~/Documents/DogProject_Jaz/LocalRscripts/CaseControlROH/splitPhenotypeFile/IncludeMixedBreeds/", pattern = "\\.txt$")) #paste the path in front of the filename
 
 #Loop through all files and run association test
 AssociationTestResults = data.frame() #make data frame to store results
@@ -63,7 +64,7 @@ for (i in seq_along(fnames)){
 }
 
 #Plot the output
-ggplot(AssociationTestResults, aes(x=gsub("_", " ", AssociationTestResults$trait), y = LogisticCoef, colour= significant)) +
+ggplot(AssociationTestResults, aes(x=gsub("_", " ", trait), y = LogisticCoef, colour= significant)) +
   geom_hline(yintercept = 0) + 
   geom_errorbar(aes(ymin=lowerBound, ymax=upperBound), colour="gray40", width=.2) + 
   geom_point() + 
