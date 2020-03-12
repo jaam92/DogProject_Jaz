@@ -57,7 +57,7 @@ permuteROH = function(dataFrame){
 #Permute ROH for all individuals and on all chroms
 tic("total time all indivs and chroms")
 
-mylist = x %>%
+mylist = rohs %>%
   group_by(INDV) %>%
   group_map(~ permuteROH(dataFrame = .x))
 
