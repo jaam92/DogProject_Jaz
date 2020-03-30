@@ -11,7 +11,7 @@ qn = function(exp_vector) {
 #Load kinship matrix, ROHs, and phenotype data filename
 pcRelateMat = readRDS("~/Documents/DogProject_Jaz/LocalRscripts/CaseControlROH/pcRelateMatrix_allIndivs.rds")
 
-rohs = read.delim(file = "~/Documents/DogProject_Jaz/LocalRscripts/ROH/TrueROH_propCoveredwithin1SDMean_allChroms_mergedFitakCornell.txt") %>%
+rohs = read.delim(file = "~/Documents/DogProject_Jaz/LocalRscripts/ROH/TrueROH_propCoveredwithin1SDMean_allChroms_mergedFile_Cornell_allChroms_vcfToolsROH_rmROHlessThan50snps_HaywardDataOnly.txt") %>%
   filter(AUTO_LEN >= 2e+06) %>%
   group_by(INDV) %>%
   summarise(totalROH = sum(as.numeric(AUTO_LEN))) 

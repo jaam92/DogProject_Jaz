@@ -18,7 +18,7 @@ ggplotRegression = function (fit) {
 #Load breed info, ROHs, and kinship matrix
 popmapDryad = read.delim("~/Documents/DogProject_Jaz/LocalRscripts/BreedCladeInfo/breeds_dryad.txt")
 
-rohs = read.delim(file = "~/Documents/DogProject_Jaz/LocalRscripts/ROH/TrueROH_propCoveredwithin1SDMean_allChroms_mergedFitakCornell.txt") %>%
+rohs = read.delim(file = "~/Documents/DogProject_Jaz/LocalRscripts/ROH/TrueROH_propCoveredwithin1SDMean_allChroms_mergedFile_Cornell_allChroms_vcfToolsROH_rmROHlessThan50snps_HaywardDataOnly.txt") %>%
   mutate(breed = popmapDryad$breed[match(INDV, popmapDryad$dogID)],
          group = ifelse(is.na(breed), "remove", "dog")) 
 
@@ -92,12 +92,21 @@ ggarrange(rohHeatMap, kinshipHeatMap,
           legend = "bottom")
 
 
+#These lines of code will get you all the pairwise compairsons in the hayward data and adds the file extension to the end so that the file names can be fed into bedtools
+#x = longData %>% 
+#  select(V1,V2) %>% 
+#  filter(V1 != V2) %>% 
+#  mutate(V1 = paste0(V1, ".bed"), 
+#         V2 = paste0(V2, ".bed"), 
+#         V1 = gsub("-N/A", "", V1), 
+#         V2 = gsub("-N/A", "", V2)) 
+#write.table(x, file = "~/Documents/DogProject_Jaz/LocalRscripts/CaseControlROH/fnames_haywardComps.txt", sep = "\t", quote = F, row.names = F, col.names = F)
 
 #convert to distance matrices and mantel test
-finalROHMatrix = longData %>%
-  select(V1, V2, rohNorm) %>%
-  acast(V1~V2, value.var="rohNorm")
+#finalROHMatrix = longData %>%
+#  select(V1, V2, rohNorm) %>%
+#  acast(V1~V2, value.var="rohNorm")
 
-roh.dist = dist(finalROHMatrix)
-kinship.dist = dist(kinshipMat)
+#roh.dist = dist(finalROHMatrix)
+#kinship.dist = dist(kinshipMat)
 #mantel.rtest(kinship.dist, roh.dist, nrepet = 1000)
