@@ -24,6 +24,11 @@ rohs = read.delim(file = "~/Documents/DogProject_Jaz/LocalRscripts/ROH/TrueROH_p
 
 pcRelateMat = readRDS("~/Documents/DogProject_Jaz/LocalRscripts/CaseControlROH/pcRelateMatrix_allIndivs.rds")
 
+grmROHs = read.delim("~/Documents/DogProject_Jaz/LocalRscripts/CaseControlROH/ROHGRM.ped", stringsAsFactors = F) %>% select(-c(PropOverlaps)) %>%
+  mutate(rohGRMNorm = as.numeric((Overlaps-min(Overlaps))/(max(Overlaps)-min(Overlaps)))) %>%
+  select(-c(Overlaps)) %>%
+  rename(V1 = ID1, V2 = ID2)
+
 #Compute bounded ROH burden for each individual
 ROHperIndiv = rohs %>%
   group_by(INDV) %>%
@@ -50,16 +55,26 @@ longData = melt(kinshipMat) %>%
   select(V1, V2, kinshipNorm, rohNorm)
 
 #correlate them ROH and kinship
-linear.model = lm(rohNorm ~ kinshipNorm, data = longData)
-summary(linear.model)
+#linear.model = lm(rohNorm ~ kinshipNorm, data = longData)
+#summary(linear.model)
 
-ggplotRegression(linear.model)
+#ggplotRegression(linear.model)
 
-#ROH burden
-rohHeatMap = ggplot(longData, aes(x = V1, y = V2)) + 
-  geom_raster(aes(fill = rohNorm)) + 
+#Add kinship based on shared ROH
+mergedDF = longData %>%
+  select(-c(kinshipNorm)) %>%
+  left_join(grmROHs) %>%
+  mutate(breed1 = popmapDryad$breed[match(V1,popmapDryad$dogID)],
+         breed2 = popmapDryad$breed[match(V2,popmapDryad$dogID)]) %>%
+  arrange(breed1)
+
+mergedDF[is.na(mergedDF)] <- as.numeric(1)
+
+#Kinship
+kinshipHeatMap = ggplot(mergedDF, aes(x = V1, y = V2)) + 
+  geom_raster(aes(fill = grmROHs)) + 
   scale_fill_gradient(low="grey90", high="red", name = "Similarity") +
-  labs(x="dogID1", y="dogID2", title = "ROH Burden") +
+  labs(x="dogID1", y="dogID2", title = "Kinship") +
   theme_bw() + 
   theme(plot.title=element_text(size=18, face = "bold", hjust=0.5),
         axis.title=element_text(size=16),
@@ -70,11 +85,11 @@ rohHeatMap = ggplot(longData, aes(x = V1, y = V2)) +
         axis.text.y = element_blank(),
         axis.ticks.y = element_blank())
 
-#Kinship
-kinshipHeatMap = ggplot(longData, aes(x = V1, y = V2)) + 
-  geom_raster(aes(fill = kinshipNorm)) + 
+#ROH burden
+rohHeatMap = ggplot(mergedDF, aes(x = V1, y = V2)) + 
+  geom_raster(aes(fill = rohNorm)) + 
   scale_fill_gradient(low="grey90", high="red", name = "Similarity") +
-  labs(x="dogID1", y="dogID2", title = "Kinship") +
+  labs(x="dogID1", y="dogID2", title = "ROH Burden") +
   theme_bw() + 
   theme(plot.title=element_text(size=18, face = "bold", hjust=0.5),
         axis.title=element_text(size=16),
