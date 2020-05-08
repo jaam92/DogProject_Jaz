@@ -21,6 +21,11 @@ genes = getBM(attributes = c("ensembl_gene_id", "transcript_length", "hgnc_symbo
   select(-c(transcript_length))
 #rm(ensembl) #delete the mart
 
+#Load all genes
+allGenes = read.table("~/Documents/DogProject_Jaz/LocalRscripts/InbreedingDepAnalyses/ForAbi_EnsemblGenes_CanFam3.1_SingleTranscript.bed", stringsAsFactors = F) %>%
+  distinct(V4, .keep_all = T) %>%
+  left_join(hgnc_symbols, by = c("V4"="previous"))
+
 #Load file for exons without ROHs add hgnc and dnds info
 exons = read.table("~/Documents/DogProject_Jaz/LocalRscripts/InbreedingDepAnalyses/VettingResults/ExonRegion_NonOverlapsROH_cornellData.bed", stringsAsFactors = F) %>% 
   mutate(data = "no ROH") %>%
@@ -32,13 +37,15 @@ exons = read.table("~/Documents/DogProject_Jaz/LocalRscripts/InbreedingDepAnalys
   select(current,dnds,data)
 
 #Grab morbid map data from OMIM
-omimPLINK = read.delim("~/Documents/DogProject_Jaz/LocalRscripts/InbreedingDepAnalyses/VettingResults/MorbidMap_rmNonDiseasesProvisionalDiseases.txt") %>%
+omim = read.delim("~/Documents/DogProject_Jaz/LocalRscripts/InbreedingDepAnalyses/VettingResults/MorbidMap_rmNonDiseasesProvisionalDiseases.txt") %>%
   separate_rows(geneName, sep = ",") %>% 
   filter(geneName %in% exons$current) %>%
   mutate(dnds = genes$dnds[match(geneName, genes$hgnc_symbol)],
          phenotype_MIM_INFO = str_replace_all(phenotype_MIM_INFO, "[[:digit:]]", ""),
          phenotype_MIM_INFO = str_replace_all(phenotype_MIM_INFO, "[[:punct:]]", " "))
 
-#merge together to plot
+#Grab CCR
+ccrs = read.delim("~/Documents/DogProject_Jaz/LocalRscripts/InbreedingDepAnalyses/VettingResults/ccrs.autosomes.90orhigher.v2.20180420.bed", stringsAsFactors = F, check.names = F) %>%
+  distinct(gene, .keep_all = T)
 
 
