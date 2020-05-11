@@ -24,9 +24,9 @@ rohs = read.delim(file = "~/Documents/DogProject_Jaz/LocalRscripts/ROH/TrueROH_p
 
 pcRelateMat = readRDS("~/Documents/DogProject_Jaz/LocalRscripts/CaseControlROH/pcRelateMatrix_allIndivs.rds")
 
-grmROHs = read.delim("~/Documents/DogProject_Jaz/LocalRscripts/CaseControlROH/ROHGRM.ped", stringsAsFactors = F) %>% select(-c(PropOverlaps)) %>%
-  mutate(rohGRMNorm = as.numeric((Overlaps-min(Overlaps))/(max(Overlaps)-min(Overlaps)))) %>%
-  select(-c(Overlaps)) %>%
+grmROHs = read.delim("~/Documents/DogProject_Jaz/LocalRscripts/CaseControlROH/ROHGRM.ped", stringsAsFactors = F) %>% 
+  mutate(rohGRMNorm = (Overlaps-min(Overlaps))/(max(Overlaps)-min(Overlaps))) %>%
+  #select(-c(Overlaps)) %>%
   rename(V1 = ID1, V2 = ID2)
 
 #Compute bounded ROH burden for each individual
