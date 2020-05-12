@@ -1,5 +1,5 @@
 #!/bin/bash
-#$ -l h_data=2G,h_rt=22:00:00
+#$ -l h_data=2G,h_rt=00:25:00
 #$ -cwd
 #$ -A jmooney3
 #$ -N GRM
@@ -20,9 +20,12 @@ module load xz
 while read -r a b 
 do 
 
-/u/home/j/jmooney3/klohmueldata/jazlyn_data/software/bedtools2/bin/bedtools coverage -a splitFiles/"$a" -b splitFiles/"$b" | awk '{sum +=6} END {print "S=" sum}' | sed -e "s|^|$a\t$b\t|g" >> Output/'overlaps'$SGE_TASK_ID'.bed' 
+/u/home/j/jmooney3/klohmueldata/jazlyn_data/software/bedtools2/bin/intersectBed -wao -a splitFiles/"$a" -b splitFiles/"$b" | awk '{sum +=$9} END {print sum}' | sed -e "s|^|$a\t$b\t|g" >> Output/'overlaps'$SGE_TASK_ID'.bed' 
 
 #Let us know where we are
 echo "$a" "$b" 
 
 done < inputs/'fnames_haywardComps'$SGE_TASK_ID
+
+
+sleep 180
