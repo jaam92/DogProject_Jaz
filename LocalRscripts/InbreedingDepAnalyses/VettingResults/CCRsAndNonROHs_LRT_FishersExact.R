@@ -1,3 +1,6 @@
+#library
+library(tidyverse)
+
 #Load files for hgnc symbols and ccr data 
 hgnc_symbols = read.table("~/Documents/DogProject_Jaz/LocalRscripts/InbreedingDepAnalyses/VettingResults/hgnc_symbol_pairs.txt", col.names = c("previous", "current"), stringsAsFactors = F)
 
@@ -34,6 +37,34 @@ ggplot() +
         legend.text=element_text(size=12),
         axis.text.x = element_text(size=16),
         axis.text.y = element_text(size=16))
+
+
+
+#plot results
+humanNonROHexons = read.table("~/Documents/DogProject_Jaz/LocalRscripts/InbreedingDepAnalyses/VettingResults/ExonRegion_NonOverlapsROH_Mooney.bed", stringsAsFactors = F) %>%
+  distinct(V4, .keep_all = T)
+
+humanExons = read.table("~/Documents/DogProject_Jaz/LocalRscripts/InbreedingDepAnalyses/VettingResults/protein_coding_genes_hg19_HGNC.bed", stringsAsFactors = F)
+
+set.seed(2020)
+numReps = 500000
+histReps = replicate(numReps, sum(sample(humanExons$V4, 4939, replace = F) %in% ccrs$gene))
+resampPval = sum(histReps >= 4939)/numReps #p-value 
+sprintf("p-value for resampling is %f", resampPval)
+
+humData = ggplot() +
+  geom_histogram(aes(x=histReps), bins=50, binwidth = 1) +
+  geom_vline(aes(xintercept = 4939), colour="blue") +
+  labs(x="Number of CCR Genes", y="Count Replicates") +
+  annotate("text", x=4790, y=5000, label = deparse(bquote(~p-value<2~e^-06)), parse=T) +    
+  theme_bw() + 
+  theme(plot.title=element_text(size=18, face = "bold", hjust=0.5),
+        axis.title=element_text(size=16),
+        legend.title=element_text(size=18), 
+        legend.text=element_text(size=12),
+        axis.text.x = element_text(size=16),
+        axis.text.y = element_text(size=16))
+print(humData)
 
 #Fisher's exact test and hypergeomtric LRT
 #make contingency table
