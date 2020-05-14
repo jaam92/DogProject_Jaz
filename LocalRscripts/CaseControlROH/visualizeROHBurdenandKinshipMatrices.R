@@ -1,8 +1,10 @@
 #load libraries
 library(tidyverse)
+library(reshape2)
 library(data.table)
 library(ade4)
 library(ggpubr)
+library(mgsub)
 
 #Functions
 #fxn for plotting
@@ -24,10 +26,10 @@ rohs = read.delim(file = "~/Documents/DogProject_Jaz/LocalRscripts/ROH/TrueROH_p
 
 pcRelateMat = readRDS("~/Documents/DogProject_Jaz/LocalRscripts/CaseControlROH/pcRelateMatrix_allIndivs.rds")
 
-grmROHs = read.delim("~/Documents/DogProject_Jaz/LocalRscripts/CaseControlROH/ROHGRM.ped", stringsAsFactors = F) %>% 
-  mutate(rohGRMNorm = (Overlaps-min(Overlaps))/(max(Overlaps)-min(Overlaps))) %>%
-  #select(-c(Overlaps)) %>%
-  rename(V1 = ID1, V2 = ID2)
+#add N/A back to the IDs of Boxers
+grmROHs = read.table("~/Documents/DogProject_Jaz/LocalRscripts/CaseControlROH/ROHGRM.ped", stringsAsFactors = F) %>%
+  mutate(V1 = str_replace_all(grmROHs$V1, c("A4-B2-FEMALE" = "A4-B2-FEMALE-N/A","B1-B13-FEMALE" = "B1-B13-FEMALE-N/A", "C3-B4-FEMALE" = "C3-B4-FEMALE-N/A", "C5-HUC14-MALE" = "C5-HUC14-MALE-N/A", "D4-HUC3-FEMALE" = "D4-HUC3-FEMALE-N/A", "E5-HUC6-FEMALE" = "E5-HUC6-FEMALE-N/A", "F1-HUC13-MALE" = "F1-HUC13-MALE-N/A","F3-HUC16-MALE"= "F3-HUC16-MALE-N/A", "G1-HUC7-FEMALE" = "G1-HUC7-FEMALE-N/A", "H5-HUC12-MALE" = "H5-HUC12-MALE-N/A")),
+         V2 = str_replace_all(grmROHs$V2, c("A4-B2-FEMALE" = "A4-B2-FEMALE-N/A","B1-B13-FEMALE" = "B1-B13-FEMALE-N/A", "C3-B4-FEMALE" = "C3-B4-FEMALE-N/A", "C5-HUC14-MALE" = "C5-HUC14-MALE-N/A", "D4-HUC3-FEMALE" = "D4-HUC3-FEMALE-N/A", "E5-HUC6-FEMALE" = "E5-HUC6-FEMALE-N/A", "F1-HUC13-MALE" = "F1-HUC13-MALE-N/A","F3-HUC16-MALE"= "F3-HUC16-MALE-N/A", "G1-HUC7-FEMALE" = "G1-HUC7-FEMALE-N/A", "H5-HUC12-MALE" = "H5-HUC12-MALE-N/A")))
 
 #Compute bounded ROH burden for each individual
 ROHperIndiv = rohs %>%
@@ -61,18 +63,23 @@ longData = melt(kinshipMat) %>%
 #ggplotRegression(linear.model)
 
 #Add kinship based on shared ROH
+  #left join the data with count of total bp of shared ROH
+  #replace NA with approximate length of genome so comparing self to self will be 1
+  #bound sharing of genome between 0 and 1
+  #last add breed info
 mergedDF = longData %>%
   select(-c(kinshipNorm)) %>%
   left_join(grmROHs) %>%
-  mutate(breed1 = popmapDryad$breed[match(V1,popmapDryad$dogID)],
+  mutate(V3 = ifelse(is.na(V3), as.numeric(3e9), V3), 
+         rohGRMNorm = (V3-min(V3))/(max(V3)-min(V3)),
+         breed1 = popmapDryad$breed[match(V1,popmapDryad$dogID)],
          breed2 = popmapDryad$breed[match(V2,popmapDryad$dogID)]) %>%
+  select(-c(V3)) %>%
   arrange(breed1)
-
-mergedDF[is.na(mergedDF)] <- as.numeric(1)
 
 #Kinship
 kinshipHeatMap = ggplot(mergedDF, aes(x = V1, y = V2)) + 
-  geom_raster(aes(fill = grmROHs)) + 
+  geom_raster(aes(fill = rohGRMNorm)) + 
   scale_fill_gradient(low="grey90", high="red", name = "Similarity") +
   labs(x="dogID1", y="dogID2", title = "Kinship") +
   theme_bw() + 
@@ -118,10 +125,16 @@ ggarrange(rohHeatMap, kinshipHeatMap,
 #write.table(x, file = "~/Documents/DogProject_Jaz/LocalRscripts/CaseControlROH/fnames_haywardComps.txt", sep = "\t", quote = F, row.names = F, col.names = F)
 
 #convert to distance matrices and mantel test
-#finalROHMatrix = longData %>%
-#  select(V1, V2, rohNorm) %>%
-#  acast(V1~V2, value.var="rohNorm")
+finalgrmROHMatrix = mergedDF %>%
+  select(V1, V2, rohGRMNorm) %>%
+  acast(V1~V2, value.var="rohGRMNorm")
 
-#roh.dist = dist(finalROHMatrix)
-#kinship.dist = dist(kinshipMat)
-#mantel.rtest(kinship.dist, roh.dist, nrepet = 1000)
+#saveRDS(finalgrmROHMatrix, "~/Documents/DogProject_Jaz/LocalRscripts/CaseControlROH/rohGRM_allIndivs.rds")
+
+finalROHBurdenMatrix = mergedDF %>%
+  select(V1, V2, rohNorm) %>%
+  acast(V1~V2, value.var="rohNorm")
+
+roh.dist = dist(finalROHBurdenMatrix)
+kinship.dist = dist(finalgrmROHMatrix)
+mantel.rtest(kinship.dist, roh.dist, nrepet = 1000)
