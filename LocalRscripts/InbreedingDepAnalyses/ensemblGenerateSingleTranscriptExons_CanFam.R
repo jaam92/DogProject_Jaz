@@ -1,22 +1,21 @@
 #Load libraries
 library(dplyr)
 library(tidyr)
+
 ####Read files in
-genes = read.delim("~/Documents/DogProject_Jaz/LocalRscripts/CaseControlROH/EnsemblGenes_CanFam3.1.bed") #These genes come from downloading Ensembl genes from UCSC in bed format
-gene_names = read.table("~/Documents/DogProject_Jaz/LocalRscripts/CaseControlROH/EnsemblGenes_CanFam3.1_geneNames.txt")
+genes = read.delim("~/Documents/DogProject_Jaz/LocalRscripts/CaseControlROH/EnsemblGenes_CanFam3.1.bed", check.names = F, stringsAsFactors = F) #These genes come from downloading Ensembl genes from UCSC in bed format
+gene_names = read.table("~/Documents/DogProject_Jaz/LocalRscripts/CaseControlROH/EnsemblGenes_CanFam3.1_geneNames.txt", stringsAsFactors = F)
 
 ####Make file with genes of interest
 ####Filter to only chromosomes 1-38 
 ####keep only longest transcript (need to use distinct too bc some transcripts have equal length and we only want to keep one entry)
-
-#Annotate gene set for Ensembl
 GeneSet = genes %>% 
-mutate(chrom = gsub("chr", "", chrom), 
-       AbbrevName = gene_names$V2[match(name, gene_names$V1)], 
-       transcript_length = transcriptionEnd - transcriptionStart) %>% 
+  mutate(chrom = gsub("chr", "", chrom), 
+         AbbrevName = gene_names$V2[match(name, gene_names$V1)],
+         transcript_length = transcriptionEnd - transcriptionStart) %>% 
   group_by(AbbrevName) %>% 
-  filter(transcript_length == max(transcript_length) & as.numeric(chrom) <= 38) %>%
-  distinct(AbbrevName,.keep_all= TRUE) %>% 
+  filter(transcript_length == max(transcript_length) & chrom %in% 1:38) %>% 
+  distinct(AbbrevName,.keep_all= TRUE) %>% #removes duplicates of transcripts that are the same length
   as.data.frame()
 
 #Split by exons
