@@ -7,8 +7,8 @@ library(tidyverse)
 #####Load Files and modify
 omiaGenes = read.delim("~/Documents/DogProject_Jaz/LocalRscripts/OMIA/omia-genes_v2.txt", fill = TRUE)
 
-#FinalCausalVars = read.delim("~/Documents/DogProject_Jaz/LocalRscripts/OMIA/causalVars_OMIA.txt", fill = TRUE) %>% 
-FinalCausalVars = read.csv("C:/Users/Jazlyn/Downloads/variants.csv", stringsAsFactors = F) %>% 
+#FinalCausalVars = read.delim("~/Documents/DogProject_Jaz/LocalRscripts/OMIA/causalVars_OMIA.txt", fill = TRUE) #old data
+FinalCausalVars = read.csv("~/Documents/DogProject_Jaz/LocalRscripts/OMIA/variants.csv", stringsAsFactors = F) %>% 
   mutate(Breed.s.= strsplit(as.character(Breed.s.), ",")) %>% 
   unnest(Breed.s.)  %>% #split the breeds that are comma delimited into separate rows with same info
   select(OMIA.ID.s., Breed.s., Gene) %>%
