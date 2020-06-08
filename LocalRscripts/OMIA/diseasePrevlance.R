@@ -103,7 +103,22 @@ DiseasePrev = TWilesData %>%
 rm(TWilesData)
 
 LinearRegROH = LinearRegResults("ROH")
-LinearRegIBD = LinearRegResults("IBD")
+LinearRegBoth = LinearRegResults("IBD") %>%
+  mutate(Predictor = "IBD") %>%
+  rbind.data.frame(LinearRegROH)
+
+#Plot Linear Regression Rsquared and pvalue
+ggplot(LinearRegBoth %>% filter(pvalue < 0.2), aes(x=reorder(trait, -AdjRsquared), y=AdjRsquared, colour=Predictor, size=pvalue<0.05)) +
+  geom_point() +
+  theme_bw() + 
+  scale_colour_manual( values = c("ROH"="#E69F00", "IBD"="#56B4E9")) + 
+  labs(x= "Trait", y = bquote('Adjusted'~R^2)) + 
+  theme(axis.text.x = element_text(size = 14, angle = 90, hjust = 0.5, vjust=0.7),
+        axis.text.y = element_text(size = 16), 
+        plot.title=element_text(size=20, face = "bold", hjust=0.5), 
+        axis.title=element_text(size=18),
+        legend.title=element_text(size=20), 
+        legend.text=element_text(size=18))
 
 #plotting 
 plottingCols = colnames(DiseasePrev)[2:10]
