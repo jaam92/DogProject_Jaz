@@ -1,16 +1,51 @@
 #####Load Libraries
-library(dplyr)
-library(tidyr)
+library(tidyverse)
 
 ######Read Files in
-WilesData = read.delim("~/DogProject_Jaz/LocalRscripts/OMIA/AKC_DiseasePrev_PointEstWiles2017.txt", check.names = F)
-IBDScores = read.delim("~/DogProject_Jaz/LocalRscripts/IBDSegs/IBDScoresPerPopulation.txt")
-ROHScores = read.delim("~/DogProject_Jaz/LocalRscripts/ROH/ROHScoresPerPopulation.txt")
-AKC = read.delim("~/Documents/DogProject_Jaz/LocalRscripts/AKC/AKC_breedPopularity_1926thru2005.txt", check.names = F)
-popmapMerge = read.delim("~/DogProject_Jaz/LocalRscripts/BreedCladeInfo/BreedAndCladeInfo_mergedFitakCornell.txt")
-orderPops = read.table("~/DogProject_Jaz/LocalRscripts/BreedCladeInfo/OrderPops.txt")
+WilesData = read.delim("~/Documents/DogProject_Jaz/LocalRscripts/OMIA/AKC_DiseasePrev_PointEstWiles2017.txt", check.names = F, stringsAsFactors = F)
+IBDScores = read.delim("~/Documents/DogProject_Jaz/LocalRscripts/IBDSegs/IBDScoresPerPopulation.txt", stringsAsFactors = F)
+ROHScores = read.delim("~/Documents/DogProject_Jaz/LocalRscripts/ROH/ROHScoresPerPopulation.txt", stringsAsFactors = F)
+AKC = read.delim("~/Documents/DogProject_Jaz/LocalRscripts/AKC/AKC_breedPopularity_1926thru2005.txt", check.names = F, stringsAsFactors = F)
+popmapMerge = read.delim("~/Documents/DogProject_Jaz/LocalRscripts/BreedCladeInfo/BreedAndCladeInfo_mergedFitakCornell.txt")
+orderPops = read.table("~/Documents/DogProject_Jaz/LocalRscripts/BreedCladeInfo/OrderPops.txt")
 
 
+######Function to run linear regressions the summaryStat should be ROH or IBD depending on predictor you want to use #### 
+LinearRegResults = function(summaryStat){
+  if (summaryStat == "ROH") {
+    Rsquared = DiseasePrev %>% 
+      select(-c("Population","NormPopROHScore", "NormPopIBDScore")) %>%  # exclude predictors and population, leave only outcomes
+      map(~lm(.x ~ DiseasePrev$NormPopROHScore, data = DiseasePrev)) %>% 
+      map(summary) %>% 
+      map_dbl("adj.r.squared") %>%
+      as.data.frame() %>%
+      rownames_to_column("trait") %>%
+      rename("AdjRsquared" = ".") 
+  }else{
+    Rsquared = DiseasePrev %>% 
+      select(-c("Population","NormPopROHScore", "NormPopIBDScore")) %>% 
+      map(~lm(.x ~ DiseasePrev$NormPopIBDScore, data = DiseasePrev)) %>% 
+      map(summary) %>% 
+      map_dbl("adj.r.squared") %>%
+      as.data.frame() %>%
+      rownames_to_column("trait") %>%
+      rename("AdjRsquared" = ".")
+  } #decide on ROH or IBD
+  
+  #Merge the adjusted R-squared with p-value
+  LinearReg = DiseasePrev %>% 
+    select(-c("Population","NormPopROHScore", "NormPopIBDScore")) %>%  
+    map(~lm(.x ~ DiseasePrev$NormPopROHScore, data = DiseasePrev)) %>% 
+    map(summary) %>% 
+    map(c("coefficients")) %>% 
+    map_dbl(8) %>% #the 8th value is the p-value in the coefficients
+    as.data.frame() %>%
+    rownames_to_column("trait") %>%
+    rename("pvalue" = ".") %>%
+    left_join(Rsquared)
+  
+  return(LinearReg)
+}
 ######Plot Linear Regression Function###
 ggplotRegression = function (fit) {
   ggplot(fit$model, aes_string(x = names(fit$model)[2], y = names(fit$model)[1])) + 
@@ -67,21 +102,8 @@ DiseasePrev = TWilesData %>%
   na.omit()
 rm(TWilesData)
 
-
-
-x = DiseasePrev %>% 
-  dplyr::select(-c("Population","NormPopROHScore", "NormPopIBDScore")) %>%  # exclude outcome, leave only predictors 
-  map(~lm(DiseasePrev$NormPopROHScore ~ .x, data = DiseasePrev)) %>% 
-  map(summary) %>% 
-  map(c("coefficients")) %>% 
-  map_dbl(8)  # 8th element is the p-value 
-
-y = DiseasePrev %>% 
-  dplyr::select(-c("NormPopROHScore", "NormPopIBDScore")) %>%  # exclude outcome, leave only predictors 
-  map(~lm(DiseasePrev$NormPopROHScore ~ .x, data = DiseasePrev)) %>% 
-  map(summary) %>% 
-  map_dbl("r.squared") 
-
+LinearRegROH = LinearRegResults("ROH")
+LinearRegIBD = LinearRegResults("IBD")
 
 #plotting 
 plottingCols = colnames(DiseasePrev)[2:10]
