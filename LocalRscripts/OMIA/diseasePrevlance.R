@@ -3,15 +3,22 @@ library(dplyr)
 library(tidyr)
 
 ######Read Files in
-OMIA = read.delim("~/Documents/DogProject_Jaz/LocalRscripts/OMIA/processedCausalVarsOMIA.txt")
 DisPrev = read.delim("~/Documents/DogProject_Jaz/LocalRscripts/OMIA/AKC_DiseasePrev_PointEstWiles2017.txt")
-#LifeSpanData = read.delim("~/Documents/Documents/DogProject_Jaz/LocalRscripts/AKC/Adams2010_BreedLifeSpan_addBreeds.txt")
-AKC = read.delim("~/Documents/DogProject_Jaz/LocalRscripts/AKC/AKC_breedPopularity_1926thru2005.txt", check.names = F)
 IBDScores = read.delim("~/Documents/DogProject_Jaz/LocalRscripts/IBDSegs/IBDScoresPerPopulation.txt")
 ROHScores = read.delim("~/Documents/DogProject_Jaz/LocalRscripts/ROH/ROHScoresPerPopulation.txt")
 popmapMerge = read.delim("~/Documents/DogProject_Jaz/LocalRscripts/BreedCladeInfo/BreedAndCladeInfo_mergedFitakCornell.txt")
 orderPops = read.table("~/Documents/DogProject_Jaz/LocalRscripts/BreedCladeInfo/OrderPops.txt")
-#orderCluster = read.table("~/Documents/Documents/DogProject_Jaz/LocalRscripts/BreedCladeInfo/OrderCluster.txt")
+
+
+######Plot Linear Regression Function###
+ggplotRegression = function (fit) {
+  ggplot(fit$model, aes_string(x = names(fit$model)[2], y = names(fit$model)[1])) + 
+    geom_point(size = 2) + 
+    stat_smooth( method = 'lm', col = "blue") +  
+    theme_bw() + 
+    labs(title = bquote(R^2== ~.(signif(summary(fit)$adj.r.squared, 5))~"&"~"p"==~.(signif(summary(fit)$coef[2,4], 5))))
+  
+}
 
 ###Create Data Frames to Process
 ###Set Populations and Clusters as factor so Wolves and dogs group together
@@ -20,9 +27,7 @@ BreedsWithCausalVars = OMIA %>%
 
 #IBD dataframe
 FinalIBDScores = IBDScores %>%
-  mutate(PopIBDScore = PopIBDScore/10^6, NormPopScore = NormPopScore/10^6,
-         CausalVars = BreedsWithCausalVars$n[match(Breed1, BreedsWithCausalVars$Breed)],
-         OverallPopularityRank = AKC$popularity[match(Breed1, AKC$breed)]) %>%
+  mutate(PopIBDScore = PopIBDScore/10^6, NormPopScore = NormPopScore/10^6) %>%
   rename(Population=Breed1) %>%
   mutate(CausalVars = replace_na(CausalVars, 0),
          Population = factor(Population, levels=orderPops$V1))
@@ -73,14 +78,13 @@ DiseasePrev = TDisPrev %>%
   na.omit()
 rm(TDisPrev)
 
-#####Correlations
-corrROHvsIBD = lm(PopROHScore~PopIBDScore, data = comboDF)
-corrROHScorevsIBDScore = lm(NormPopScore_ROH~NormPopScore_IBD, data = comboDF)
-
-corrROHScorecausVars = lm(CausalVars~NormPopScore_ROH, data = comboDF_noWolves)
-corrIBDScorecausVars = lm(CausalVars~NormPopScore_IBD, data = comboDF_noWolves)
-
-corrPopularitycausVars = lm(CausalVars~OverallPopularityRank, data = PopularityDF)
-corrPopularityROHScore = lm(NormPopScore_ROH~OverallPopularityRank, data = comboDF_noWolves)
-corrPopularityIBDScore = lm(NormPopScore_IBD~OverallPopularityRank, data = comboDF_noWolves)
-
+#plotting 
+plottingCols = colnames(DiseasePrev)[2:10]
+pdf("test.pdf", height = 8, width = 8)
+for (i in plottingCols) {
+  print(i)
+  #linearMod = lm(i~NormPopROHScore, data = DiseasePrev)
+  #print(ggplotRegression(linearMod) + 
+  #        xlab("ROH Score in Mb (Normalized)"))
+}
+dev.off()
