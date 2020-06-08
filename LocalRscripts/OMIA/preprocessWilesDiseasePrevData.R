@@ -31,4 +31,4 @@ postProcess = preprocess[,-1] %>%
   as.data.frame()
 
 #Save processed data
-#write.table(postProcess, file = "~/Documents/DogProject_Jaz/LocalRscripts/OMIA/AKC_DiseasePrev_PointEstWiles2017.txt", quote = F, row.names = F, sep = "t")
+#write.table(postProcess, file = "~/Documents/DogProject_Jaz/LocalRscripts/OMIA/AKC_DiseasePrev_PointEstWiles2017.txt", quote = F, row.names = F, sep = "\t")
