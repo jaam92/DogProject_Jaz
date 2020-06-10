@@ -107,7 +107,7 @@ Figure1 = ggplot(allPopsDF %>% filter(Population != "mixed"), aes(x=Years, y=NE,
         axis.text.y = element_text(size =20), 
         plot.title=element_text(size =24, face = "bold", hjust=0.5), 
         axis.title=element_text(size=24),
-        strip.text = element_text(size=14),
+        strip.text = element_text(size=20),
         legend.title=element_blank(), 
         legend.text=element_text(size=14), 
         legend.position = "none") 
