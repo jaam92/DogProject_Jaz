@@ -9,7 +9,7 @@ qn = function(exp_vector) {
 }
 
 #Load kinship matrix, ROHs, and phenotype data filename
-pcRelateMat = readRDS("~/Documents/DogProject_Jaz/LocalRscripts/CaseControlROH/pcRelateMatrix_allIndivs.rds")
+pcRelateMat = readRDS("~/Documents/DogProject_Jaz/LocalRscripts/CaseControlROH/rohGRM_allIndivs.rds")
 
 rohs = read.delim(file = "~/Documents/DogProject_Jaz/LocalRscripts/ROH/TrueROH_propCoveredwithin1SDMean_allChroms_mergedFile_Cornell_allChroms_vcfToolsROH_rmROHlessThan50snps_HaywardDataOnly.txt") %>%
   filter(AUTO_LEN >= 2e+06) %>%
@@ -50,21 +50,25 @@ for (i in seq_along(fnames)){
   
   #Run the glmm as a logisitic, compute coeffcients and  p-value  
   out.logistic = glmmkin(status~QNSCORE, data=ROHLoad, kins=kinshipMat*2, id = "dogID", family=binomial(link="logit"))
-  LogisticCoef = out.logistic$coef[2]
-  LogisticStat = out.logistic$coef[2]/sqrt(out.logistic$cov[2,2])
+  LogBeta = out.logistic$coef[2]
+  OddsRatio = exp(LogBeta)
+  LogBetaStandardized = out.logistic$coef[2]/sqrt(out.logistic$cov[2,2]) #standardized
   LogisticPval = ifelse(out.logistic$coef[2]/sqrt(out.logistic$cov[2,2])<0, pnorm(out.logistic$coef[2]/sqrt(out.logistic$cov[2,2]),lower=TRUE)*2,pnorm(out.logistic$coef[2]/sqrt(out.logistic$cov[2,2]),lower=FALSE)*2)
   confintUpper = out.logistic$coefficients + 1.96*sqrt(diag(out.logistic$cov)) #diagonal of cov matrix gives variance need SE so take the sqrt
   confintLower = out.logistic$coefficients - 1.96*sqrt(diag(out.logistic$cov))
   
   #Save Association Test output case-control count and the confidence interval of my fixed effect beta
-  LogRegOutput = cbind.data.frame(trait, CaseControlCount, LogisticCoef, confintUpper[2], confintLower[2], LogisticStat,LogisticPval) %>%
+  LogRegOutput = cbind.data.frame(trait, CaseControlCount, OddsRatio, LogBeta, LogBetaStandardized, confintUpper[2], confintLower[2], LogisticPval) %>%
     dplyr::rename(lowerBound = `confintLower[2]`, upperBound = `confintUpper[2]`)
   LogRegOutput$significant = ifelse(LogRegOutput$LogisticPval <= 0.05, "yes","no") #attach indicator 
   AssociationTestResults = rbind.data.frame(AssociationTestResults, LogRegOutput)
 }
 
+#write to file
+#write.table(AssociationTestResults, file = "~/Documents/DogProject_Jaz/LocalRscripts/CaseControlROH/AssociationTestResults.txt", col.names = T, row.names = F, quote = F, sep = "\t")
+
 #Plot the output
-ggplot(AssociationTestResults, aes(x=gsub("_", " ", trait), y = LogisticCoef, colour= significant)) +
+ggplot(AssociationTestResults, aes(x=gsub("_", " ", trait), y = LogBeta, colour= significant)) +
   geom_hline(yintercept = 0) + 
   geom_errorbar(aes(ymin=lowerBound, ymax=upperBound), colour="gray40", width=.2) + 
   geom_point() + 
