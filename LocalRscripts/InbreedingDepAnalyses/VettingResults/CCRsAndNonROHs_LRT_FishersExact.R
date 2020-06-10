@@ -117,7 +117,7 @@ resampPval = sum(histReps >= overlaps_b20)/numReps #p-value
 sprintf("p-value for resampling is %f", resampPval)
 
 #plot the results
-ggplot() +
+downsampleT10 = ggplot() +
   geom_histogram(aes(x=histReps), bins = 50) +
   geom_vline(aes(xintercept = overlaps_b20), colour="blue") +
   labs(x="Number of ROHs overlapping CCR Genes", y="Count Replicates") +
