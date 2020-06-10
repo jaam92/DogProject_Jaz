@@ -4,6 +4,7 @@ library(tidyverse)
 library(randomcoloR)
 library(data.table)
 library(ggpubr)
+library(mgsub)
 
 #Read Files in
 dfMerge = read.delim("~/Documents/DogProject_Jaz/LocalRscripts/ROH/TrueROH_propCoveredwithin1SDMean_allChroms_mergedFitakCornell.txt")
@@ -11,7 +12,8 @@ dfStronen = read.delim("~/Documents/DogProject_Jaz/LocalRscripts/ROH/Stronen2013
 popmapMerge = read.delim("~/Documents/DogProject_Jaz/LocalRscripts/BreedCladeInfo/BreedAndCladeInfo_mergedFitakCornell.txt")
 popmapStronen = read.delim("~/Documents/DogProject_Jaz/LocalRscripts/BreedCladeInfo/Stronen2013_SamplesUsed.txt")
 orderPops = read.table("~/Documents/DogProject_Jaz/LocalRscripts/BreedCladeInfo/OrderPops.txt")
-orderCluster = read.table("~/Documents/DogProject_Jaz/LocalRscripts/BreedCladeInfo/OrderCluster.txt")
+orderCluster = read.table("~/Documents/DogProject_Jaz/LocalRscripts/BreedCladeInfo/OrderCluster.txt") %>%
+  mutate(V1 = mgsub(as.character(V1), pattern=c("_", "grayWolf"), replacement=c(" ", "Gray Wolf")) )
 
 #Concatenate dataframes
 WolfDog = rbind.data.frame(dfMerge,dfStronen)
@@ -80,7 +82,10 @@ MeanPerPopulationDF = FinalDF_rmNA %>%
 MeanPerClusterDF = FinalDF_rmNA %>% 
   select(Cluster,Range,totalLen) %>% 
   group_by(Cluster,Range) %>% 
-  summarise_all(mean) 
+  summarise_all(mean)  %>%
+  ungroup() %>%
+  mutate(Cluster = mgsub(as.character(Cluster), pattern=c("_", "grayWolf"), replacement=c(" ", "Gray Wolf")),
+         Cluster = factor(Cluster, levels=orderCluster$V1))
 
 #Plot by Cluster
 MeanROHperPopulation = ggplot(MeanPerPopulationDF, aes(x=Population, y=totalLen/10^6, fill=Range)) +
@@ -119,16 +124,17 @@ FROHdf$Population = mergedPopmap$breed[match(FROHdf$INDV,mergedPopmap$dogID)]
 FROHdf$Cluster = mergedPopmap$clade[match(FROHdf$INDV,mergedPopmap$dogID)]
 FROHdf_rmNA = FROHdf %>% filter(!is.na(Cluster) & Cluster!= "Outlier")
 
-#Set Populations and Clusters as factor so Wolves and dogs group together
+#Set Populations and Clusters as factor so Wolves and dogs group together and add spaces to cluster names
 FROHdf_rmNA$Population = factor(FROHdf_rmNA$Population, levels=orderPops$V1)
-FROHdf_rmNA$Cluster = factor(FROHdf_rmNA$Cluster, levels=orderCluster$V1)
+FROHdf_rmNA$newCluster = mgsub(as.character(FROHdf_rmNA$Cluster), pattern=c("_", "grayWolf"), replacement=c(" ", "Gray Wolf"))
+FROHdf_rmNA$newCluster = factor(FROHdf_rmNA$newCluster, levels=orderCluster$V1)
 
 #expand color palette of choice to hve number of colors equal to number of clades
 colourCount_pop = length(unique(FROHdf_rmNA$Population)) 
 palette = distinctColorPalette(colourCount_pop)
 
 #Plot
-FROH_perCluster = ggplot(FROHdf_rmNA, aes(x=Cluster, y=FROH, colour=Cluster)) + 
+FROH_perCluster = ggplot(FROHdf_rmNA, aes(x=newCluster, y=FROH, colour=Cluster)) +
   geom_boxplot(size=1) + 
   geom_point(size=0.5) + 
   scale_colour_manual(values = palette, na.value="grey") + 
@@ -163,6 +169,5 @@ ggarrange(FROH_perCluster,
           ncol = 2, 
           labels = c("A", "B"),
           legend = "none") 
-
 
 
