@@ -1,5 +1,6 @@
 #library
 library(tidyverse)
+library(gridExtra)
 
 #fxn to negate in
 `%nin%` = Negate(`%in%`)
@@ -67,16 +68,17 @@ sprintf("p-value from LLR test exact test %f", p_of_LRStatistic)
 
 #If I sample 27 genes what is the probability that 23 are ccrs in the top 10%
 set.seed(2020)
-histReps = replicate(numReps, sum(sample(allGenes$V4, 23, replace = F) %in% t10_ccr$gene))
+numReps = 100000
+histReps = replicate(numReps, sum(sample(allGenes$V4, 27, replace = F) %in% t10_ccr$gene))
 resampPval = sum(histReps >= 23)/numReps #p-value 
 sprintf("p-value for resampling is %f", resampPval)
 
 #plot results
-ggplot() +
-  geom_histogram(aes(x=histReps), bins=20, binwidth = 0.5) +
+enrichmentNonROH = ggplot() +
+  geom_histogram(aes(x=histReps), bins=25, binwidth = 0.5) +
   geom_vline(aes(xintercept = 23), colour="blue") +
   labs(x="Number of CCR Genes", y="Count Replicates") +
-  annotate("text", x=16, y=15000, label= paste0("p = ",resampPval), size = 16) +    
+  annotate("text", x=25, y=15000, label= paste0("p = ",resampPval), size = 14) +
   theme_bw() + 
   theme(plot.title=element_text(size=18, face = "bold", hjust=0.5),
         axis.title=element_text(size=16),
@@ -85,6 +87,12 @@ ggplot() +
         axis.text.x = element_text(size=16),
         axis.text.y = element_text(size=16))
 
+#plot with contingency table
+FlipCounts = c(9896,23,5047,4)
+FlipContingencyTable = matrix(FCounts, nrow =2, ncol = 2)
+plotContTable = tableGrob(FlipContingencyTable, rows = c("ROH", "non-ROH"), cols =c("CCR", "non-CCR"), theme = ttheme(rownames.style = colnames_style(color = "black",face = "bold",size = 12, fill = "grey80",linewidth = 1,linecolor = "white")))
+enrichmentNonROH + 
+  annotation_custom(plotContTable, xmin = 7, xmax = 10, ymin = 12000, ymax = 15000)
 #Now am I more likely to see an ROH overlapping a CCR in the bottom 20% or top 10%? We do this by first making sure none of the genes in the bottom 20% overlap any genes in the top 10% so if I annotate a gene as being a top CCR that is a priority over a bottom ccr then we downsample top ccrs to match bottom ccrs
 
 b20_ccr = ccrs %>%
@@ -121,7 +129,7 @@ downsampleT10 = ggplot() +
   geom_histogram(aes(x=histReps), bins = 50) +
   geom_vline(aes(xintercept = overlaps_b20), colour="blue") +
   labs(x="Number of ROHs overlapping CCR Genes", y="Count Replicates") +
-  annotate("text", x=3335500, y=450, label = paste0("p = ", resampPval),  size = 16) +
+  annotate("text", x=3335500, y=450, label = paste0("p = ", resampPval),  size = 14) +
   theme_bw() + 
   theme(plot.title=element_text(size=18, face = "bold", hjust=0.5),
         axis.title=element_text(size=16),
@@ -157,7 +165,7 @@ humData = ggplot() +
   geom_histogram(aes(x=histReps), bins=50, binwidth = 1) +
   geom_vline(aes(xintercept = 2752), colour="blue") +
   labs(x="Number of CCR Genes", y="Count Replicates") +
-  annotate("text", x=2500, y=1200, label = deparse(bquote(~p < 1~e^-05)),  size = 16, parse=T) +    
+  annotate("text", x=2500, y=1200, label = deparse(bquote(~p < 1~e^-05)),  size = 14, parse=T) +    
   theme_bw() + 
   theme(plot.title=element_text(size=18, face = "bold", hjust=0.5),
         axis.title=element_text(size=16),
