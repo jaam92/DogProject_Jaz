@@ -6,7 +6,7 @@ library(gridExtra)
 `%nin%` = Negate(`%in%`)
 
 #load files
-ccrs = read.delim("~/Documents/DogProject_Jaz/LocalRscripts/InbreedingDepAnalyses/VettingResults/ccrs.autosomes.v2.20180420.bed", stringsAsFactors = F, check.names = F)
+ccrs = read_delim("~/Documents/DogProject_Jaz/LocalRscripts/InbreedingDepAnalyses/VettingResults/ccrs.autosomes.v2.20180420.bed", delim = "\t")
 
 t10_ccr = ccrs %>%
   filter(ccr_pct >= 90.0) %>%
