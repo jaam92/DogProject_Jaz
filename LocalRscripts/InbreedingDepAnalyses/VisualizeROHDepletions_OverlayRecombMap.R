@@ -83,7 +83,7 @@ ggplot(data = recomMapAllChroms, aes(x=pos, y=avgPerBin)) +
   geom_line(colour = "orange") +
   geom_point(data = bindDF_foldChange, aes(x=V3, y=proportion, colour=data)) +
   facet_wrap(~chrom, scales = "free") +
-  scale_color_manual(values = c("empirical" = "black", "ANKH" = "blue",  "exon" = "steelblue", "FYTTD1" = "gray50", "no ROH" = "purple", "PRMT2" = "red")) +  
+  scale_color_manual(values = c("VCFTools" = "gray50", "PLINK" = "darkorange", "ANKH" = "blue",  "exon" = "steelblue", "FYTTD1" = "gray50", "no ROH" = "purple", "PRMT2" = "red")) +  
   labs(x="Position along chromosome (base pairs)", y="Fold-change overlapping ROHs (relative to chromosomal mean)") +
   theme_bw()  + 
   theme(axis.text.x = element_text(hjust= 0.8, vjust=0.8, angle = 45, size=14), 
