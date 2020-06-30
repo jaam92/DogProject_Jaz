@@ -16,7 +16,7 @@ omiaData = read_csv("~/Documents/DogProject_Jaz/LocalRscripts/OMIA/variants.csv"
   unnest(`Breed(s)`) #split the breeds that are comma delimited into separate rows with same info
 
 #ID traits that do not affect fitness
-nonFitnessTraits = c("Blue eyes", "Bob tail", "Brown", "Coat colour dilution", "Coat colour, agouti", "Coat colour, black-and-tan", "Coat colour, dominant black", "Coat colour, white spotting", "Coat colour, white spotting, KIT-related", "Fawn or sable", "Furnishings (moustache and eyebrows)", "Grizzle", "Improper coat", "Long hair", "Muted, undefined, diluted–brownish hue", "No Merle pattern – diluted–brownish hue", "No Merle pattern – solid coat", "Recessive black", "Red/yellow coat", "Screw tail", "White coat colour", "White or cream", "Harlequin", "Liver")
+nonFitnessTraits = c("Blue eyes", "Bob tail", "Brown", "Coat colour dilution", "Coat colour, agouti", "Coat colour, black-and-tan", "Coat colour, dominant black", "Coat colour, white spotting", "Coat colour, white spotting, KIT-related", "Fawn or sable", "Furnishings (moustache and eyebrows)", "Grizzle", "Improper coat", "Long hair", "Muted, undefined, diluted-brownish hue", "No Merle pattern - diluted-brownish hue", "No Merle pattern - solid coat", "Minimal Merle, areas deleted to white, tweed", "Classic Merle","Recessive black", "Red/yellow coat", "Screw tail", "White coat colour", "White or cream", "Harlequin", "Liver")
 
 #Fitness related traits
 FinalCausalVars = omiaData %>%
