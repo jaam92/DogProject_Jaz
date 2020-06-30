@@ -1,30 +1,36 @@
 #####Load Libraries
-library(dplyr)
-library(tidyr)
+library(tidyverse)
 
 ######Read Files in
-OMIA = read.delim("~/Documents/DogProject_Jaz/LocalRscripts/OMIA/processedCausalVarsOMIA.txt")
-DisPrev = read.delim("~/Documents/DogProject_Jaz/LocalRscripts/OMIA/AKC_DiseasePrev_PointEstWiles2017.txt")
-#LifeSpanData = read.delim("~/Documents/Documents/DogProject_Jaz/LocalRscripts/AKC/Adams2010_BreedLifeSpan_addBreeds.txt")
-AKC = read.delim("~/Documents/DogProject_Jaz/LocalRscripts/AKC/AKC_breedPopularity_1926thru2005.txt", check.names = F)
-IBDScores = read.delim("~/Documents/DogProject_Jaz/LocalRscripts/IBDSegs/IBDScoresPerPopulation.txt")
-ROHScores = read.delim("~/Documents/DogProject_Jaz/LocalRscripts/ROH/ROHScoresPerPopulation.txt")
-popmapMerge = read.delim("~/Documents/DogProject_Jaz/LocalRscripts/BreedCladeInfo/BreedAndCladeInfo_mergedFitakCornell.txt")
-orderPops = read.table("~/Documents/DogProject_Jaz/LocalRscripts/BreedCladeInfo/OrderPops.txt")
-#orderCluster = read.table("~/Documents/Documents/DogProject_Jaz/LocalRscripts/BreedCladeInfo/OrderCluster.txt")
+OMIA = read.delim("~/Documents/DogProject_Jaz/LocalRscripts/OMIA/processedCausalVarsOMIA.txt", stringsAsFactors = F)
+OMIA_nonFitness = read.delim("~/Documents/DogProject_Jaz/LocalRscripts/OMIA/processedCausalVarsOMIA_nonFitnessRelated.txt", stringsAsFactors = F) %>%
+  filter(Breed != "numerous_breeds")
+DisPrev = read.delim("~/Documents/DogProject_Jaz/LocalRscripts/OMIA/AKC_DiseasePrev_PointEstWiles2017.txt", stringsAsFactors = F)
+#LifeSpanData = read.delim("~/Documents/Documents/DogProject_Jaz/LocalRscripts/AKC/Adams2010_BreedLifeSpan_addBreeds.txt", stringsAsFactors = F)
+AKC = read.delim("~/Documents/DogProject_Jaz/LocalRscripts/AKC/AKC_breedPopularity_1926thru2005.txt", check.names = F, stringsAsFactors = F)
+IBDScores = read.delim("~/Documents/DogProject_Jaz/LocalRscripts/IBDSegs/IBDScoresPerPopulation.txt", stringsAsFactors = F)
+ROHScores = read.delim("~/Documents/DogProject_Jaz/LocalRscripts/ROH/ROHScoresPerPopulation.txt", stringsAsFactors = F)
+popmapMerge = read.delim("~/Documents/DogProject_Jaz/LocalRscripts/BreedCladeInfo/BreedAndCladeInfo_mergedFitakCornell.txt", stringsAsFactors = F)
+orderPops = read.table("~/Documents/DogProject_Jaz/LocalRscripts/BreedCladeInfo/OrderPops.txt", stringsAsFactors = F)
+#orderCluster = read.table("~/Documents/Documents/DogProject_Jaz/LocalRscripts/BreedCladeInfo/OrderCluster.txt", stringsAsFactors = F)
 
 ###Create Data Frames to Process
 ###Set Populations and Clusters as factor so Wolves and dogs group together
 BreedsWithCausalVars = OMIA %>%
   count(Breed) #count causal vars associated with each breed
 
+BreedsWithCausalVars_nonFitness = OMIA_nonFitness %>%
+  count(Breed) #count causal vars associated with non-fitness related traits
+
 #IBD dataframe
 FinalIBDScores = IBDScores %>%
   mutate(PopIBDScore = PopIBDScore/10^6, NormPopScore = NormPopScore/10^6,
          CausalVars = BreedsWithCausalVars$n[match(Breed1, BreedsWithCausalVars$Breed)],
+         CausalVars_nonFitness = BreedsWithCausalVars_nonFitness$n[match(Breed1, BreedsWithCausalVars_nonFitness$Breed)],
          OverallPopularityRank = AKC$popularity[match(Breed1, AKC$breed)]) %>%
   rename(Population=Breed1) %>%
   mutate(CausalVars = replace_na(CausalVars, 0),
+         CausalVars_nonFitness = replace_na(CausalVars_nonFitness, 0),
          Population = factor(Population, levels=orderPops$V1))
 
 #ROH dataframe
@@ -32,17 +38,21 @@ FinalROHScores = ROHScores %>%
   mutate(PopROHScore = PopROHScore/10^6,
          NormPopScore = NormPopScore/10^6,
          CausalVars = BreedsWithCausalVars$n[match(Population, BreedsWithCausalVars$Breed)],
+         CausalVars_nonFitness = BreedsWithCausalVars_nonFitness$n[match(Population, BreedsWithCausalVars_nonFitness$Breed)],
          OverallPopularityRank = AKC$popularity[match(Population, AKC$breed)]) %>%
   mutate(CausalVars = replace_na(CausalVars, 0),
+         CausalVars_nonFitness = replace_na(CausalVars_nonFitness, 0),
          Population = factor(Population, levels=orderPops$V1))
 
 #Combine and only keep with both an ROH and IBD Score
 comboDF = merge(FinalROHScores, FinalIBDScores, by ="Population") %>%
   select("Population", "PopROHScore", "NormPopScore.x", "PopIBDScore","NormPopScore.y") %>%
   mutate(Clade = popmapMerge$clade[match(Population, popmapMerge$breed)],
-         CausalVars = BreedsWithCausalVars$n[match(Population, BreedsWithCausalVars$Breed)]) %>%
+         CausalVars = BreedsWithCausalVars$n[match(Population, BreedsWithCausalVars$Breed)],
+         CausalVars_nonFitness = BreedsWithCausalVars_nonFitness$n[match(Population, BreedsWithCausalVars_nonFitness$Breed)]) %>%
   rename(NormPopScore_ROH = NormPopScore.x, NormPopScore_IBD = NormPopScore.y) %>%
   mutate(CausalVars = replace_na(CausalVars, 0),
+         CausalVars_nonFitness = replace_na(CausalVars_nonFitness, 0),
          Population = factor(Population, levels=orderPops$V1))
 
 
@@ -52,9 +62,11 @@ PopularityDF = popmapMerge %>%
   group_by(breed) %>%
   sample_n(1) %>%
   mutate(OverallPopularityRank = AKC$popularity[match(breed, AKC$breed)],
-         CausalVars = BreedsWithCausalVars$n[match(breed, BreedsWithCausalVars$Breed)]) %>%
+         CausalVars = BreedsWithCausalVars$n[match(breed, BreedsWithCausalVars$Breed)],
+         CausalVars_nonFitness = BreedsWithCausalVars_nonFitness$n[match(breed, BreedsWithCausalVars_nonFitness$Breed)]) %>%
   filter(!is.na(OverallPopularityRank)) %>%
-  mutate(CausalVars = replace_na(CausalVars, 0)) %>%
+  mutate(CausalVars = replace_na(CausalVars, 0),
+         CausalVars_nonFitness = replace_na(CausalVars_nonFitness, 0)) %>%
   rename(Population=breed)
 
 comboDF_noWolves = comboDF %>%  
@@ -79,8 +91,11 @@ corrROHScorevsIBDScore = lm(NormPopScore_ROH~NormPopScore_IBD, data = comboDF)
 
 corrROHScorecausVars = lm(CausalVars~NormPopScore_ROH, data = comboDF_noWolves)
 corrIBDScorecausVars = lm(CausalVars~NormPopScore_IBD, data = comboDF_noWolves)
+corrROHScorecausVars_nonFitness = lm(CausalVars_nonFitness~NormPopScore_ROH, data = comboDF_noWolves)
+corrIBDScorecausVars_nonFitness = lm(CausalVars_nonFitness~NormPopScore_IBD, data = comboDF_noWolves)
 
 corrPopularitycausVars = lm(CausalVars~OverallPopularityRank, data = PopularityDF)
+corrPopularitycausVars_nonFitness = lm(CausalVars_nonFitness~OverallPopularityRank, data = PopularityDF)
 corrPopularityROHScore = lm(NormPopScore_ROH~OverallPopularityRank, data = comboDF_noWolves)
 corrPopularityIBDScore = lm(NormPopScore_IBD~OverallPopularityRank, data = comboDF_noWolves)
 
