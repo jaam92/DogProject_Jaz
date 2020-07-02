@@ -2,9 +2,9 @@
 
 
 #Download packages
-#source("https://bioconductor.org/biocLite.R")
-#biocLite("gdsfmt")
-#biocLite("SNPRelate")
+#if (!requireNamespace("BiocManager", quietly = TRUE))
+#  install.packages("BiocManager")
+#BiocManager::install("SNPRelate")
 
 #Load libraries
 library(mgsub)
@@ -56,7 +56,7 @@ popmapMerge$breed = gsub("large_munsterlander","munsterlander_large", popmapMerg
 popmapDog = popmapMerge[!(grepl("Wolf",popmapMerge$clade)),]
 popmapDog$Type = ifelse(popmapDog$clade != "Village", "breed dog", "village dog")
 popmapWolf = popmapMerge[grep("Wolf",popmapMerge$clade),]
-popmapWolf$Type = ifelse(popmapWolf$clade !="grayWolf_Europe" | popmapWolf$breed!= "WO_LUPA", "North American wolf", "European wolf")
+popmapWolf$Type = ifelse(popmapWolf$clade !="grayWolf_Europe", "North American wolf", "European wolf")
 popmapMaster = rbind.data.frame(popmapDog,popmapWolf)
 popmapMaster$Type = ifelse(is.na(popmapMaster$Type), "breed dog", popmapMaster$Type) #fill all the N/As in for breed dogs
 sample.id = as.character(popmapMerge$dogID)
@@ -88,8 +88,8 @@ allSampsPC1vPC2 = ggplot(df_PCA, aes(y=EV2, x=EV1, colour=population)) +
         legend.position = "bottom")
 
 allSampsPC2vPC3 = ggplot(df_PCA, aes(y=EV3, x=EV2, colour=population)) +
-  geom_point(size=2) +
-  scale_colour_manual(values = c("Breed dog"= "red", "Village dog"="black", "North American wolf" = "gray80", "European wolf" = "blue"), name="Population") + 
+  geom_point(size=2)  +
+  scale_colour_manual(values = c("breed dog"= "#56B4E9", "village dog"="black", "North American wolf" = "#E69F00", "European wolf" = "#009E73"), name="Population") + 
   labs(y=bquote('PC3' ~'('~.(pc[3])~'%'~')'), x=bquote('PC2'~'('~.(pc[2])~'%'~')')) +
   theme_bw() + 
   theme(axis.text.x = element_text(size  = 24), 
@@ -122,24 +122,24 @@ pca_dog$sample.id = gsub('(.*)-\\w+', '\\1', pca_dog$sample.id)
 
 #Make data frame with first two pcs
 df_PCA_dog = data.frame(sample.id = pca_dog$sample.id, 
-                         clade = factor(as.character(popmapMaster$clade))[match(pca_dog$sample.id, sample.id)], 
-                         breed = popmapMaster$breed[match(pca_dog$sample.id, sample.id)],
-                         EV1 = pca_dog$eigenvect[,1], 
-                         EV2 = pca_dog$eigenvect[,2], 
-                         EV3 = pca_dog$eigenvect[,3], 
-                         EV4 = pca_dog$eigenvect[,4], 
-                         stringsAsFactors = FALSE)
-
+                        clade = factor(as.character(popmapMaster$clade))[match(pca_dog$sample.id, sample.id)],
+                        breed = popmapMaster$breed[match(pca_dog$sample.id, sample.id)],
+                        EV1 = pca_dog$eigenvect[,1], 
+                        EV2 = pca_dog$eigenvect[,2], 
+                        EV3 = pca_dog$eigenvect[,3], 
+                        EV4 = pca_dog$eigenvect[,4], 
+                        stringsAsFactors = FALSE) %>%
+  mutate(clade = gsub("_"," ", clade),
+         clade = replace_na(clade, "Unassigned"))
 
 #Evaluate data frame with breed and clade information
 #expand color palette of choice to have number of colors equal to number of clades
-colourCount = length(unique(df_PCA_dog$clade))
-palette = distinctColorPalette(colourCount)
+palette = c("#6DDFD1","#74C5E0","#DDE651","#9BA577","#AB779F","#6EE29A","#78E053","#ABE3BD","#5763E7","#F12364","#E8DEC1","#942BF7","#E53FDE","#70A1E5","#D1967D","#D5A6E6","#B75ACA","#F087C5","#EA4AB5","#D34785","#634C96","#C7E4E3","#CDC6E4","#9F8AE6","#E9B0C1","#E887EC","#9A4EE0","#EA6B37","#DDAE56","#CDE18D","#D4615F","#83909A")
 
 #plot the nice version
 allSampsPC1vPC2byClade = ggplot(df_PCA_dog, aes(y=EV2, x=EV1, colour=clade)) +
   geom_point(size=2) + 
-  scale_colour_manual(values = palette, na.value = "black") +
+  scale_colour_manual(values = palette, na.value = "black", name = "Clade") +
   labs(y=bquote('PC2' ~'('~.(pc_dog[2])~'%'~')'), x=bquote('PC1'~'('~.(pc_dog[1])~'%'~')')) +
   theme_bw() + 
   theme(axis.text.x = element_text(size  = 24), 
