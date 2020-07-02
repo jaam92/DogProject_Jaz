@@ -102,7 +102,7 @@ Figure1 = ggplot(allPopsDF %>% filter(Population != "mixed"), aes(x=Years, y=NE,
   scale_y_log10() + 
   scale_colour_manual(values = c(boxer="#D6E1A2",cocker_spaniel ="#D1EB48",grayWolf_NorthAmerica="#E350D4",german_shepherd_dog="#DDC552", golden_retriever="#7EE7C2", labrador_retriever ="#749583", maltese = "#DB5265", mixed = "#D7DDD5", newfoundland = "#867BCF", rottweiler = "#867BCF", village_dog_peru = "#8447E4", grayWolf_Europe = "#8CDC83", poodle = "#7BD9E2", yorkshire_terrier = "#DAAAC7")) + 
   theme_bw() + 
-  labs(x = "Years", y = bquote('Effective Population Size'~(N[e]))) + 
+  labs(x = "Years Ago", y = bquote('Effective Population Size'~(N[e]))) + 
   theme(axis.text.x = element_text( hjust= 0.5, vjust=1,size=20), 
         axis.text.y = element_text(size =20), 
         plot.title=element_text(size =24, face = "bold", hjust=0.5), 
