@@ -165,7 +165,7 @@ df_PCA_dog$ROHBurden = rohs$ROHBurdenNorm[match(df_PCA_dog$sample.id, rohs$INDV)
 
 rohBurden = ggplot(df_PCA_dog, aes(y=EV2, x=EV1, colour=ROHBurden)) +
   geom_point(size=2) + 
-  scale_colour_gradientn(colours = terrain.colors(10)) +
+  scale_colour_gradientn(colours = terrain.colors(10), name = "ROH Burden") +
   labs(y=bquote('PC2' ~'('~.(pc_dog[2])~'%'~')'), x=bquote('PC1'~'('~.(pc_dog[1])~'%'~')')) +
   theme_bw() + 
   theme(axis.text.x = element_text(size  = 24), 
@@ -203,13 +203,14 @@ df_PCA_Wolf = data.frame(sample.id = pca_wolf$sample.id,
                             EV2 = pca_wolf$eigenvect[,2], 
                             EV3 = pca_wolf$eigenvect[,3], 
                             EV4 = pca_wolf$eigenvect[,4], 
-                            stringsAsFactors = FALSE)
+                            stringsAsFactors = FALSE) 
 
 #replace location labels
-df_PCA_Wolf$location = mgsub(df_PCA_Wolf$location, pattern=c("EURO", "WO_BC", "WO_ID", "WO_INTAK", "WO_MN", "WO_MAT", "X", "MB", "WO_SEAK", "WO_WO", "WO_LUPA", "GR", "AR"), replacement=c("Europe", "British Columbia", "Idaho", "Interior Alaska", "Minnesota", "Montana", "Mexico","McBride", "Southeast Alaska", "Wyoming", "LUPA", "Ghost Ranch", "Aragon"))
+df_PCA_Wolf$location = mgsub(df_PCA_Wolf$location, pattern=c("EURO", "WO_BC", "WO_ID", "WO_INTAK", "WO_MN", "WO_MAT", "X", "MB", "WO_SEAK", "WO_WO", "WO_LUPA", "GR", "AR"), replacement=c("Europe", "British Columbia", "Idaho", "Interior Alaska", "Minnesota", "Montana", "Mexico","McBride", "Southeast Alaska", "Wyoming", "Europe", "Ghost Ranch", "Aragon"))
+"#D3DDD5"
 
 #plot the nice version
-wolfPalette =c("#896ED7","#C9A981","#78DEA8","#D6A9D0","#7BA6D6","#87E95A","#E17368","#DBCB4B","#D3DDD5","#C047E8","#DD60B2","#CEE499","#78D7D6")
+wolfPalette =c("#7BA6D6","#D6A9D0","firebrick2","#78D7D6","purple","#896ED7","dodgerblue2","royalblue4","forestgreen","#DD60B2","#C9A981","darkmagenta")
 
 PC1vPC2_wolf = ggplot(df_PCA_Wolf, aes(y=EV2, x=EV1, colour=population)) +
   geom_point(size=2) +
@@ -222,7 +223,7 @@ PC1vPC2_wolf = ggplot(df_PCA_Wolf, aes(y=EV2, x=EV1, colour=population)) +
         legend.title=element_text(size=24), 
         legend.text=element_text(size=24))
 
-PC2vPC3_wolf = ggplot(df_PCA_Wolf, aes(y=EV3, x=EV2, colour=location))+
+PC1vPC2_wolf = ggplot(df_PCA_Wolf, aes(y=EV3, x=EV2, colour=location))+
   geom_point(size=2) +
   labs(y=bquote('PC3' ~'('~.(pc_wolf[3])~'%'~')'), x=bquote('PC2'~'('~.(pc_wolf[2])~'%'~')')) +
   scale_colour_manual(values = wolfPalette, na.value = "black", name = "Location") +
@@ -236,4 +237,3 @@ PC2vPC3_wolf = ggplot(df_PCA_Wolf, aes(y=EV3, x=EV2, colour=location))+
 
 print(PC1vPC2_wolf)
 print(PC2vPC3_wolf)
-
