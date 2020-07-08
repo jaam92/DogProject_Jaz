@@ -38,7 +38,7 @@ plink = read.table("~/Documents/DogProject_Jaz/LocalRscripts/InbreedingDepAnalys
 df = rbind.data.frame(vcftools, plink)
 
 avgPerChrom = df %>%
-  group_by(chrom) %>%
+  group_by(chrom, data) %>%
   summarise(mean = mean(proportion)) 
 
 exons = read.table("~/Documents/DogProject_Jaz/LocalRscripts/InbreedingDepAnalyses/VettingResults/ExonRegion_NonOverlapsROH_cornellData.bed", stringsAsFactors = F) %>% 
@@ -50,7 +50,7 @@ exons = read.table("~/Documents/DogProject_Jaz/LocalRscripts/InbreedingDepAnalys
   select(-c(indicator, dummy))
 
 foldChange = df %>%
-  group_by(chrom) %>%
+  group_by(chrom, data) %>%
   mutate(adjV4 = V4 + 0.05,
          proportion = adjV4/mean(adjV4)) %>%
   select(-c(adjV4))
@@ -61,7 +61,7 @@ foldChange_exons = exons %>%
 bindDF_foldChange = foldChange %>%
   rbind.data.frame(foldChange_exons) %>%
   na.omit() %>%
-  rename(V1 = "chromo", V2 = "window_start", V3 = "window_end", V4 = "overlaps")
+  rename("chromo" = V1 , "window_start"= V2 , "window_end" = V3, "overlaps"= V4 )
 
 #Everything on different scale and split by chromosome
 ggplot(data = bindDF_foldChange, aes(x=window_start, y=proportion, colour=data)) +
@@ -144,6 +144,6 @@ plotFunction = function(dataFrame,dataWanted, color1, color2) {
   return(rohAlongChrom)
 }
 
-rohAcrossGenome_VCFTools = plotFunction(rescaledWindows,"VCFTools", "#78D7D6","darkmagenta")
+rohAcrossGenome_VCFTools = plotFunction(rescaledWindows,"VCFTools", "gray50","darkmagenta")
 
-rohAcrossGenome_PLINK = plotFunction(rescaledWindows,"PLINK", "royalblue4","darkmagenta")
+rohAcrossGenome_PLINK = plotFunction(rescaledWindows,"PLINK", "darkorange","darkmagenta")
