@@ -1,7 +1,7 @@
 #Libraries
 library(data.table)
 library(tidyverse)
-
+library(ggpubr)
 
 #Empty list for recom map
 recomMapList = list() 
@@ -147,3 +147,18 @@ plotFunction = function(dataFrame,dataWanted, color1, color2) {
 rohAcrossGenome_VCFTools = plotFunction(rescaledWindows,"VCFTools", "gray50","darkmagenta")
 
 rohAcrossGenome_PLINK = plotFunction(rescaledWindows,"PLINK", "darkorange","darkmagenta")
+
+
+PlinkVCFTools = ggarrange(rohAcrossGenome_VCFTools + labs(x = "", y = ""), 
+                         rohAcrossGenome_PLINK + labs(x = "", y = ""),
+                         nrow = 2,
+                         ncol = 1,
+                         align = 'v')
+yAxisLabel_PlinkVCFTools = annotate_figure(PlinkVCFTools,
+                                            left = text_grob("Fold-change overlapping ROHs (relative to chromosomal mean)", 
+                                                             size=20, 
+                                                             face = "bold",
+                                                             rot = 90),
+                                            bottom = text_grob("Chromosome", 
+                                                               size=20, 
+                                                               face = "bold"))
