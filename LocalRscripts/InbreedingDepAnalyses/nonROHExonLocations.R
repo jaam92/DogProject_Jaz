@@ -13,6 +13,10 @@ ExonSpace = ensemblGenes %>%
          exonLength = exonStop - exonStart) %>%
   as.data.frame()
 
+NumExons = ensemblGenes %>%
+  group_by(GeneName) %>%
+  count()
+  
 TSSLength = ExonSpace %>% 
   group_by(chrom, GeneName) %>% 
   summarise(TSSLength = sum(exonLength)) 
@@ -65,16 +69,28 @@ splitOnData = function(dataFrame, rohCaller){
         strip.text = element_text(size=14)) 
 }
 
+propExonsWithoutROH = function(dataFrame, colorVCFTools, colorPLINK){
+  inputDF = dataFrame %>%
+    group_by(chrom,GeneName, data) %>%
+    summarise(ExonCoverage = sum(as.numeric(nonROH))) %>%
+    mutate(propExonsWithoutROH = round(ExonCoverage/NumExons$n[match(GeneName, NumExons$GeneName)], digits = 1))
+  
+  ggplot(inputDF, aes(x=data,y=propExonsWithoutROH, fill=data)) +
+    geom_violin() +
+    geom_point() +
+    coord_flip() +
+    scale_fill_manual(values = c("PLINK" = colorPLINK, "VCFTools" = colorVCFTools)) +
+    labs(x="ROH Caller", y="Proportion of exons\n without a ROH") +
+    theme_bw() + 
+    theme(axis.text.x = element_text(size=20), 
+          axis.text.y = element_text(size =20), 
+          plot.title=element_text(size = 24, face = "bold", hjust=0.5), 
+          axis.title=element_text(size=24),
+          legend.position = "none") 
+         }
+
 plinkNonROH = splitOnData(plotDF, "PLINK")
 vcfToolsNonROH = splitOnData(plotDF, "VCFTools")
 
+plotPropExons = propExonsWithoutROH(dataFrame = plotDF, colorVCFTools = "gray50",  colorPLINK = "darkorange")
 
-ggplot(plotDF, aes(x=data,y=coverage)) +
-  geom_violin() +
-  coord_flip() +
-  theme_bw() + 
-  theme(axis.text.x = element_text( hjust= 0.5, vjust=0.75, size=14, angle = 40), 
-        axis.text.y = element_text(size =20), 
-        plot.title=element_text(size = 24, face = "bold", hjust=0.5), 
-        axis.title=element_text(size=24),
-        strip.text = element_text(size=14)) 
