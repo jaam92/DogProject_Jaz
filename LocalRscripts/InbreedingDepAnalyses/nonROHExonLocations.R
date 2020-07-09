@@ -77,7 +77,6 @@ propExonsWithoutROH = function(dataFrame, colorVCFTools, colorPLINK){
   
   ggplot(inputDF, aes(x=data,y=propExonsWithoutROH, fill=data)) +
     geom_violin() +
-    geom_point() +
     coord_flip() +
     scale_fill_manual(values = c("PLINK" = colorPLINK, "VCFTools" = colorVCFTools)) +
     labs(x="ROH Caller", y="Proportion of exons\n without a ROH") +
