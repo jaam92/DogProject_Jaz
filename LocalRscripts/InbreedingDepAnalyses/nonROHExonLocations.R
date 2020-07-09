@@ -4,60 +4,75 @@ library("tidyverse")
 #set working directory and load files
 setwd("~/DogProject_Jaz/LocalRscripts/InbreedingDepAnalyses/")
 
-ensemblGenes = read.table("~/DogProject_Jaz/LocalRscripts/InbreedingDepression/ForAbi_EnsemblGenes_CanFam3.1_SingleTranscript.bed", col.names = c("chrom", "exonStart", "exonStop","GeneName"), stringsAsFactors = F)
-genes = read.delim()
+ensemblGenes = read.table("~/Documents/DogProject_Jaz/LocalRscripts/InbreedingDepAnalyses/ForAbi_EnsemblGenes_CanFam3.1_SingleTranscript.bed", col.names = c("chrom", "exonStart", "exonStop","GeneName"), stringsAsFactors = F)
 
-regionNonOverlaps = read.table("~/DogProject_Jaz/LocalRscripts/InbreedingDepAnalyses/ExonRegion_NonOverlapsROH_cornellData.bed",  col.names = c("chrom", "exonStart", "exonStop","GeneName"), stringsAsFactors = F) %>%
-        mutate(nonROH = "1")
-
-#gives the space in between exons within a gene
+#find the space in between exons within a gene and length of exons
 ExonSpace = ensemblGenes %>%
   group_by(GeneName) %>%
-  mutate(diff = exonStart - lag(exonStop, default = first(exonStart))) %>%
+  mutate(spaceBtwn = exonStart - lag(exonStop, default = first(exonStart)),
+         exonLength = exonStop - exonStart) %>%
   as.data.frame()
 
-#merge data frames to figure out which exons do not have ROH
-nonROHExonLocation = ensemblGenes %>%
-  filter(GeneName%in%regionNonOverlaps$GeneName) %>%
-  left_join(., regionNonOverlaps) 
+TSSLength = ExonSpace %>% 
+  group_by(chrom, GeneName) %>% 
+  summarise(TSSLength = sum(exonLength)) 
 
-nonROHExonLocation[is.na(nonROHExonLocation)] <- 0 #replace NA with 0
+#Figure out which exons do not have ROH
+regionNonOverlaps_V = read.table("~/Documents/DogProject_Jaz/LocalRscripts/InbreedingDepAnalyses/VettingResults/ExonRegion_NonOverlapsROH_cornellData.bed",  col.names = c("chrom", "exonStart", "exonStop","GeneName"), stringsAsFactors = F) %>%
+        mutate(nonROH = "1") %>%
+  right_join(., ensemblGenes) %>%
+  mutate(data = "VCFTools",
+         nonROH = ifelse(is.na(nonROH), as.numeric(0), nonROH)) #replace NA with 0 
 
+regionNonOverlaps = read.table("~/Documents/DogProject_Jaz/LocalRscripts/InbreedingDepAnalyses/VettingResults/ExonRegion_NonOverlapsROH_cornellData_plink.bed",  col.names = c("chrom", "exonStart", "exonStop","GeneName"), stringsAsFactors = F) %>%
+  mutate(nonROH = "1") %>%
+  right_join(., ensemblGenes) %>%
+  mutate(data = "PLINK",
+         nonROH = ifelse(is.na(nonROH), as.numeric(0), nonROH)) %>%
+  rbind.data.frame(regionNonOverlaps_V)
 
-#plot the location of exons in roh or not
-TSSLength = merge(nonROHExonLocation, ExonSpace) %>% 
-        group_by(chrom, GeneName) %>% 
-        summarise(TSSLength = sum(diff)) 
+#remove genes that are covered by roh
+allGenesInfo = left_join(regionNonOverlaps, ExonSpace) %>%
+  mutate(propGene = ifelse(nonROH == "1", round(exonLength/TSSLength$TSSLength[match(GeneName, TSSLength$GeneName)], digits = 1), as.numeric(0)),
+         distTSS = lag(spaceBtwn) + spaceBtwn,
+         propBasedOnTSS = ifelse(is.na(distTSS), "0", round(distTSS/TSSLength$TSSLength[match(GeneName, TSSLength$GeneName)], digits = 1))) 
 
-TSSInfo = merge(nonROHExonLocation, ExonSpace) %>% 
-        group_by(chrom, GeneName) %>%
-        slice(which.min(exonStart)) %>%
-        select(chrom, exonStart, GeneName) %>%
-        mutate(TSSLength = TSSLength$TSSLength[match(GeneName, TSSLength$GeneName)]) %>%
-        ungroup()
-#rm(TSSLength)
+NoROH = allGenesInfo %>%
+  group_by(chrom,GeneName, data) %>%
+  summarise(coverage = sum(propGene)) %>%
+  filter(coverage > 0) 
 
-plotDF = left_join(nonROHExonLocation, ExonSpace) %>%
-  mutate(TSSInfo = TSSInfo$TSSLength[match(GeneName, TSSInfo$GeneName)],
-         distTSS = lag(diff) + diff,
-         propGene = ifelse(is.na(distTSS), "0", round(distTSS/TSSLength$TSSLength[match(GeneName, TSSLength$GeneName)], digits = 2)))
+plotDF = allGenesInfo %>%
+  left_join(.,NoROH) %>%
+  na.omit(coverage) %>%
+  mutate(coverage = ifelse(coverage > 1, as.numeric(1), coverage))
+  
 
+#plot results
 
-
-ggplot(plotDF %>% 
-         group_by(GeneName) %>% 
-         top_n(1, exonStop) %>%
-         ungroup(), 
-       aes(x = propGene)) +
-        geom_density() + 
-        theme_bw() +
-        theme(legend.position = "none")
-
-ggplot(plotDF, aes(x=exonStart, y=nonROH)) +
+splitOnData = function(dataFrame, rohCaller){
+  inputDF = dataFrame %>%
+    filter(data == rohCaller)
+  ggplot(inputDF, aes(x=exonStart, y=nonROH)) +
   geom_point() +
   labs(y = "nonROH status", x = "exon location") +
   facet_wrap(~GeneName, scales = "free", nrow = 3) +  
   theme_bw()+ 
+  theme(axis.text.x = element_text( hjust= 0.5, vjust=0.75, size=14, angle = 40), 
+        axis.text.y = element_text(size =20), 
+        plot.title=element_text(size = 24, face = "bold", hjust=0.5), 
+        axis.title=element_text(size=24),
+        strip.text = element_text(size=14)) 
+}
+
+plinkNonROH = splitOnData(plotDF, "PLINK")
+vcfToolsNonROH = splitOnData(plotDF, "VCFTools")
+
+
+ggplot(plotDF, aes(x=data,y=coverage)) +
+  geom_violin() +
+  coord_flip() +
+  theme_bw() + 
   theme(axis.text.x = element_text( hjust= 0.5, vjust=0.75, size=14, angle = 40), 
         axis.text.y = element_text(size =20), 
         plot.title=element_text(size = 24, face = "bold", hjust=0.5), 
