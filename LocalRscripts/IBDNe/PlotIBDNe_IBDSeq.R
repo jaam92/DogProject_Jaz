@@ -92,7 +92,7 @@ grid.arrange(arrangeGrob(plotTogether, legendIBDNe,
                          ncol=1))
 
 ###Larger labels remove mixed breed dogs for figure 1
-newNames <- c("boxer"="Boxer","cocker_spaniel" ="American Cocker Spaniel","grayWolf_NorthAmerica"="North American wolf","german_shepherd_dog"="German Shepherd dog", "golden_retriever"="Golden Retriever", "labrador_retriever" ="Labrador Retriever", "maltese" = "Maltese", "mixed" = "Mixed", "newfoundland" = "Newfoundland", "rottweiler" = "Rottweiler", "village_dog_peru" = "village dog", "grayWolf_Europe" = "European wolf", "poodle" = "Poodle", "yorkshire_terrier" = "Yorkshire Terrier")
+newNames <- c("boxer"="Boxer","cocker_spaniel" ="American Cocker Spaniel","grayWolf_NorthAmerica"="United States gray wolf","german_shepherd_dog"="German Shepherd dog", "golden_retriever"="Golden Retriever", "labrador_retriever" ="Labrador Retriever", "maltese" = "Maltese", "mixed" = "Mixed", "newfoundland" = "Newfoundland", "rottweiler" = "Rottweiler", "village_dog_peru" = "village dog", "grayWolf_Europe" = "European gray wolf", "poodle" = "Poodle", "yorkshire_terrier" = "Yorkshire Terrier")
 
 Figure1 = ggplot(allPopsDF %>% filter(Population != "mixed"), aes(x=Years, y=NE, colour=Population)) + 
   geom_line(size=1) + 
