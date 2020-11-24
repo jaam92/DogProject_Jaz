@@ -12,8 +12,7 @@ IBDScores = read.delim("~/Documents/DogProject_Jaz/LocalRscripts/IBDSegs/IBDScor
 ROHScores = read.delim("~/Documents/DogProject_Jaz/LocalRscripts/ROH/ROHScoresPerPopulation.txt", stringsAsFactors = F) 
 popmapMerge = read.delim("~/Documents/DogProject_Jaz/LocalRscripts/BreedCladeInfo/BreedAndCladeInfo_mergedFitakCornell.txt", stringsAsFactors = F) 
 orderPops = read.table("~/Documents/DogProject_Jaz/LocalRscripts/BreedCladeInfo/OrderPops.txt", stringsAsFactors = F) %>%
-  mutate(V1 = gsub("(?<=^|_)([a-z])", "\\U\\1", V1, perl=TRUE),
-         V1 = gsub("_Dog", "_dog", V1, perl = TRUE))
+  mutate(V1 = gsub("_Dog", "_dog", V1, perl = TRUE))
 #orderCluster = read.table("~/Documents/Documents/DogProject_Jaz/LocalRscripts/BreedCladeInfo/OrderCluster.txt", stringsAsFactors = F)
 
 ###Create Data Frames to Process
@@ -55,9 +54,9 @@ comboDF = merge(FinalROHScores, FinalIBDScores, by ="Population") %>%
   rename(NormPopScore_ROH = NormPopScore.x, NormPopScore_IBD = NormPopScore.y) %>%
   mutate(CausalVars = replace_na(CausalVars, 0),
          CausalVars_nonFitness = replace_na(CausalVars_nonFitness, 0),
-         Population = gsub("(?<=^|_)([a-z])", "\\U\\1", Population, perl=TRUE),
          Population = gsub("_Dog", "_dog", Population, perl = TRUE),
-         Population = factor(Population, levels=orderPops$V1)) 
+         Population = factor(Population, levels=orderPops$V1),
+         Population = gsub("(?<=^|_)([a-z])", "\\U\\1", Population, perl=TRUE)) 
 
 
 #Popularity data frame
@@ -72,8 +71,8 @@ PopularityDF = popmapMerge %>%
   ungroup() %>%
   mutate(CausalVars = replace_na(CausalVars, 0),
          CausalVars_nonFitness = replace_na(CausalVars_nonFitness, 0),
-         breed = gsub("(?<=^|_)([a-z])", "\\U\\1", breed, perl=TRUE),
-         breed = gsub("_Dog", "_dog", breed, perl = TRUE)) %>%
+         breed = gsub("_Dog", "_dog", breed, perl = TRUE),
+         breed = gsub("(?<=^|_)([a-z])", "\\U\\1", breed, perl=TRUE)) %>% #capitalize first letter of each breed name
   rename(Population=breed)
   
 
