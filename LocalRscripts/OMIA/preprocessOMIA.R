@@ -42,7 +42,9 @@ FinalCausalVars = omiaData %>%
          Breed = gsub("italian_spinone", "spinone_italiano", Breed),
          Breed = gsub("wirehaired_fox_terrier", "wire_fox_terrier", Breed),
          Breed = gsub("mexican_hairless_dog", "xoloitzcuintli", Breed),
-         Breed = gsub("peruvian_hairless_dog", "inca_hairless", Breed))
+         Breed = gsub("peruvian_hairless_dog", "inca_hairless", Breed),
+         Breed = gsub("\\blabrador\\b","labrador_retriever", Breed)) %>%
+  distinct(OMIA_ID,Breed,Gene,Phenotype, .keep_all = TRUE)
 
 #nonFitness related 
 FinalCausalVars_nonFitness = omiaData %>%
@@ -68,7 +70,9 @@ FinalCausalVars_nonFitness = omiaData %>%
          Breed = gsub("italian_spinone", "spinone_italiano", Breed),
          Breed = gsub("wirehaired_fox_terrier", "wire_fox_terrier", Breed),
          Breed = gsub("mexican_hairless_dog", "xoloitzcuintli", Breed),
-         Breed = gsub("peruvian_hairless_dog", "inca_hairless", Breed))
+         Breed = gsub("peruvian_hairless_dog", "inca_hairless", Breed),
+         Breed = gsub("\\blabrador\\b","labrador_retriever", Breed)) %>%
+  distinct(OMIA_ID,Breed,Gene,Phenotype, .keep_all = TRUE)
   
 #write new file
 #write.table(FinalCausalVars, file = "~/Documents/DogProject_Jaz/LocalRscripts/OMIA/processedCausalVarsOMIA.txt", quote = F, row.names = F, col.names = T, sep = "\t")
