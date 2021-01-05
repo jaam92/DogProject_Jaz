@@ -81,10 +81,20 @@ set.seed(175)
 GoldenRetrievers_Perms = PermutationTest(ROHBurdenwithinLymphomaAssociatedGenes, "2", "1", 10000)
 GoldenRetrievers_Perms[[3]]
 
-ggplot(ROHBurdenwithinLymphomaAssociatedGenes, aes(x=plottingID, y=genesCoveredByROH, group=plottingID)) + 
-  geom_boxplot() + 
+ggplot(ROHBurdenwithinLymphomaAssociatedGenes, aes(x=plottingID, y=genesCoveredByROH/10^6, group=plottingID)) + 
+  geom_boxplot() +
+  geom_point() +
+  stat_summary(fun = mean, geom = "errorbar", aes(ymax = ..y.., ymin = ..y..), width = .75, linetype = "dashed") +
   scale_x_discrete(limits= c("Control", "Case")) + 
-  theme_bw() 
+  theme_bw() + 
+  theme(axis.text.x = element_text(size  = 20), 
+        axis.text.y = element_text(size  = 20), 
+        plot.title=element_text(size=26, face = "bold"), 
+        axis.title=element_text(size=24), 
+        legend.title=element_text(size=20), 
+        legend.text=element_text(size=20)) +
+  labs(x  = "Case-Control Status", 
+       y = "Length of Genome within an\n ROH and Lymphoma Associated Gene (Mb)")
 
 ggplot(GoldenRetrievers_Perms[[1]], aes(GoldenRetrievers_Perms[[1]]$permutations)) + 
   geom_histogram(binwidth = 30, breaks=seq(-6.0e5, 6.0e5, by =10000),col="coral2", fill="white") + 
@@ -96,8 +106,8 @@ ggplot(GoldenRetrievers_Perms[[1]], aes(GoldenRetrievers_Perms[[1]]$permutations
         axis.title=element_text(size=24), 
         legend.title=element_text(size=20), 
         legend.text=element_text(size=20)) +
-  labs(x= "Permutation Score", 
-       y= "Count",
+  labs(x = "Permutation Score", 
+       y = "Count",
        title = "Lymphoma Associated Genes in ROH Case vs Control (Golden Retriever)")
 
 
