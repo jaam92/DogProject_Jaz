@@ -2,16 +2,17 @@
 library(tidyverse)
 
 ######Read Files in
-OMIA = read.delim("~/Documents/DogProject_Jaz/LocalRscripts/OMIA/processedCausalVarsOMIA.txt", stringsAsFactors = F)
+OMIA = read.delim("~/Documents/DogProject_Jaz/LocalRscripts/OMIA/processedCausalVarsOMIA.txt", stringsAsFactors = F) 
 OMIA_nonFitness = read.delim("~/Documents/DogProject_Jaz/LocalRscripts/OMIA/processedCausalVarsOMIA_nonFitnessRelated.txt", stringsAsFactors = F) %>%
-  filter(Breed != "numerous_breeds")
+  filter(Breed != "numerous_breeds") 
 DisPrev = read.delim("~/Documents/DogProject_Jaz/LocalRscripts/OMIA/AKC_DiseasePrev_PointEstWiles2017.txt", stringsAsFactors = F)
 #LifeSpanData = read.delim("~/Documents/Documents/DogProject_Jaz/LocalRscripts/AKC/Adams2010_BreedLifeSpan_addBreeds.txt", stringsAsFactors = F)
 AKC = read.delim("~/Documents/DogProject_Jaz/LocalRscripts/AKC/AKC_breedPopularity_1926thru2005.txt", check.names = F, stringsAsFactors = F)
-IBDScores = read.delim("~/Documents/DogProject_Jaz/LocalRscripts/IBDSegs/IBDScoresPerPopulation.txt", stringsAsFactors = F)
-ROHScores = read.delim("~/Documents/DogProject_Jaz/LocalRscripts/ROH/ROHScoresPerPopulation.txt", stringsAsFactors = F)
-popmapMerge = read.delim("~/Documents/DogProject_Jaz/LocalRscripts/BreedCladeInfo/BreedAndCladeInfo_mergedFitakCornell.txt", stringsAsFactors = F)
-orderPops = read.table("~/Documents/DogProject_Jaz/LocalRscripts/BreedCladeInfo/OrderPops.txt", stringsAsFactors = F)
+IBDScores = read.delim("~/Documents/DogProject_Jaz/LocalRscripts/IBDSegs/IBDScoresPerPopulation.txt", stringsAsFactors = F) 
+ROHScores = read.delim("~/Documents/DogProject_Jaz/LocalRscripts/ROH/ROHScoresPerPopulation.txt", stringsAsFactors = F) 
+popmapMerge = read.delim("~/Documents/DogProject_Jaz/LocalRscripts/BreedCladeInfo/BreedAndCladeInfo_mergedFitakCornell.txt", stringsAsFactors = F) 
+orderPops = read.table("~/Documents/DogProject_Jaz/LocalRscripts/BreedCladeInfo/OrderPops.txt", stringsAsFactors = F) %>%
+  mutate(V1 = gsub("_Dog", "_dog", V1, perl = TRUE))
 #orderCluster = read.table("~/Documents/Documents/DogProject_Jaz/LocalRscripts/BreedCladeInfo/OrderCluster.txt", stringsAsFactors = F)
 
 ###Create Data Frames to Process
@@ -53,7 +54,9 @@ comboDF = merge(FinalROHScores, FinalIBDScores, by ="Population") %>%
   rename(NormPopScore_ROH = NormPopScore.x, NormPopScore_IBD = NormPopScore.y) %>%
   mutate(CausalVars = replace_na(CausalVars, 0),
          CausalVars_nonFitness = replace_na(CausalVars_nonFitness, 0),
-         Population = factor(Population, levels=orderPops$V1))
+         Population = gsub("_Dog", "_dog", Population, perl = TRUE),
+         Population = factor(Population, levels=orderPops$V1),
+         Population = gsub("(?<=^|_)([a-z])", "\\U\\1", Population, perl=TRUE)) 
 
 
 #Popularity data frame
@@ -65,9 +68,13 @@ PopularityDF = popmapMerge %>%
          CausalVars = BreedsWithCausalVars$n[match(breed, BreedsWithCausalVars$Breed)],
          CausalVars_nonFitness = BreedsWithCausalVars_nonFitness$n[match(breed, BreedsWithCausalVars_nonFitness$Breed)]) %>%
   filter(!is.na(OverallPopularityRank)) %>%
+  ungroup() %>%
   mutate(CausalVars = replace_na(CausalVars, 0),
-         CausalVars_nonFitness = replace_na(CausalVars_nonFitness, 0)) %>%
+         CausalVars_nonFitness = replace_na(CausalVars_nonFitness, 0),
+         breed = gsub("_Dog", "_dog", breed, perl = TRUE),
+         breed = gsub("(?<=^|_)([a-z])", "\\U\\1", breed, perl=TRUE)) %>% #capitalize first letter of each breed name
   rename(Population=breed)
+  
 
 comboDF_noWolves = comboDF %>%  
   filter(!grepl("grayWolf",Clade)) %>% #remove labelled wolves

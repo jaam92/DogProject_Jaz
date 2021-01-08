@@ -56,7 +56,7 @@ longData = melt(kinshipMat) %>%
          rohNorm = 1-abs(ROHperIndiv$ROHBurdenNorm[match(V1, ROHperIndiv$INDV)] - ROHperIndiv$ROHBurdenNorm[match(V2, ROHperIndiv$INDV)])) %>%
   select(V1, V2, kinshipNorm, rohNorm)
 
-#correlate them ROH and kinship
+#correlate the ROH burden and kinship
 #linear.model = lm(rohNorm ~ kinshipNorm, data = longData)
 #summary(linear.model)
 

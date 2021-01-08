@@ -26,8 +26,7 @@ yorkshire_terrier = read.delim("yorkshire_terrier_IBDNe_usingIBDSeqIBDSegs_Sept1
 #wolves_northcentral_europe = read.delim("Northcentral-Europe_IBDNE_usingIBDSeqSegs_Sept15ver.ne")
 
 #Loop through and add columns we need
-pops = ls()
-pops
+pops = c("boxer", "cocker_spaniel", "german_shepherd_dog", "golden_retriever", "labrador_retriever", "maltese", "newfoundland", "poodle", "rottweiler", "yorkshire_terrier", "mixed", "village_dog_peru", "grayWolf_Europe", "grayWolf_NorthAmerica")
 dfList = mget(pops)
 for (i in seq_along(dfList)){
   dfList[[i]]$Population = pops[i]
@@ -93,7 +92,11 @@ grid.arrange(arrangeGrob(plotTogether, legendIBDNe,
                          ncol=1))
 
 ###Larger labels remove mixed breed dogs for figure 1
+<<<<<<< HEAD
 newNames <- c("boxer"="boxer","cocker_spaniel" ="american cocker spaniel","grayWolf_NorthAmerica"="United States wolf","german_shepherd_dog"="german shepherd dog", "golden_retriever"="golden retriever", "labrador_retriever" ="labrador retriever", "maltese" = "maltese", "mixed" = "mixed", "newfoundland" = "newfoundland", "rottweiler" = "rottweiler", "village_dog_peru" = "village dog", "grayWolf_Europe" = "European wolf", "poodle" = "poodle", "yorkshire_terrier" = "yorkshire terrier")
+=======
+newNames <- c("boxer"="Boxer","cocker_spaniel" ="American Cocker Spaniel","grayWolf_NorthAmerica"="United States wolf","german_shepherd_dog"="German Shepherd dog", "golden_retriever"="Golden Retriever", "labrador_retriever" ="Labrador Retriever", "maltese" = "Maltese", "mixed" = "Mixed", "newfoundland" = "Newfoundland", "rottweiler" = "Rottweiler", "village_dog_peru" = "village dog", "grayWolf_Europe" = "European wolf", "poodle" = "Poodle", "yorkshire_terrier" = "Yorkshire Terrier")
+>>>>>>> ea601a5e4ee933288b4fb46ea7b35614844dbe12
 
 Figure1 = ggplot(allPopsDF %>% filter(Population != "mixed"), aes(x=Years, y=NE, colour=Population)) + 
   geom_line(size=1) + 

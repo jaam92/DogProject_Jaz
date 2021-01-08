@@ -115,13 +115,15 @@ geom_bar(stat="identity") +
         legend.text=element_text(size=16))
 
 #####Plot FROH
-FROHdf = WolfDog %>% select(AUTO_LEN, INDV) %>% 
+FROHdf = WolfDog %>% 
+  select(AUTO_LEN, INDV) %>% 
   group_by(INDV) %>% 
   summarise(totalLen = sum(AUTO_LEN)) %>% 
   mutate(FROH = totalLen/2500000000) #Dog genome is 2.5 gigabases
 
 FROHdf$Population = mergedPopmap$breed[match(FROHdf$INDV,mergedPopmap$dogID)]
 FROHdf$Cluster = mergedPopmap$clade[match(FROHdf$INDV,mergedPopmap$dogID)]
+FROHdf_rmNA$Cluster = mgsub(as.character(FROHdf_rmNA$Cluster), pattern=c("NorthAmerica"), replacement=c("UnitedStates")) #replace north america with united states
 FROHdf_rmNA = FROHdf %>% filter(!is.na(Cluster) & Cluster!= "Outlier")
 
 #Set Populations and Clusters as factor so Wolves and dogs group together and add spaces to cluster names

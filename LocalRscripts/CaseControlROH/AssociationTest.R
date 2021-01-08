@@ -67,6 +67,9 @@ for (i in seq_along(fnames)){
 #write to file
 #write.table(AssociationTestResults, file = "~/Documents/DogProject_Jaz/LocalRscripts/CaseControlROH/AssociationTestResults.txt", col.names = T, row.names = F, quote = F, sep = "\t")
 
+AssociationTestResults$trait = gsub("(?<=^|_)([a-z])", "\\U\\1", AssociationTestResults$trait, perl=TRUE)
+AssociationTestResults$trait = gsub("_Dog", "_dog", AssociationTestResults$trait, perl = TRUE)
+
 #Plot the output
 ggplot(AssociationTestResults, aes(x=gsub("_", " ", trait), y = LogBeta, colour= significant)) +
   geom_hline(yintercept = 0) + 

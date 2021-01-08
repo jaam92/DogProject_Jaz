@@ -49,30 +49,53 @@ plotCausal = function(dataFrame, scoreCutOff, xaxisLabel, indicator){
   
   return(Causualplot)
 }
-######Plot Causal Vars with Correlation Fxn######
+######Plot fitness and non-fitness Causal Vars with Correlation Fxn######
 ######Labelling the top 5% of Scores and ~1% of Causal Var Counts
-plotCausalCorrs = function(regModel, dataFrame, varOfInterest, scoreCutOff, xaxisLabel){
-  ggplotRegression(regModel)   + 
-  geom_point(aes(colour = cut(dataFrame$CausalVars, c(-Inf, 0, 1, 5, 25))),
-               size = 3) + 
-    scale_color_manual(name = "Count Causal Variants", 
-                       values = c("(-Inf,0]" = "black",
-                                  "(0,1]" = "yellow", 
-                                  "(1,5]" = "orange", 
-                                  "(5,25]" = "red"),
-                       labels = c("0",
-                                  "1", 
-                                  "1 < variants <= 5", 
-                                  "5 < variants <= 25")) +
-  geom_text_repel(aes(label=ifelse(dataFrame$CausalVars >= 10 | dataFrame[,varOfInterest] > scoreCutOff, gsub("_", " ", as.character(dataFrame$Population)),'')), size = 6) + 
-  theme_bw() +
-  theme(plot.title=element_text(size = 18, face = "bold", hjust= 0.5), 
-          axis.text.x = element_text(size = 24, vjust= 1, hjust= 0.5), 
-          axis.text.y = element_text(size = 24), 
-          axis.title=element_text(size= 24), 
-          legend.title=element_text(size= 24), 
-          legend.text=element_text(size= 18)) +
-  labs(x=paste(xaxisLabel), y="Count Causal Variants") 
+plotCausalCorrs = function(regModel, dataFrame, varOfInterest, scoreCutOff, xaxisLabel, fitnessRelatedTrait){
+  if(fitnessRelatedTrait == "Y"){
+    ggplotRegression(regModel)   + 
+      geom_point(aes(colour = cut(dataFrame$CausalVars, c(-Inf, 0, 1, 5, 25))),
+                 size = 3) + 
+      scale_color_manual(name = "Count Causal Variants", 
+                         values = c("(-Inf,0]" = "black",
+                                    "(0,1]" = "yellow", 
+                                    "(1,5]" = "orange", 
+                                    "(5,25]" = "red"),
+                         labels = c("0",
+                                    "1", 
+                                    "1 < variants <= 5", 
+                                    "5 < variants <= 25")) +
+      geom_text_repel(aes(label=ifelse(dataFrame$CausalVars >= 10 | dataFrame[,varOfInterest] > scoreCutOff, gsub("_", " ", as.character(dataFrame$Population)),'')), size = 6) + 
+      theme_bw() +
+      theme(plot.title=element_text(size = 18, face = "bold", hjust= 0.5), 
+            axis.text.x = element_text(size = 24, vjust= 1, hjust= 0.5), 
+            axis.text.y = element_text(size = 24), 
+            axis.title=element_text(size= 24), 
+            legend.title=element_text(size= 24), 
+            legend.text=element_text(size= 18)) +
+      labs(x=paste(xaxisLabel), y="Count Causal Variants") 
+  }else{
+    ggplotRegression(regModel)   + 
+      geom_point(aes(colour = cut(dataFrame$CausalVars_nonFitness, c(-Inf, 0, 1, 2))),
+                 size = 3) + 
+      scale_color_manual(name = "Count Causal Variants", 
+                         values = c("(-Inf,0]" = "black",
+                                    "(0,1]" = "yellow", 
+                                    "(1,2]" = "red"),
+                         labels = c("0",
+                                    "1", 
+                                    "2")) +
+      geom_text_repel(aes(label=ifelse(dataFrame$CausalVars_nonFitness > 1 | dataFrame[,varOfInterest] > scoreCutOff, gsub("_", " ", as.character(dataFrame$Population)),'')), size = 6) + 
+      theme_bw() +
+      theme(plot.title=element_text(size = 18, face = "bold", hjust= 0.5), 
+            axis.text.x = element_text(size = 24, vjust= 1, hjust= 0.5), 
+            axis.text.y = element_text(size = 24), 
+            axis.title=element_text(size= 24), 
+            legend.title=element_text(size= 24), 
+            legend.text=element_text(size= 18)) +
+      labs(x=paste(xaxisLabel), y="Count Causal Variants")
+  }
+  
 }
 ######Raincloud plotting fxns######
 plotRainClouds = function(dataFrame, ylabTitle){
@@ -104,11 +127,18 @@ pROHScore = plotCausal(comboDF_noWolves, 200, "ROH Score in Mb (Normalized)", "R
 pIBDScore = plotCausal(comboDF_noWolves, 900, "IBD Score in Mb (Normalized)", "IBD")
 
 #####Plot with correlation
-plotPopularityCausVars = plotCausalCorrs(corrPopularitycausVars, PopularityDF, "OverallPopularityRank", 70, "Overall Popularity") 
+plotPopularityCausVars = plotCausalCorrs(corrPopularitycausVars, PopularityDF, "OverallPopularityRank", 70, "Overall Popularity", fitnessRelatedTrait = "Y") 
 
-plotFinalROHScoresCausVars = plotCausalCorrs(corrROHScorecausVars, comboDF_noWolves, "NormPopScore_ROH", 100, "ROH Score in Mb (Normalized)") 
+plotFinalROHScoresCausVars = plotCausalCorrs(corrROHScorecausVars, comboDF_noWolves, "NormPopScore_ROH", 100, "ROH Score in Mb (Normalized)", fitnessRelatedTrait = "Y") 
 
-plotFinalIBDScoresCausVars = plotCausalCorrs(corrIBDScorecausVars, comboDF_noWolves, "NormPopScore_IBD", 900, "IBD Score in Mb (Normalized)") 
+plotFinalIBDScoresCausVars = plotCausalCorrs(corrIBDScorecausVars, comboDF_noWolves, "NormPopScore_IBD", 900, "IBD Score in Mb (Normalized)", fitnessRelatedTrait = "Y") 
+
+#non-fitness traits
+plotPopularityCausVars_nonFitness = plotCausalCorrs(corrPopularitycausVars_nonFitness, PopularityDF, "OverallPopularityRank", 70, "Overall Popularity", fitnessRelatedTrait = "N") 
+
+plotFinalROHScoresCausVars_nonFitness = plotCausalCorrs(corrROHScorecausVars_nonFitness, comboDF_noWolves, "NormPopScore_ROH", 100, "ROH Score in Mb (Normalized)", fitnessRelatedTrait = "N") 
+
+plotFinalIBDScoresCausVars_nonFitness = plotCausalCorrs(corrIBDScorecausVars_nonFitness, comboDF_noWolves, "NormPopScore_IBD", 900, "IBD Score in Mb (Normalized)", fitnessRelatedTrait = "N") 
 
 #####Multiplot scores and Causals
 
@@ -124,6 +154,23 @@ plotFinalIBDScoresCausVars = plotCausalCorrs(corrIBDScorecausVars, comboDF_noWol
 #          labels = "A"                                        
 #) 
 
+####non-fitness traits
+OMIAplots_nonFitness = ggarrange(plotFinalROHScoresCausVars_nonFitness + theme(axis.title.y = element_blank()), 
+                      plotFinalIBDScoresCausVars_nonFitness + theme(axis.title.y = element_blank(), axis.text.y =element_blank()),
+                      plotPopularityCausVars_nonFitness  + theme(axis.title.y = element_blank(), axis.text.y =element_blank()), 
+                      ncol = 3, 
+                      labels = c("A","B","C") , 
+                      common.legend = T,
+                      legend = "bottom"
+) 
+
+OMIAplots_addAxes_nonFitness = annotate_figure(OMIAplots_nonFitness, 
+                                    left = text_grob("Count Causal Variants", 
+                                                     size = 24, 
+                                                     face = "bold", 
+                                                     rot = 90))
+print(OMIAplots_addAxes_nonFitness) #supplementary figure
+####fitness-related traits
 OMIAplots = ggarrange(plotFinalROHScoresCausVars + theme(axis.title.y = element_blank()), 
                       plotFinalIBDScoresCausVars + theme(axis.title.y = element_blank(), axis.text.y =element_blank()),
                       plotPopularityCausVars  + theme(axis.title.y = element_blank(), axis.text.y =element_blank()), 

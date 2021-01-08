@@ -4,8 +4,8 @@ library(tidyverse)
 library(data.table)
 
 #Read Files in
-dfMerge = fread("~/Documents/DogProject_Jaz/LocalRscripts/IBDSegs/IBDSeq/MergedFitakCornell_allChroms_Haplotypes_IBDSeq.ibd")
-dfStronen = fread("~/Documents/DogProject_Jaz/LocalRscripts/IBDSegs/Stronen2013Wolves_allChroms_Haplotypes_IBDSeq.ibd")
+#dfMerge = fread("~/Documents/DogProject_Jaz/LocalRscripts/IBDSegs/IBDSeq/MergedFitakCornell_allChroms_Haplotypes_IBDSeq.ibd")
+#dfStronen = fread("~/Documents/DogProject_Jaz/LocalRscripts/IBDSegs/Stronen2013Wolves_allChroms_Haplotypes_IBDSeq.ibd")
 popmapMerge = read.delim("~/Documents/DogProject_Jaz/LocalRscripts/BreedCladeInfo/BreedAndCladeInfo_mergedFitakCornell.txt")
 popmapStronen = read.delim("~/Documents/DogProject_Jaz/LocalRscripts/BreedCladeInfo/Stronen2013_SamplesUsed.txt")
 orderPops = read.table("~/Documents/DogProject_Jaz/LocalRscripts/BreedCladeInfo/OrderPops.txt")
@@ -21,10 +21,12 @@ mergedPopmap = rbind.data.frame(popmapMerge, shortPopmapWolves) %>%
 
 #Merge IBD data frames together
 #Label which breed of dog/wolf are sharing an IBD segment
-WolfDog = rbind.data.frame(dfMerge, dfStronen) %>%
-  mutate(Breed1 = mergedPopmap$breed[match(V1, mergedPopmap$dogID)],
-         Breed2 = mergedPopmap$breed[match(V3, mergedPopmap$dogID)], 
-         segLen = as.numeric(V7) - as.numeric(V6))
+#WolfDog = rbind.data.frame(dfMerge, dfStronen) %>%
+#  mutate(Breed1 = mergedPopmap$breed[match(V1, mergedPopmap$dogID)],
+#         Breed2 = mergedPopmap$breed[match(V3, mergedPopmap$dogID)], 
+#         segLen = as.numeric(V7) - as.numeric(V6))
+#save(WolfDog, file = "SharedIBD_WolvesDogs_Unfiltered.RData")
+load("SharedIBD_WolvesDogs_Unfiltered.RData")
 
 #Length and counts of IBDSegs per indiv and number of indivs per Breed
 #Remove IBD segments that are not shared within the same breed of dog/wolf
@@ -37,7 +39,7 @@ CountIndvperBreed = WolfDog %>%
 #Compute mean IBD per breed
 #Remove IBD segments that are not shared within the same breed of dog/wolf
 MeanIBDperBreed = WolfDog %>% 
-  filter(Breed1 == Breed2) %>% 
+  filter(segLen >= 4e6 & Breed1 == Breed2) %>% 
   group_by(Breed1) %>% 
   tally() %>% 
   ungroup() %>%

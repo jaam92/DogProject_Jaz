@@ -7,11 +7,9 @@ library(ggplot2)
 genes = read.delim("~/Documents/DogProject_Jaz/LocalRscripts/CaseControlROH/EnsemblGenes_CanFam3.1.bed")
 gene_names = read.table("~/Documents/DogProject_Jaz/LocalRscripts/CaseControlROH/EnsemblGenes_CanFam3.1_geneNames.txt")
 gene_names_HGNC = read.table("~/Documents/HIVProject/PopBranchStat/hgnc_symbol_pairs.txt")
-ROH = read.delim("~/Documents/DogProject_Jaz/LocalRscripts/CaseControlROH/TrueROH_propCoveredwithin1SDMean_allChroms_mergedFitakCornell.txt")
-goldenRetrievers = read.delim("~/Documents/DogProject_Jaz/LocalRscripts/CaseControlROH/GoldenRetrievers_lymphoma.txt")
-allBreeds_MitralValveDegen = read.delim("~/Documents/DogProject_Jaz/LocalRscripts/CaseControlROH/allBreeds_MitralValveDegeneration.txt")
+ROH = read.delim("~/Documents/DogProject_Jaz/LocalRscripts/ROH/TrueROH_propCoveredwithin1SDMean_allChroms_mergedFitakCornell.txt")
+goldenRetrievers = read.delim("~/Documents/DogProject_Jaz/LocalRscripts/CaseControlROH/splitPhenotypeFile/IncludeMixedBreeds/lymphoma_golden_retriever.txt")
 lymphomaGenes = read.table("~/Documents/DogProject_Jaz/LocalRscripts/CaseControlROH/Skibola2010_LymphomaAssocGenes.txt")
-mitralValveDegenGenes = read.delim("~/Documents/DogProject_Jaz/LocalRscripts/CaseControlROH/mitralValveDegenerationGenes.txt")
 
 ####Make file with genes of interest
 ####Filter to only chromosomes 1-38 
@@ -38,13 +36,14 @@ lymphomaGenes_HGNC = lymphomaGenes %>%
 gr0 = with(GeneSet, GRanges(chrom, IRanges(start=transcriptionStart, end = transcriptionEnd)))
 gr1 = with(GR_ROH, GRanges(CHROM, IRanges(start=AUTO_START, end = AUTO_END)))
 compeleteOverlaps_GR = findOverlaps(query = gr0, subject = gr1, type = "within")#complete overlap
-ROH_compOverlaps_LymphGR = data.frame(GeneSet[queryHits(compeleteOverlaps_GR),], GR_ROH[subjectHits(compeleteOverlaps_GR),]) %>% mutate(transcriptLength = as.numeric(transcriptionEnd) - as.numeric(transcriptionStart))
+ROH_compOverlaps_LymphGR = data.frame(GeneSet[queryHits(compeleteOverlaps_GR),], GR_ROH[subjectHits(compeleteOverlaps_GR),]) %>% 
+  mutate(transcriptLength = as.numeric(transcriptionEnd) - as.numeric(transcriptionStart))
 
 ####Calculations Lymphoma
 GR_AverageCountROHwithinGenes = ROH_compOverlaps_LymphGR %>% 
   group_by(INDV) %>% 
   tally() %>% #total number overlaps
-  mutate(status = goldenRetrievers$status[match(INDV, goldenRetrievers$dogID)]) %>% #add case control label
+  mutate(status = goldenRetrievers$lymphoma[match(INDV, goldenRetrievers$dogID)]) %>% #add case control label
   group_by(status) %>% 
   summarise(meanROHinGeneCount = mean(n)) #average count genes within ROH for case control
 
@@ -52,7 +51,7 @@ GR_AverageCountROHwithinLymphomaAssocGenes = ROH_compOverlaps_LymphGR %>%
   filter(AbbrevName %in% lymphomaGenes_HGNC$HGNC_name) %>% #filter to lymphoma associated genes
   group_by(INDV) %>% 
   tally() %>% #total number overlaps
-  mutate(status = goldenRetrievers$status[match(INDV, goldenRetrievers$dogID)]) %>% #add status 
+  mutate(status = goldenRetrievers$lymphoma[match(INDV, goldenRetrievers$dogID)]) %>% #add status 
   group_by(status) %>% 
   summarise(meanROHinGeneCount = mean(n))  #average count lymphoma associated genes in ROH for case control
 
@@ -60,7 +59,8 @@ ROHBurdenwithinLymphomaAssociatedGenes = ROH_compOverlaps_LymphGR %>%
   filter(AbbrevName %in% lymphomaGenes_HGNC$HGNC_name) %>% 
   group_by(INDV) %>% 
   summarise(genesCoveredByROH = sum(as.numeric(transcriptLength))) %>% 
-  mutate(status = goldenRetrievers$status[match(INDV, goldenRetrievers$dogID)])
+  mutate(status = goldenRetrievers$lymphoma[match(INDV, goldenRetrievers$dogID)],
+         plottingID = ifelse(status == 2, "Case", "Control"))
   
 ####Run Permutation Test
 PermutationTest = function(dataFrame, caseIndicator, controlIndicator, numberPerms){
@@ -81,8 +81,33 @@ set.seed(175)
 GoldenRetrievers_Perms = PermutationTest(ROHBurdenwithinLymphomaAssociatedGenes, "2", "1", 10000)
 GoldenRetrievers_Perms[[3]]
 
-ggplot(ROHBurdenwithinLymphomaAssociatedGenes, aes(x=status, y=genesCoveredByROH, group=status)) + geom_boxplot() + scale_x_discrete( limits= c("1", "2")) + theme_bw() 
+ggplot(ROHBurdenwithinLymphomaAssociatedGenes, aes(x=plottingID, y=genesCoveredByROH/10^6, group=plottingID)) + 
+  geom_boxplot() +
+  geom_point() +
+  stat_summary(fun = mean, geom = "errorbar", aes(ymax = ..y.., ymin = ..y..), width = .75, linetype = "dashed") +
+  scale_x_discrete(limits= c("Control", "Case")) + 
+  theme_bw() + 
+  theme(axis.text.x = element_text(size  = 20), 
+        axis.text.y = element_text(size  = 20), 
+        plot.title=element_text(size=26, face = "bold"), 
+        axis.title=element_text(size=24), 
+        legend.title=element_text(size=20), 
+        legend.text=element_text(size=20)) +
+  labs(x  = "Case-Control Status", 
+       y = "Length of Genome within an\n ROH and Lymphoma Associated Gene (Mb)")
 
-ggplot(GoldenRetrievers_Perms[[1]], aes(GoldenRetrievers_Perms[[1]]$permutations)) + geom_histogram(binwidth = 30, breaks=seq(-6.0e5, 6.0e5, by =10000),col="coral2", fill="white") + geom_vline(xintercept = GoldenRetrievers_Perms[[2]], col="purple") + theme_bw() + theme(axis.text.x = element_text(size  = 20), axis.text.y = element_text(size  = 20), plot.title=element_text(size=26, face = "bold"), axis.title=element_text(size=24)) + theme(legend.title=element_text(size=20), legend.text=element_text(size=20)) + labs(x= "Permutation Score", y= "Count") + ggtitle(" Lymphoma Associated Genes in ROH Case vs Control (Golden Retriever)")
+ggplot(GoldenRetrievers_Perms[[1]], aes(GoldenRetrievers_Perms[[1]]$permutations)) + 
+  geom_histogram(binwidth = 30, breaks=seq(-6.0e5, 6.0e5, by =10000),col="coral2", fill="white") + 
+  geom_vline(xintercept = GoldenRetrievers_Perms[[2]], col="purple") +
+  theme_bw() + 
+  theme(axis.text.x = element_text(size  = 20), 
+        axis.text.y = element_text(size  = 20), 
+        plot.title=element_text(size=26, face = "bold"), 
+        axis.title=element_text(size=24), 
+        legend.title=element_text(size=20), 
+        legend.text=element_text(size=20)) +
+  labs(x = "Permutation Score", 
+       y = "Count",
+       title = "Lymphoma Associated Genes in ROH Case vs Control (Golden Retriever)")
 
 
