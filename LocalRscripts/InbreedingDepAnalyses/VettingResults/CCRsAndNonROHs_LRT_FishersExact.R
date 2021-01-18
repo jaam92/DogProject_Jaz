@@ -1,7 +1,8 @@
 #library
 library(tidyverse)
 library(gridExtra)
-
+library(jpeg)
+library(grid)
 #fxn to negate in
 `%nin%` = Negate(`%in%`)
 
@@ -89,10 +90,16 @@ enrichmentNonROH = ggplot() +
 
 #plot with contingency table
 FlipCounts = c(9896,23,5047,4)
-FlipContingencyTable = matrix(FCounts, nrow =2, ncol = 2)
+FlipContingencyTable = matrix(FlipCounts, nrow =2, ncol = 2)
 plotContTable = tableGrob(FlipContingencyTable, rows = c("ROH", "non-ROH"), cols =c("CCR", "non-CCR"), theme = ttheme(rownames.style = colnames_style(color = "black",face = "bold",size = 12, fill = "grey80",linewidth = 1,linecolor = "white")))
-enrichmentNonROH + 
+
+#plot Figure 4
+b = enrichmentNonROH + 
   annotation_custom(plotContTable, xmin = 7, xmax = 10, ymin = 12000, ymax = 15000)
+img = rasterGrob(readJPEG('~/Documents/DogProject_Jaz/LocalRscripts/PlotsAndMSFigures/recessiveVarsFlowChart.jpg'))
+ggarrange(img, b, 
+          nrow = 2,  
+          labels = c("A", "B"))
 #Now am I more likely to see an ROH overlapping a CCR in the bottom 20% or top 10%? We do this by first making sure none of the genes in the bottom 20% overlap any genes in the top 10% so if I annotate a gene as being a top CCR that is a priority over a bottom ccr then we downsample top ccrs to match bottom ccrs
 
 b20_ccr = ccrs %>%
