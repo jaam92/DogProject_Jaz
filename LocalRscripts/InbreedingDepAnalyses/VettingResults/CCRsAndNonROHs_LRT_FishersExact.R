@@ -3,6 +3,7 @@ library(tidyverse)
 library(gridExtra)
 library(jpeg)
 library(grid)
+library(ggpubr)
 #fxn to negate in
 `%nin%` = Negate(`%in%`)
 
@@ -81,12 +82,11 @@ enrichmentNonROH = ggplot() +
   labs(x="Number of CCR Genes", y="Count Replicates") +
   annotate("text", x=25, y=15000, label= paste0("p = ",resampPval), size = 14) +
   theme_bw() + 
-  theme(plot.title=element_text(size=18, face = "bold", hjust=0.5),
-        axis.title=element_text(size=16),
-        legend.title=element_text(size=18), 
+  theme(axis.title=element_text(size=20),
+        legend.title=element_text(size=20), 
         legend.text=element_text(size=12),
-        axis.text.x = element_text(size=16),
-        axis.text.y = element_text(size=16))
+        axis.text.x = element_text(size=18),
+        axis.text.y = element_text(size=18))
 
 #plot with contingency table
 FlipCounts = c(9896,23,5047,4)
