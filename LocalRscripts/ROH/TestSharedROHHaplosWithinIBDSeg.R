@@ -192,11 +192,11 @@ ROH_allTraits = bind_rows(allTraits)
 ROH_allTraitsSummary = ROH_allTraits %>% 
   group_by(FinalStatus) %>%
   summarise(count = n(),
-            median = median(GroupScore),
-            max = max(GroupScore),
-            min = min(GroupScore))
+            median = median(NormGroupScorePerMb),
+            max = max(NormGroupScorePerMb),
+            min = min(NormGroupScorePerMb))
 
-Pvals_temp = pairwise.wilcox.test(ROH_allTraits$GroupScore, ROH_allTraits$FinalStatus,p.adjust.method = "BH")$p.value
+Pvals_temp = pairwise.wilcox.test(ROH_allTraits$NormGroupScorePerMb, ROH_allTraits$FinalStatus,p.adjust.method = "BH")$p.value
 
 Pvals_ROH_allTraits = data.frame(expand.grid(dimnames(Pvals_temp)),array(Pvals_temp)) %>%
   rename("BH_adj_pvalue" = "array.Pvals_temp.")  %>% 
@@ -216,11 +216,11 @@ IBD_allTraits = bind_rows(allTraits_IBD)
 IBD_allTraitsSummary = IBD_allTraits %>% 
   group_by(FinalStatus) %>%
   summarise(count = n(),
-            median = median(GroupScore),
-            max = max(GroupScore),
-            min = min(GroupScore))
+            median = median(NormGroupScorePerMb),
+            max = max(NormGroupScorePerMb),
+            min = min(NormGroupScorePerMb))
 
-Pvals_temp = pairwise.wilcox.test(IBD_allTraits$GroupScore, IBD_allTraits$FinalStatus,p.adjust.method = "BH")$p.value
+Pvals_temp = pairwise.wilcox.test(IBD_allTraits$NormGroupScorePerMb, IBD_allTraits$FinalStatus,p.adjust.method = "BH")$p.value
 
 Pvals_IBD_allTraits = data.frame(expand.grid(dimnames(Pvals_temp)),array(Pvals_temp)) %>%
   rename("BH_adj_pvalue" = "array.Pvals_temp.")  %>% 
