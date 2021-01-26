@@ -2,7 +2,6 @@
 library(tidyverse)
 library(data.table)
 library(mgsub)
-options(scipen=999)
 
 #Load files
 setwd("~/Documents/DogProject_Jaz/LocalRscripts/ROH/ROHOverlapIBDperChrom/")
@@ -18,6 +17,9 @@ fnames = paste0("~/Documents/DogProject_Jaz/LocalRscripts/CaseControlROH/splitPh
                 list.files(path="~/Documents/DogProject_Jaz/LocalRscripts/CaseControlROH/splitPhenotypeFile/IncludeMixedBreeds/", 
                            pattern = "[^_]") %>%
                   str_subset(., "_", negate = TRUE)) #remove breed specific files
+
+####Function for computing normalized score
+
 
 ####Looking at ROH sharing across traits
 #Loop through all traits and run comparisons within a trait
@@ -78,7 +80,7 @@ for (i in seq_along(fnames)) {
   #run a pairwise wilcoxon-test on all comparisons
   Pvals_temp = pairwise.wilcox.test(caseControl$NormGroupScorePerMb, caseControl$FinalStatus,p.adjust.method = "BH")$p.value
   Pvals_df = data.frame(expand.grid(dimnames(Pvals_temp)),array(Pvals_temp)) %>%
-    mutate(trait = trait) %>%
+    mutate(Trait = trait) %>%
     rename("BH_adj_pvalue" = "array.Pvals_temp.") %>%
     mutate(numBreedsVar1 = countCaseSummaryTable$count[match(Var1, countCaseSummaryTable$FinalStatus)],
            numBreedsVar2 = countCaseSummaryTable$count[match(Var2, countCaseSummaryTable$FinalStatus)],
@@ -157,7 +159,7 @@ for (i in seq_along(fnames)) {
   #run a pairwise wilcoxon-test on all comparisons
   Pvals_temp = pairwise.wilcox.test(caseControl$NormGroupScorePerMb, caseControl$FinalStatus,p.adjust.method = "BH")$p.value
   Pvals_df = data.frame(expand.grid(dimnames(Pvals_temp)),array(Pvals_temp)) %>%
-    mutate(trait = trait) %>%
+    mutate(Trait = trait) %>%
     rename("BH_adj_pvalue" = "array.Pvals_temp.") %>%
     mutate(numBreedsVar1 = countCaseSummaryTable$count[match(Var1, countCaseSummaryTable$FinalStatus)],
            numBreedsVar2 = countCaseSummaryTable$count[match(Var2, countCaseSummaryTable$FinalStatus)],
@@ -185,13 +187,64 @@ IBDSharing = bind_rows(allTraits_IBD)
 IBDSharing_pvals = bind_rows(allTraits_IBD_Pval)
 IBDSharing_pvals$Type = "IBD"
 
-merged = rbind.data.frame(ROHSharing_pvals, IBDSharing_pvals) %>% 
+###aggregate across traits ROH
+ROH_allTraits = bind_rows(allTraits)
+ROH_allTraitsSummary = ROH_allTraits %>% 
+  group_by(FinalStatus) %>%
+  summarise(count = n(),
+            median = median(GroupScore),
+            max = max(GroupScore),
+            min = min(GroupScore))
+
+Pvals_temp = pairwise.wilcox.test(ROH_allTraits$GroupScore, ROH_allTraits$FinalStatus,p.adjust.method = "BH")$p.value
+
+Pvals_ROH_allTraits = data.frame(expand.grid(dimnames(Pvals_temp)),array(Pvals_temp)) %>%
+  rename("BH_adj_pvalue" = "array.Pvals_temp.")  %>% 
+  mutate(Trait = "all traits",
+         numBreedsVar1 = ROH_allTraitsSummary$count[match(Var1, ROH_allTraitsSummary$FinalStatus)],
+         numBreedsVar2 = ROH_allTraitsSummary$count[match(Var2, ROH_allTraitsSummary$FinalStatus)],
+         medianShareVar1 = ROH_allTraitsSummary$median[match(Var1, ROH_allTraitsSummary$FinalStatus)],
+         medianShareVar2 = ROH_allTraitsSummary$median[match(Var2, ROH_allTraitsSummary$FinalStatus)],
+         minShareVar1 = ROH_allTraitsSummary$min[match(Var1, ROH_allTraitsSummary$FinalStatus)],
+         minShareVar2 = ROH_allTraitsSummary$min[match(Var2, ROH_allTraitsSummary$FinalStatus)],
+         maxShareVar1 = ROH_allTraitsSummary$max[match(Var1, ROH_allTraitsSummary$FinalStatus)],
+         maxShareVar2 = ROH_allTraitsSummary$max[match(Var2, ROH_allTraitsSummary$FinalStatus)],
+         Type = "ROH and IBD")
+
+###aggregate across traits ROH
+IBD_allTraits = bind_rows(allTraits_IBD)
+IBD_allTraitsSummary = IBD_allTraits %>% 
+  group_by(FinalStatus) %>%
+  summarise(count = n(),
+            median = median(GroupScore),
+            max = max(GroupScore),
+            min = min(GroupScore))
+
+Pvals_temp = pairwise.wilcox.test(IBD_allTraits$GroupScore, IBD_allTraits$FinalStatus,p.adjust.method = "BH")$p.value
+
+Pvals_IBD_allTraits = data.frame(expand.grid(dimnames(Pvals_temp)),array(Pvals_temp)) %>%
+  rename("BH_adj_pvalue" = "array.Pvals_temp.")  %>% 
+  mutate(Trait = "all traits",
+         numBreedsVar1 = IBD_allTraitsSummary$count[match(Var1, IBD_allTraitsSummary$FinalStatus)],
+         numBreedsVar2 = IBD_allTraitsSummary$count[match(Var2, IBD_allTraitsSummary$FinalStatus)],
+         medianShareVar1 = IBD_allTraitsSummary$median[match(Var1, IBD_allTraitsSummary$FinalStatus)],
+         medianShareVar2 = IBD_allTraitsSummary$median[match(Var2, IBD_allTraitsSummary$FinalStatus)],
+         minShareVar1 = IBD_allTraitsSummary$min[match(Var1, IBD_allTraitsSummary$FinalStatus)],
+         minShareVar2 = IBD_allTraitsSummary$min[match(Var2, IBD_allTraitsSummary$FinalStatus)],
+         maxShareVar1 = IBD_allTraitsSummary$max[match(Var1, IBD_allTraitsSummary$FinalStatus)],
+         maxShareVar2 = IBD_allTraitsSummary$max[match(Var2, IBD_allTraitsSummary$FinalStatus)],
+         Type = "IBD")
+
+####Aggregate all the results
+merged = rbind.data.frame(ROHSharing_pvals, Pvals_ROH_allTraits ,IBDSharing_pvals, Pvals_IBD_allTraits) %>% 
   mutate_if(is.numeric, round, digits=3)
+
+#write.table(merged, "Pvalues_sharedROHwithIBD_sepByTrait_all.txt", row.names = F, col.names = T, sep = "\t", quote = F)
 
 withinBreedOnly = merged %>% 
   filter(Var1 == "within breed control" & Var2 == "within breed case") %>%
-  mutate(RangeVar1 = paste(minShareVar1, maxShareVar1, sep = "-"), 
-         RangeVar2 = paste(minShareVar2, maxShareVar2, sep = "-")) %>%
+  mutate(RangeVar1 = paste0("[", minShareVar1, "-", maxShareVar1, "]"), 
+         RangeVar2 = paste0("[", minShareVar2, "-", maxShareVar2, "]")) %>%
   select(-c(minShareVar1, maxShareVar1,minShareVar2, maxShareVar2))
 
 #write.table(withinBreedOnly, "Pvalues_sharedROHwithIBD_sepByTrait_withinBreeds.txt", row.names = F, col.names = T, sep = "\t", quote = F)
