@@ -78,10 +78,10 @@ for (i in seq_along(fnames)) {
               min = min(NormGroupScorePerMb))
   
   #run a pairwise wilcoxon-test on all comparisons
-  Pvals_temp = pairwise.wilcox.test(caseControl$NormGroupScorePerMb, caseControl$FinalStatus,p.adjust.method = "BH")$p.value
+  Pvals_temp = pairwise.wilcox.test(caseControl$NormGroupScorePerMb, caseControl$FinalStatus, p.adjust.method="none")$p.value
   Pvals_df = data.frame(expand.grid(dimnames(Pvals_temp)),array(Pvals_temp)) %>%
     mutate(Trait = trait) %>%
-    rename("BH_adj_pvalue" = "array.Pvals_temp.") %>%
+    rename("pvalue" = "array.Pvals_temp.") %>%
     mutate(numBreedsVar1 = countCaseSummaryTable$count[match(Var1, countCaseSummaryTable$FinalStatus)],
            numBreedsVar2 = countCaseSummaryTable$count[match(Var2, countCaseSummaryTable$FinalStatus)],
            medianShareVar1 = countCaseSummaryTable$median[match(Var1, countCaseSummaryTable$FinalStatus)],
@@ -157,10 +157,10 @@ for (i in seq_along(fnames)) {
               min = min(NormGroupScorePerMb))
   
   #run a pairwise wilcoxon-test on all comparisons
-  Pvals_temp = pairwise.wilcox.test(caseControl$NormGroupScorePerMb, caseControl$FinalStatus,p.adjust.method = "BH")$p.value
+  Pvals_temp = pairwise.wilcox.test(caseControl$NormGroupScorePerMb, caseControl$FinalStatus, p.adjust.method="none")$p.value
   Pvals_df = data.frame(expand.grid(dimnames(Pvals_temp)),array(Pvals_temp)) %>%
     mutate(Trait = trait) %>%
-    rename("BH_adj_pvalue" = "array.Pvals_temp.") %>%
+    rename("pvalue" = "array.Pvals_temp.") %>%
     mutate(numBreedsVar1 = countCaseSummaryTable$count[match(Var1, countCaseSummaryTable$FinalStatus)],
            numBreedsVar2 = countCaseSummaryTable$count[match(Var2, countCaseSummaryTable$FinalStatus)],
            medianShareVar1 = countCaseSummaryTable$median[match(Var1, countCaseSummaryTable$FinalStatus)],
@@ -196,10 +196,10 @@ ROH_allTraitsSummary = ROH_allTraits %>%
             max = max(NormGroupScorePerMb),
             min = min(NormGroupScorePerMb))
 
-Pvals_temp = pairwise.wilcox.test(ROH_allTraits$NormGroupScorePerMb, ROH_allTraits$FinalStatus,p.adjust.method = "BH")$p.value
+Pvals_temp = pairwise.wilcox.test(ROH_allTraits$NormGroupScorePerMb, ROH_allTraits$FinalStatus, p.adjust.method="none")$p.value
 
 Pvals_ROH_allTraits = data.frame(expand.grid(dimnames(Pvals_temp)),array(Pvals_temp)) %>%
-  rename("BH_adj_pvalue" = "array.Pvals_temp.")  %>% 
+  rename("pvalue" = "array.Pvals_temp.")  %>% 
   mutate(Trait = "all traits",
          numBreedsVar1 = ROH_allTraitsSummary$count[match(Var1, ROH_allTraitsSummary$FinalStatus)],
          numBreedsVar2 = ROH_allTraitsSummary$count[match(Var2, ROH_allTraitsSummary$FinalStatus)],
@@ -220,10 +220,10 @@ IBD_allTraitsSummary = IBD_allTraits %>%
             max = max(NormGroupScorePerMb),
             min = min(NormGroupScorePerMb))
 
-Pvals_temp = pairwise.wilcox.test(IBD_allTraits$NormGroupScorePerMb, IBD_allTraits$FinalStatus,p.adjust.method = "BH")$p.value
+Pvals_temp = pairwise.wilcox.test(IBD_allTraits$NormGroupScorePerMb, IBD_allTraits$FinalStatus, p.adjust.method="none")$p.value
 
 Pvals_IBD_allTraits = data.frame(expand.grid(dimnames(Pvals_temp)),array(Pvals_temp)) %>%
-  rename("BH_adj_pvalue" = "array.Pvals_temp.")  %>% 
+  rename("pvalue" = "array.Pvals_temp.")  %>% 
   mutate(Trait = "all traits",
          numBreedsVar1 = IBD_allTraitsSummary$count[match(Var1, IBD_allTraitsSummary$FinalStatus)],
          numBreedsVar2 = IBD_allTraitsSummary$count[match(Var2, IBD_allTraitsSummary$FinalStatus)],
