@@ -3,6 +3,12 @@ library(tidyverse)
 library(data.table)
 library(mgsub)
 
+#Empty lists
+allTraits_ROH = list()
+allTraits_ROH_Pval = list()
+allTraits_IBD = list()
+allTraits_IBD_Pval = list()
+
 #Load files
 setwd("~/Documents/DogProject_Jaz/LocalRscripts/ROH/ROHOverlapIBDperChrom/")
 sharedROHIBD = read.delim("FinalSharedROHwithinIBDSegs_allChroms.bed", col.names = c("chrom","ROHShareStart", "ROHShareEnd", "INDV1", "INDV2","chrom","IBDStart", "IBDEnd", "INDV1", "INDV2","LenOverlap"), fill = NA) %>% 
@@ -18,34 +24,26 @@ fnames = paste0("~/Documents/DogProject_Jaz/LocalRscripts/CaseControlROH/splitPh
                            pattern = "[^_]") %>%
                   str_subset(., "_", negate = TRUE)) #remove breed specific files
 
-####Function for computing normalized score
-
 
 ####Looking at ROH sharing across traits
-#Loop through all traits and run comparisons within a trait
-allTraits = list()
-allTraits_Pval = list()
-
 for (i in seq_along(fnames)) {
   trait = gsub(".*[/]([^.]+)[.txt].*", "\\1", fnames[i]) #keep track of trait and breed tested
   traitDF = read.delim(fnames[i])
   names(traitDF)[3] = "status"
   
-  CountCaseControlperBreed = sharedROHIBD %>%
-    filter(INDV1 %in% traitDF$dogID & INDV2 %in% traitDF$dogID ) %>%
-    mutate(status_INDV1 = traitDF$status[match(INDV1, traitDF$dogID)],
-           status_INDV2 = traitDF$status[match(INDV2, traitDF$dogID)],
-           status = ifelse(status_INDV1 == status_INDV2, "same", "all"),
-           status = ifelse(status_INDV1 == 1 & status == "same", "control", status),
-           status = ifelse(status_INDV1 == 2 & status == "same", "case", status),
-           Breed1 = popmapDryad$breed[match(INDV1, popmapDryad$dogID)],
-           Breed2 = popmapDryad$breed[match(INDV2, popmapDryad$dogID)]) %>%
-    distinct(status, status_INDV1, status_INDV2, Breed1, Breed2) %>%
-    group_by(status, Breed1, Breed2) %>% 
-    count() %>%
-    mutate(numIndivs = n*2, #there are two individuals per comparison
-           normConstant = (choose(2*as.numeric(numIndivs), 2)) - as.numeric(numIndivs)) %>%
-    select(-c(n))
+  caseControlCountsBreed = traitDF %>% 
+    filter(dogID %in% sharedROHIBD$INDV1 | dogID %in% sharedROHIBD$INDV2) %>%
+    mutate(status = ifelse(status == 1, "control", "case")) %>%
+    rename("Breed1" = "breed") %>%
+    group_by(Breed1, status) %>%
+    count() 
+  
+  caseControlCounts = traitDF %>% 
+    filter(dogID %in% sharedROHIBD$INDV1 | dogID %in% sharedROHIBD$INDV2) %>%
+    mutate(status = ifelse(status == 1, "within breed control", "within breed case")) %>% #rename now to make easier to attach to pvalues data frame
+    rename("Breed1" = "breed") %>%
+    group_by(status) %>%
+    count()  
   
   caseControl = sharedROHIBD %>%
     filter(INDV1 %in% traitDF$dogID & INDV2 %in% traitDF$dogID ) %>%
@@ -56,23 +54,27 @@ for (i in seq_along(fnames)) {
            status = ifelse(status_INDV1 == 2 & status == "same", "case", status),
            Breed1 = popmapDryad$breed[match(INDV1, popmapDryad$dogID)],
            Breed2 = popmapDryad$breed[match(INDV2, popmapDryad$dogID)]) %>%
-    group_by(status, Breed1, Breed2) %>% 
-    summarise(GroupScore = sum(as.numeric(LenOverlap))) %>% #ROH sharing within IBD seg
-    left_join(CountCaseControlperBreed) %>% #join on status, breed1, breed2
-    mutate(NormGroupScorePerMb = (GroupScore/normConstant)/10^6,
-           FinalStatus = case_when(
-             (Breed1 == Breed2 & status == "control") ~ "within breed control", 
-             (Breed1 != Breed2 & status == "control") ~ "between breed control",
-             (Breed1 == Breed2 & status == "case") ~ "within breed case", 
-             (Breed1 != Breed2 & status == "case") ~ "between breed case",
-             (Breed1 == Breed2 & status == "all") ~ "within breed case vs control", 
-             (Breed1 != Breed2 & status == "all") ~ "between breed case vs control"),
-           trait = trait)
+    group_by(status, Breed1, Breed2) %>%
+    summarise(GroupScore = sum(as.numeric(LenOverlap))) %>% #sum up shared ROH within IBD for group
+    ungroup() %>%
+    mutate(FinalStatus = case_when(
+      (Breed1 == Breed2 & status == "control") ~ "within breed control", 
+      (Breed1 != Breed2 & status == "control") ~ "between breed control",
+      (Breed1 == Breed2 & status == "case") ~ "within breed case", 
+      (Breed1 != Breed2 & status == "case") ~ "between breed case",
+      (Breed1 == Breed2 & status == "all") ~ "within breed control vs case", 
+      (Breed1 != Breed2 & status == "all") ~ "between breed control vs case"),
+      trait = trait) %>%
+    filter(FinalStatus == "within breed control" | FinalStatus == "within breed case") %>%
+    left_join(caseControlCountsBreed) %>% #join on status, breed1, breed2
+    filter(n > 1) %>% #number of individuals in a breed has to be greater than 1 (it should be but just in case)
+    mutate(normConstant = (choose(2*as.numeric(n), 2)) - as.numeric(n),
+           NormGroupScorePerMb = (GroupScore/normConstant)/10^6)
   
-  countCaseSummaryTable = 
-    caseControl %>%  
+  
+  SummaryTable = caseControl %>%  
     group_by(FinalStatus) %>%
-    summarise(count = n(),
+    summarise(numBreeds = n(),
               median = median(NormGroupScorePerMb),
               max = max(NormGroupScorePerMb),
               min = min(NormGroupScorePerMb))
@@ -82,49 +84,42 @@ for (i in seq_along(fnames)) {
   Pvals_df = data.frame(expand.grid(dimnames(Pvals_temp)),array(Pvals_temp)) %>%
     mutate(Trait = trait) %>%
     rename("pvalue" = "array.Pvals_temp.") %>%
-    mutate(numBreedsVar1 = countCaseSummaryTable$count[match(Var1, countCaseSummaryTable$FinalStatus)],
-           numBreedsVar2 = countCaseSummaryTable$count[match(Var2, countCaseSummaryTable$FinalStatus)],
-           medianShareVar1 = countCaseSummaryTable$median[match(Var1, countCaseSummaryTable$FinalStatus)],
-           medianShareVar2 = countCaseSummaryTable$median[match(Var2, countCaseSummaryTable$FinalStatus)],
-           minShareVar1 = countCaseSummaryTable$min[match(Var1, countCaseSummaryTable$FinalStatus)],
-           minShareVar2 = countCaseSummaryTable$min[match(Var2, countCaseSummaryTable$FinalStatus)],
-           maxShareVar1 = countCaseSummaryTable$max[match(Var1, countCaseSummaryTable$FinalStatus)],
-           maxShareVar2 = countCaseSummaryTable$max[match(Var2, countCaseSummaryTable$FinalStatus)])
-
-  allTraits[[i]] = caseControl
-  allTraits_Pval[[i]] = Pvals_df
+    mutate(numIndivsVar1 = caseControlCounts$n[match(Var1, caseControlCounts$status)],
+           numBreedsVar1 = SummaryTable$numBreeds[match(Var1, SummaryTable$FinalStatus)],
+           medianShareVar1 = SummaryTable$median[match(Var1, SummaryTable$FinalStatus)],
+           minShareVar1 = SummaryTable$min[match(Var1, SummaryTable$FinalStatus)],
+           maxShareVar2 = SummaryTable$max[match(Var2, SummaryTable$FinalStatus)],
+           numIndivsVar2 = caseControlCounts$n[match(Var2, caseControlCounts$status)],
+           numBreedsVar2 = SummaryTable$numBreeds[match(Var2, SummaryTable$FinalStatus)],
+           medianShareVar2 = SummaryTable$median[match(Var2, SummaryTable$FinalStatus)],
+           minShareVar2 = SummaryTable$min[match(Var2, SummaryTable$FinalStatus)],
+           maxShareVar1 = SummaryTable$max[match(Var1, SummaryTable$FinalStatus)]) 
+  
+  allTraits_ROH[[i]] = caseControl
+  allTraits_ROH_Pval[[i]] = Pvals_df
   
   print(trait)
 }
 
-names(allTraits) = gsub(".*[/]([^.]+)[.txt].*", "\\1", fnames)
-names(allTraits_Pval) = gsub(".*[/]([^.]+)[.txt].*", "\\1", fnames)
-
-
-####Look at IBD Sharing across traits
-allTraits_IBD = list()
-allTraits_IBD_Pval = list()
-
+####Looking at IBD sharing across traits
 for (i in seq_along(fnames)) {
   trait = gsub(".*[/]([^.]+)[.txt].*", "\\1", fnames[i]) #keep track of trait and breed tested
   traitDF = read.delim(fnames[i])
   names(traitDF)[3] = "status"
   
-  CountCaseControlperBreed = sharedROHIBD %>%
-    filter(INDV1 %in% traitDF$dogID & INDV2 %in% traitDF$dogID ) %>%
-    mutate(status_INDV1 = traitDF$status[match(INDV1, traitDF$dogID)],
-           status_INDV2 = traitDF$status[match(INDV2, traitDF$dogID)],
-           status = ifelse(status_INDV1 == status_INDV2, "same", "all"),
-           status = ifelse(status_INDV1 == 1 & status == "same", "control", status),
-           status = ifelse(status_INDV1 == 2 & status == "same", "case", status),
-           Breed1 = popmapDryad$breed[match(INDV1, popmapDryad$dogID)],
-           Breed2 = popmapDryad$breed[match(INDV2, popmapDryad$dogID)]) %>%
-    distinct(status, status_INDV1, status_INDV2, Breed1, Breed2) %>%
-    group_by(status, Breed1, Breed2) %>% 
-    count() %>%
-    mutate(numIndivs = n*2, #there are two individuals per comparison
-           normConstant = (choose(2*as.numeric(numIndivs), 2)) - as.numeric(numIndivs)) %>%
-    select(-c(n))
+  caseControlCountsBreed = traitDF %>% 
+    filter(dogID %in% sharedROHIBD$INDV1 | dogID %in% sharedROHIBD$INDV2) %>%
+    mutate(status = ifelse(status == 1, "control", "case")) %>%
+    rename("Breed1" = "breed") %>%
+    group_by(Breed1, status) %>%
+    count() 
+  
+  caseControlCounts = traitDF %>% 
+    filter(dogID %in% sharedROHIBD$INDV1 | dogID %in% sharedROHIBD$INDV2) %>%
+    mutate(status = ifelse(status == 1, "within breed control", "within breed case")) %>% #rename now to make easier to attach to pvalues data frame
+    rename("Breed1" = "breed") %>%
+    group_by(status) %>%
+    count()  
   
   caseControl = sharedROHIBD %>%
     filter(INDV1 %in% traitDF$dogID & INDV2 %in% traitDF$dogID ) %>%
@@ -135,23 +130,27 @@ for (i in seq_along(fnames)) {
            status = ifelse(status_INDV1 == 2 & status == "same", "case", status),
            Breed1 = popmapDryad$breed[match(INDV1, popmapDryad$dogID)],
            Breed2 = popmapDryad$breed[match(INDV2, popmapDryad$dogID)]) %>%
-    group_by(status, Breed1, Breed2) %>% 
-    summarise(GroupScore = sum(as.numeric(NotCoveredROH))) %>% #IBD sharing outside of a ROH
-    left_join(CountCaseControlperBreed) %>% #join on status, breed1, breed2
-    mutate(NormGroupScorePerMb = (GroupScore/normConstant)/10^6,
-           FinalStatus = case_when(
-             (Breed1 == Breed2 & status == "control") ~ "within breed control", 
-             (Breed1 != Breed2 & status == "control") ~ "between breed control",
-             (Breed1 == Breed2 & status == "case") ~ "within breed case", 
-             (Breed1 != Breed2 & status == "case") ~ "between breed case",
-             (Breed1 == Breed2 & status == "all") ~ "within breed case vs control", 
-             (Breed1 != Breed2 & status == "all") ~ "between breed case vs control"),
-           trait = trait)
+    group_by(status, Breed1, Breed2) %>%
+    summarise(GroupScore = sum(as.numeric(NotCoveredROH))) %>% #sum up IBD not covered by ROH for group
+    ungroup() %>%
+    mutate(FinalStatus = case_when(
+      (Breed1 == Breed2 & status == "control") ~ "within breed control", 
+      (Breed1 != Breed2 & status == "control") ~ "between breed control",
+      (Breed1 == Breed2 & status == "case") ~ "within breed case", 
+      (Breed1 != Breed2 & status == "case") ~ "between breed case",
+      (Breed1 == Breed2 & status == "all") ~ "within breed control vs case", 
+      (Breed1 != Breed2 & status == "all") ~ "between breed control vs case"),
+      trait = trait) %>%
+    filter(FinalStatus == "within breed control" | FinalStatus == "within breed case") %>%
+    left_join(caseControlCountsBreed) %>% #join on status, breed1, breed2
+    filter(n > 1) %>% #number of individuals in a breed has to be greater than 1 (it should be but just in case)
+    mutate(normConstant = (choose(2*as.numeric(n), 2)) - as.numeric(n),
+           NormGroupScorePerMb = (GroupScore/normConstant)/10^6)
   
-  countCaseSummaryTable = 
-    caseControl %>%  
+  
+  SummaryTable = caseControl %>%  
     group_by(FinalStatus) %>%
-    summarise(count = n(),
+    summarise(numBreeds = n(),
               median = median(NormGroupScorePerMb),
               max = max(NormGroupScorePerMb),
               min = min(NormGroupScorePerMb))
@@ -161,14 +160,16 @@ for (i in seq_along(fnames)) {
   Pvals_df = data.frame(expand.grid(dimnames(Pvals_temp)),array(Pvals_temp)) %>%
     mutate(Trait = trait) %>%
     rename("pvalue" = "array.Pvals_temp.") %>%
-    mutate(numBreedsVar1 = countCaseSummaryTable$count[match(Var1, countCaseSummaryTable$FinalStatus)],
-           numBreedsVar2 = countCaseSummaryTable$count[match(Var2, countCaseSummaryTable$FinalStatus)],
-           medianShareVar1 = countCaseSummaryTable$median[match(Var1, countCaseSummaryTable$FinalStatus)],
-           medianShareVar2 = countCaseSummaryTable$median[match(Var2, countCaseSummaryTable$FinalStatus)],
-           minShareVar1 = countCaseSummaryTable$min[match(Var1, countCaseSummaryTable$FinalStatus)],
-           minShareVar2 = countCaseSummaryTable$min[match(Var2, countCaseSummaryTable$FinalStatus)],
-           maxShareVar1 = countCaseSummaryTable$max[match(Var1, countCaseSummaryTable$FinalStatus)],
-           maxShareVar2 = countCaseSummaryTable$max[match(Var2, countCaseSummaryTable$FinalStatus)])
+    mutate(numIndivsVar1 = caseControlCounts$n[match(Var1, caseControlCounts$status)],
+           numBreedsVar1 = SummaryTable$numBreeds[match(Var1, SummaryTable$FinalStatus)],
+           medianShareVar1 = SummaryTable$median[match(Var1, SummaryTable$FinalStatus)],
+           minShareVar1 = SummaryTable$min[match(Var1, SummaryTable$FinalStatus)],
+           maxShareVar2 = SummaryTable$max[match(Var2, SummaryTable$FinalStatus)],
+           numIndivsVar2 = caseControlCounts$n[match(Var2, caseControlCounts$status)],
+           numBreedsVar2 = SummaryTable$numBreeds[match(Var2, SummaryTable$FinalStatus)],
+           medianShareVar2 = SummaryTable$median[match(Var2, SummaryTable$FinalStatus)],
+           minShareVar2 = SummaryTable$min[match(Var2, SummaryTable$FinalStatus)],
+           maxShareVar1 = SummaryTable$max[match(Var1, SummaryTable$FinalStatus)]) 
   
   allTraits_IBD[[i]] = caseControl
   allTraits_IBD_Pval[[i]] = Pvals_df
@@ -176,75 +177,80 @@ for (i in seq_along(fnames)) {
   print(trait)
 }
 
+####Name lists
+names(allTraits_ROH) = gsub(".*[/]([^.]+)[.txt].*", "\\1", fnames)
+names(allTraits_ROH_Pval) = gsub(".*[/]([^.]+)[.txt].*", "\\1", fnames) 
 names(allTraits_IBD) = gsub(".*[/]([^.]+)[.txt].*", "\\1", fnames)
 names(allTraits_IBD_Pval) = gsub(".*[/]([^.]+)[.txt].*", "\\1", fnames)
 
 ####Bind the lists for ROH and IBD sharing across traits
-ROHSharing = bind_rows(allTraits)
-ROHSharing_pvals = bind_rows(allTraits_Pval)
+ROHSharing = bind_rows(allTraits_ROH)
+ROHSharing_pvals = bind_rows(allTraits_ROH_Pval)
 ROHSharing_pvals$Type = "ROH and IBD"
 IBDSharing = bind_rows(allTraits_IBD)
 IBDSharing_pvals = bind_rows(allTraits_IBD_Pval)
 IBDSharing_pvals$Type = "IBD"
 
 ###aggregate across traits ROH
-ROH_allTraits = bind_rows(allTraits)
+ROH_allTraits = bind_rows(allTraits_ROH)
 ROH_allTraitsSummary = ROH_allTraits %>% 
   group_by(FinalStatus) %>%
   summarise(count = n(),
             median = median(NormGroupScorePerMb),
             max = max(NormGroupScorePerMb),
-            min = min(NormGroupScorePerMb))
+            min = min(NormGroupScorePerMb),
+            numIndivs = sum(n))
 
 Pvals_temp = pairwise.wilcox.test(ROH_allTraits$NormGroupScorePerMb, ROH_allTraits$FinalStatus, p.adjust.method="none")$p.value
 
 Pvals_ROH_allTraits = data.frame(expand.grid(dimnames(Pvals_temp)),array(Pvals_temp)) %>%
   rename("pvalue" = "array.Pvals_temp.")  %>% 
-  mutate(Trait = "all traits",
+  mutate(Trait = "All traits",
+         numIndivsVar1 = ROH_allTraitsSummary$numIndivs[match(Var1, ROH_allTraitsSummary$FinalStatus)],
          numBreedsVar1 = ROH_allTraitsSummary$count[match(Var1, ROH_allTraitsSummary$FinalStatus)],
-         numBreedsVar2 = ROH_allTraitsSummary$count[match(Var2, ROH_allTraitsSummary$FinalStatus)],
          medianShareVar1 = ROH_allTraitsSummary$median[match(Var1, ROH_allTraitsSummary$FinalStatus)],
-         medianShareVar2 = ROH_allTraitsSummary$median[match(Var2, ROH_allTraitsSummary$FinalStatus)],
          minShareVar1 = ROH_allTraitsSummary$min[match(Var1, ROH_allTraitsSummary$FinalStatus)],
-         minShareVar2 = ROH_allTraitsSummary$min[match(Var2, ROH_allTraitsSummary$FinalStatus)],
          maxShareVar1 = ROH_allTraitsSummary$max[match(Var1, ROH_allTraitsSummary$FinalStatus)],
+         numIndivsVar2 = ROH_allTraitsSummary$numIndivs[match(Var2, ROH_allTraitsSummary$FinalStatus)],
+         numBreedsVar2 = ROH_allTraitsSummary$count[match(Var2, ROH_allTraitsSummary$FinalStatus)],
+         medianShareVar2 = ROH_allTraitsSummary$median[match(Var2, ROH_allTraitsSummary$FinalStatus)],
+         minShareVar2 = ROH_allTraitsSummary$min[match(Var2, ROH_allTraitsSummary$FinalStatus)],
          maxShareVar2 = ROH_allTraitsSummary$max[match(Var2, ROH_allTraitsSummary$FinalStatus)],
          Type = "ROH and IBD")
 
-###aggregate across traits ROH
+###aggregate across traits IBD
 IBD_allTraits = bind_rows(allTraits_IBD)
+
 IBD_allTraitsSummary = IBD_allTraits %>% 
   group_by(FinalStatus) %>%
   summarise(count = n(),
             median = median(NormGroupScorePerMb),
             max = max(NormGroupScorePerMb),
-            min = min(NormGroupScorePerMb))
+            min = min(NormGroupScorePerMb),
+            numIndivs = sum(n))
 
 Pvals_temp = pairwise.wilcox.test(IBD_allTraits$NormGroupScorePerMb, IBD_allTraits$FinalStatus, p.adjust.method="none")$p.value
 
 Pvals_IBD_allTraits = data.frame(expand.grid(dimnames(Pvals_temp)),array(Pvals_temp)) %>%
   rename("pvalue" = "array.Pvals_temp.")  %>% 
-  mutate(Trait = "all traits",
+  mutate(Trait = "All traits",
+         numIndivsVar1 = ROH_allTraitsSummary$numIndivs[match(Var1, ROH_allTraitsSummary$FinalStatus)],
          numBreedsVar1 = IBD_allTraitsSummary$count[match(Var1, IBD_allTraitsSummary$FinalStatus)],
-         numBreedsVar2 = IBD_allTraitsSummary$count[match(Var2, IBD_allTraitsSummary$FinalStatus)],
          medianShareVar1 = IBD_allTraitsSummary$median[match(Var1, IBD_allTraitsSummary$FinalStatus)],
-         medianShareVar2 = IBD_allTraitsSummary$median[match(Var2, IBD_allTraitsSummary$FinalStatus)],
          minShareVar1 = IBD_allTraitsSummary$min[match(Var1, IBD_allTraitsSummary$FinalStatus)],
-         minShareVar2 = IBD_allTraitsSummary$min[match(Var2, IBD_allTraitsSummary$FinalStatus)],
          maxShareVar1 = IBD_allTraitsSummary$max[match(Var1, IBD_allTraitsSummary$FinalStatus)],
+         numIndivsVar2 = ROH_allTraitsSummary$numIndivs[match(Var2, ROH_allTraitsSummary$FinalStatus)],
+         numBreedsVar2 = IBD_allTraitsSummary$count[match(Var2, IBD_allTraitsSummary$FinalStatus)],
+         medianShareVar2 = IBD_allTraitsSummary$median[match(Var2, IBD_allTraitsSummary$FinalStatus)],
+         minShareVar2 = IBD_allTraitsSummary$min[match(Var2, IBD_allTraitsSummary$FinalStatus)],
          maxShareVar2 = IBD_allTraitsSummary$max[match(Var2, IBD_allTraitsSummary$FinalStatus)],
          Type = "IBD")
 
 ####Aggregate all the results
 merged = rbind.data.frame(ROHSharing_pvals, Pvals_ROH_allTraits ,IBDSharing_pvals, Pvals_IBD_allTraits) %>% 
-  mutate_if(is.numeric, round, digits=3)
-
-#write.table(merged, "Pvalues_sharedROHwithIBD_sepByTrait_all.txt", row.names = F, col.names = T, sep = "\t", quote = F)
-
-withinBreedOnly = merged %>% 
-  filter(Var1 == "within breed control" & Var2 == "within breed case") %>%
+  mutate_if(is.numeric, round, digits=3) %>%
   mutate(RangeVar1 = paste0("[", minShareVar1, "-", maxShareVar1, "]"), 
          RangeVar2 = paste0("[", minShareVar2, "-", maxShareVar2, "]")) %>%
   select(-c(minShareVar1, maxShareVar1,minShareVar2, maxShareVar2))
 
-#write.table(withinBreedOnly, "Pvalues_sharedROHwithIBD_sepByTrait_withinBreeds.txt", row.names = F, col.names = T, sep = "\t", quote = F)
+#write.table(merged, "Pvalues_sharedROHwithIBD_sepByTrait_withinBreeds.txt", row.names = F, col.names = T, sep = "\t", quote = F)
