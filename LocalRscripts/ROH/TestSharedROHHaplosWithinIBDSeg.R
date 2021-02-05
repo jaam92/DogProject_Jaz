@@ -38,13 +38,6 @@ for (i in seq_along(fnames)) {
     group_by(Breed1, status) %>%
     count() 
   
-  caseControlCounts = traitDF %>% 
-    filter(dogID %in% sharedROHIBD$INDV1 | dogID %in% sharedROHIBD$INDV2) %>%
-    mutate(status = ifelse(status == 1, "within breed control", "within breed case")) %>% #rename now to make easier to attach to pvalues data frame
-    rename("Breed1" = "breed") %>%
-    group_by(status) %>%
-    count()  
-  
   caseControl = sharedROHIBD %>%
     filter(INDV1 %in% traitDF$dogID & INDV2 %in% traitDF$dogID ) %>%
     mutate(status_INDV1 = traitDF$status[match(INDV1, traitDF$dogID)],
@@ -65,16 +58,18 @@ for (i in seq_along(fnames)) {
       (Breed1 == Breed2 & status == "all") ~ "within breed control vs case", 
       (Breed1 != Breed2 & status == "all") ~ "between breed control vs case"),
       trait = trait) %>%
-    filter(FinalStatus == "within breed control" | FinalStatus == "within breed case") %>%
-    left_join(caseControlCountsBreed) %>% #join on status, breed1, breed2
-    filter(n > 1) %>% #number of individuals in a breed has to be greater than 1 (it should be but just in case)
-    mutate(normConstant = (choose(2*as.numeric(n), 2)) - as.numeric(n),
+    filter(status != "all") %>% 
+    mutate(sampSizeB1 = caseControlCountsBreed$n[match(Breed1, caseControlCountsBreed$Breed1)],
+           sampSizeB2 = caseControlCountsBreed$n[match(Breed2, caseControlCountsBreed$Breed1)],
+           finalSamp = ifelse(Breed1==Breed2, sampSizeB1, sampSizeB1+sampSizeB2)) %>% #if same breed don't need to add sample sizes together
+    filter(finalSamp > 1) %>% #number of individuals in a breed has to be greater than 1 (it should be but just in case)
+    mutate(normConstant = (choose(2*as.numeric(finalSamp), 2)) - as.numeric(finalSamp),
            NormGroupScorePerMb = (GroupScore/normConstant)/10^6)
-  
   
   SummaryTable = caseControl %>%  
     group_by(FinalStatus) %>%
     summarise(numBreeds = n(),
+              numSamps = sum(finalSamp),
               median = median(NormGroupScorePerMb),
               max = max(NormGroupScorePerMb),
               min = min(NormGroupScorePerMb))
@@ -84,12 +79,12 @@ for (i in seq_along(fnames)) {
   Pvals_df = data.frame(expand.grid(dimnames(Pvals_temp)),array(Pvals_temp)) %>%
     mutate(Trait = trait) %>%
     rename("pvalue" = "array.Pvals_temp.") %>%
-    mutate(numIndivsVar1 = caseControlCounts$n[match(Var1, caseControlCounts$status)],
+    mutate(numIndivsVar1 = SummaryTable$numSamps[match(Var1, SummaryTable$FinalStatus)],
            numBreedsVar1 = SummaryTable$numBreeds[match(Var1, SummaryTable$FinalStatus)],
            medianShareVar1 = SummaryTable$median[match(Var1, SummaryTable$FinalStatus)],
            minShareVar1 = SummaryTable$min[match(Var1, SummaryTable$FinalStatus)],
            maxShareVar2 = SummaryTable$max[match(Var2, SummaryTable$FinalStatus)],
-           numIndivsVar2 = caseControlCounts$n[match(Var2, caseControlCounts$status)],
+           numIndivsVar2 = SummaryTable$numSamps[match(Var2, SummaryTable$FinalStatus)],
            numBreedsVar2 = SummaryTable$numBreeds[match(Var2, SummaryTable$FinalStatus)],
            medianShareVar2 = SummaryTable$median[match(Var2, SummaryTable$FinalStatus)],
            minShareVar2 = SummaryTable$min[match(Var2, SummaryTable$FinalStatus)],
@@ -114,13 +109,6 @@ for (i in seq_along(fnames)) {
     group_by(Breed1, status) %>%
     count() 
   
-  caseControlCounts = traitDF %>% 
-    filter(dogID %in% sharedROHIBD$INDV1 | dogID %in% sharedROHIBD$INDV2) %>%
-    mutate(status = ifelse(status == 1, "within breed control", "within breed case")) %>% #rename now to make easier to attach to pvalues data frame
-    rename("Breed1" = "breed") %>%
-    group_by(status) %>%
-    count()  
-  
   caseControl = sharedROHIBD %>%
     filter(INDV1 %in% traitDF$dogID & INDV2 %in% traitDF$dogID ) %>%
     mutate(status_INDV1 = traitDF$status[match(INDV1, traitDF$dogID)],
@@ -141,16 +129,18 @@ for (i in seq_along(fnames)) {
       (Breed1 == Breed2 & status == "all") ~ "within breed control vs case", 
       (Breed1 != Breed2 & status == "all") ~ "between breed control vs case"),
       trait = trait) %>%
-    filter(FinalStatus == "within breed control" | FinalStatus == "within breed case") %>%
-    left_join(caseControlCountsBreed) %>% #join on status, breed1, breed2
-    filter(n > 1) %>% #number of individuals in a breed has to be greater than 1 (it should be but just in case)
-    mutate(normConstant = (choose(2*as.numeric(n), 2)) - as.numeric(n),
+    filter(status != "all") %>% 
+    mutate(sampSizeB1 = caseControlCountsBreed$n[match(Breed1, caseControlCountsBreed$Breed1)],
+           sampSizeB2 = caseControlCountsBreed$n[match(Breed2, caseControlCountsBreed$Breed1)],
+           finalSamp = ifelse(Breed1==Breed2, sampSizeB1, sampSizeB1+sampSizeB2)) %>% #if same breed don't need to add sample sizes together
+    filter(finalSamp > 1) %>% #number of individuals in a breed has to be greater than 1 (it should be but just in case)
+    mutate(normConstant = (choose(2*as.numeric(finalSamp), 2)) - as.numeric(finalSamp),
            NormGroupScorePerMb = (GroupScore/normConstant)/10^6)
-  
   
   SummaryTable = caseControl %>%  
     group_by(FinalStatus) %>%
     summarise(numBreeds = n(),
+              numSamps = sum(finalSamp),
               median = median(NormGroupScorePerMb),
               max = max(NormGroupScorePerMb),
               min = min(NormGroupScorePerMb))
@@ -160,12 +150,12 @@ for (i in seq_along(fnames)) {
   Pvals_df = data.frame(expand.grid(dimnames(Pvals_temp)),array(Pvals_temp)) %>%
     mutate(Trait = trait) %>%
     rename("pvalue" = "array.Pvals_temp.") %>%
-    mutate(numIndivsVar1 = caseControlCounts$n[match(Var1, caseControlCounts$status)],
+    mutate(numIndivsVar1 = SummaryTable$numSamps[match(Var1, SummaryTable$FinalStatus)],
            numBreedsVar1 = SummaryTable$numBreeds[match(Var1, SummaryTable$FinalStatus)],
            medianShareVar1 = SummaryTable$median[match(Var1, SummaryTable$FinalStatus)],
            minShareVar1 = SummaryTable$min[match(Var1, SummaryTable$FinalStatus)],
            maxShareVar2 = SummaryTable$max[match(Var2, SummaryTable$FinalStatus)],
-           numIndivsVar2 = caseControlCounts$n[match(Var2, caseControlCounts$status)],
+           numIndivsVar2 = SummaryTable$numSamps[match(Var2, SummaryTable$FinalStatus)],
            numBreedsVar2 = SummaryTable$numBreeds[match(Var2, SummaryTable$FinalStatus)],
            medianShareVar2 = SummaryTable$median[match(Var2, SummaryTable$FinalStatus)],
            minShareVar2 = SummaryTable$min[match(Var2, SummaryTable$FinalStatus)],
@@ -185,21 +175,22 @@ names(allTraits_IBD_Pval) = gsub(".*[/]([^.]+)[.txt].*", "\\1", fnames)
 
 ####Bind the lists for ROH and IBD sharing across traits
 ROHSharing = bind_rows(allTraits_ROH)
-ROHSharing_pvals = bind_rows(allTraits_ROH_Pval)
+ROHSharing_pvals = bind_rows(allTraits_ROH_Pval) %>%
+  na.omit() #remove pairwise comparisons with same group
 ROHSharing_pvals$Type = "ROH and IBD"
 IBDSharing = bind_rows(allTraits_IBD)
-IBDSharing_pvals = bind_rows(allTraits_IBD_Pval)
+IBDSharing_pvals = bind_rows(allTraits_IBD_Pval) %>%
+  na.omit() #remove pairwise comparisons with same group
 IBDSharing_pvals$Type = "IBD"
 
 ###aggregate across traits ROH
-ROH_allTraits = bind_rows(allTraits_ROH)
-ROH_allTraitsSummary = ROH_allTraits %>% 
+ROH_allTraitsSummary = ROHSharing %>% 
   group_by(FinalStatus) %>%
   summarise(count = n(),
             median = median(NormGroupScorePerMb),
             max = max(NormGroupScorePerMb),
             min = min(NormGroupScorePerMb),
-            numIndivs = sum(n))
+            numIndivs = sum(finalSamp))
 
 Pvals_temp = pairwise.wilcox.test(ROH_allTraits$NormGroupScorePerMb, ROH_allTraits$FinalStatus, p.adjust.method="none")$p.value
 
@@ -219,15 +210,13 @@ Pvals_ROH_allTraits = data.frame(expand.grid(dimnames(Pvals_temp)),array(Pvals_t
          Type = "ROH and IBD")
 
 ###aggregate across traits IBD
-IBD_allTraits = bind_rows(allTraits_IBD)
-
-IBD_allTraitsSummary = IBD_allTraits %>% 
+IBD_allTraitsSummary = IBDSharing %>% 
   group_by(FinalStatus) %>%
   summarise(count = n(),
             median = median(NormGroupScorePerMb),
             max = max(NormGroupScorePerMb),
             min = min(NormGroupScorePerMb),
-            numIndivs = sum(n))
+            numIndivs = sum(finalSamp))
 
 Pvals_temp = pairwise.wilcox.test(IBD_allTraits$NormGroupScorePerMb, IBD_allTraits$FinalStatus, p.adjust.method="none")$p.value
 
@@ -247,10 +236,103 @@ Pvals_IBD_allTraits = data.frame(expand.grid(dimnames(Pvals_temp)),array(Pvals_t
          Type = "IBD")
 
 ####Aggregate all the results
-merged = rbind.data.frame(ROHSharing_pvals, Pvals_ROH_allTraits ,IBDSharing_pvals, Pvals_IBD_allTraits) %>% 
+merged = rbind.data.frame(ROHSharing_pvals, Pvals_ROH_allTraits ,IBDSharing_pvals, Pvals_IBD_allTraits) %>%
   mutate_if(is.numeric, round, digits=3) %>%
   mutate(RangeVar1 = paste0("[", minShareVar1, "-", maxShareVar1, "]"), 
          RangeVar2 = paste0("[", minShareVar2, "-", maxShareVar2, "]")) %>%
-  select(-c(minShareVar1, maxShareVar1,minShareVar2, maxShareVar2))
+  select(-c(minShareVar1, maxShareVar1,minShareVar2, maxShareVar2)) %>%
+  na.omit()  #remove comparisons between same group
+  
+withinBreedComps = merged %>% 
+  filter(!str_detect(Var1, "between*") & !str_detect(Var2, "between*"))
 
-#write.table(merged, "Pvalues_sharedROHwithIBD_sepByTrait_withinBreeds.txt", row.names = F, col.names = T, sep = "\t", quote = F)
+#write.table(withinBreedComps, "Pvalues_sharedROHwithIBD_sepByTrait_withinBreeds.txt", row.names = F, col.names = T, sep = "\t", quote = F)
+
+####Plots
+cbPalette = c("All traits" = "gray25", "CLLD" = "#D55E00",  "PSVA" = "steelblue", "lymphoma" = "#009E73", "MCT" = "gold3", "MVD" = "mediumpurple4", "GC" = "#CC79A7", "ED" = "#867BCF")
+
+ROH = ROHSharing %>%
+  ungroup() %>%
+  group_by(FinalStatus, trait) %>%
+  summarise(medianSharing = median(NormGroupScorePerMb)) %>%
+  ggplot(., aes(y=FinalStatus, x=medianSharing)) +
+  geom_boxplot() +
+  geom_point(aes(colour=trait)) +
+  labs(x="Median sharing within\nROH and IBD segement (Mb)", y="Trait") +
+  scale_colour_manual(name = "Trait", values = cbPalette) + 
+  theme_bw() +
+  theme(axis.text.x = element_text(size  = 20), 
+        axis.text.y = element_text(size  = 20), 
+        plot.title=element_text(size=24), 
+        axis.title=element_text(size=24),
+        legend.title=element_text(size=20), 
+        legend.text=element_text(size=20))
+
+ROH_inset = ROHSharing %>%
+  ungroup() %>%
+  group_by(FinalStatus, trait) %>%
+  summarise(medianSharing = median(NormGroupScorePerMb)) %>%
+  filter(str_detect(FinalStatus, "between*")) %>%
+  ggplot(., aes(y=FinalStatus, x=medianSharing)) +
+  geom_boxplot() +
+  geom_point(aes(colour=trait)) +
+  labs(x="Median sharing within\nROH and IBD segement (Mb)", y="Trait") +
+  scale_colour_manual(name = "Trait", values = cbPalette) + 
+  theme_bw() +
+  theme(axis.text.x = element_text(size  = 20), 
+        axis.text.y = element_text(size  = 20), 
+        plot.title=element_blank(), 
+        axis.title.x=element_blank(),
+        axis.title.y=element_blank(),
+        legend.position = "none")
+
+plotROH = ROH + 
+  annotation_custom(grob=ggplotGrob(ROH_inset), xmin = 100, xmax=350, ymin = "between breed case", ymax="between breed control")
+
+IBD_inset = IBDSharing %>%
+  ungroup() %>%
+  group_by(FinalStatus, trait) %>%
+  summarise(medianSharing = median(NormGroupScorePerMb)) %>%
+  filter(str_detect(FinalStatus, "between*")) %>%
+  ggplot(., aes(y=FinalStatus, x=medianSharing)) +
+  geom_boxplot() +
+  geom_point(aes(colour=trait)) +
+  labs(x="Median sharing outside of ROH \nwithin IBD segement (Mb)", y="Trait") +
+  scale_colour_manual(name = "Trait", values = cbPalette) + 
+  theme_bw() +
+  theme(axis.text.x = element_text(size  = 20), 
+        axis.text.y = element_text(size  = 20), 
+        plot.title=element_blank(), 
+        axis.title.x=element_blank(),
+        axis.title.y=element_blank(),
+        legend.position = "none")
+
+IBD = IBDSharing %>%
+  ungroup() %>%
+  group_by(FinalStatus, trait) %>%
+  summarise(medianSharing = median(NormGroupScorePerMb)) %>%
+  ggplot(., aes(y=FinalStatus, x=medianSharing)) +
+  geom_boxplot() +
+  geom_point(aes(colour=trait)) +
+  labs(x="Median sharing outside of ROH \nwithin IBD segement (Mb)", y="Trait") +
+  scale_colour_manual(name = "Trait", values = cbPalette) + 
+  theme_bw() +
+  theme(axis.text.x = element_text(size  = 20), 
+        axis.text.y = element_blank(), 
+        plot.title=element_text(size=24), 
+        axis.title.x=element_text(size=24),
+        axis.title.y=element_blank(),
+        legend.title=element_text(size=20), 
+        legend.text=element_text(size=20))
+
+
+plotIBD = IBD + 
+  annotation_custom(grob=ggplotGrob(IBD_inset), xmin = 1000, xmax=2500, ymin = "between breed case", ymax="between breed control")
+
+#pdf(file = "HaplotypeSharingInIBDandROH.pdf", height = 8, width = 30)
+print(ggarrange(plotROH, 
+          plotIBD, 
+          common.legend =TRUE, 
+          legend = "right",
+          align = "h"))
+#dev.off()
