@@ -92,17 +92,17 @@ grid.arrange(arrangeGrob(plotTogether, legendIBDNe,
                          ncol=1))
 
 ###Larger labels remove mixed breed dogs for figure 1
-<<<<<<< HEAD
 newNames <- c("boxer"="boxer","cocker_spaniel" ="american cocker spaniel","grayWolf_NorthAmerica"="United States wolf","german_shepherd_dog"="german shepherd dog", "golden_retriever"="golden retriever", "labrador_retriever" ="labrador retriever", "maltese" = "maltese", "mixed" = "mixed", "newfoundland" = "newfoundland", "rottweiler" = "rottweiler", "village_dog_peru" = "village dog", "grayWolf_Europe" = "European wolf", "poodle" = "poodle", "yorkshire_terrier" = "yorkshire terrier")
-=======
-newNames <- c("boxer"="Boxer","cocker_spaniel" ="American Cocker Spaniel","grayWolf_NorthAmerica"="United States wolf","german_shepherd_dog"="German Shepherd dog", "golden_retriever"="Golden Retriever", "labrador_retriever" ="Labrador Retriever", "maltese" = "Maltese", "mixed" = "Mixed", "newfoundland" = "Newfoundland", "rottweiler" = "Rottweiler", "village_dog_peru" = "village dog", "grayWolf_Europe" = "European wolf", "poodle" = "Poodle", "yorkshire_terrier" = "Yorkshire Terrier")
->>>>>>> ea601a5e4ee933288b4fb46ea7b35614844dbe12
 
-Figure1 = ggplot(allPopsDF %>% filter(Population != "mixed"), aes(x=Years, y=NE, colour=Population)) + 
+newNames <- c("boxer"="Boxer","cocker_spaniel" ="American Cocker Spaniel","grayWolf_NorthAmerica"="United States wolf","german_shepherd_dog"="German Shepherd dog", "golden_retriever"="Golden Retriever", "labrador_retriever" ="Labrador Retriever", "maltese" = "Maltese", "mixed" = "Mixed", "newfoundland" = "Newfoundland", "rottweiler" = "Rottweiler", "village_dog_peru" = "village dog", "grayWolf_Europe" = "European wolf", "poodle" = "Poodle", "yorkshire_terrier" = "Yorkshire Terrier")
+
+Figure1 = ggplot(allPopsDF %>% filter(Population != "mixed" & Population != "yorkshire_terrier" & Population != "grayWolf_Europe" & Population != "grayWolf_NorthAmerica" & Population != "village_dog_peru"), aes(x=Years, y=NE, colour=Population)) + 
   geom_line(size=1) + 
   geom_ribbon(aes(ymin=LWR.95.CI, ymax=UPR.95.CI), alpha=0.2) + 
   facet_wrap(~ Population, labeller = as_labeller(newNames), ncol = 4) + 
   scale_y_log10() + 
+  #scale_y_log10(breaks = trans_breaks("log10", function(x) 10^x),
+  #              labels = trans_format("log10", math_format(10^.x))) + #plot with 10^ on y axis
   scale_colour_manual(values = c(boxer="#D6E1A2",cocker_spaniel ="#D1EB48",grayWolf_NorthAmerica="#E350D4",german_shepherd_dog="#DDC552", golden_retriever="#7EE7C2", labrador_retriever ="#749583", maltese = "#DB5265", mixed = "#D7DDD5", newfoundland = "#867BCF", rottweiler = "#867BCF", village_dog_peru = "#8447E4", grayWolf_Europe = "#8CDC83", poodle = "#7BD9E2", yorkshire_terrier = "#DAAAC7")) + 
   theme_bw() + 
   labs(x = "Years Ago", y = bquote('Effective Population Size'~(N[e]))) + 
@@ -114,4 +114,5 @@ Figure1 = ggplot(allPopsDF %>% filter(Population != "mixed"), aes(x=Years, y=NE,
         legend.title=element_blank(), 
         legend.text=element_text(size=14), 
         legend.position = "none") 
+
 
