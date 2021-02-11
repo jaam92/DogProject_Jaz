@@ -77,7 +77,7 @@ ggplot(AssociationTestResults, aes(x=gsub("_", " ", trait), y = LogBeta, colour=
   geom_point() + 
   coord_flip() +  
   scale_colour_manual(values = c("yes"= "red", "no"="black")) + 
-  labs(x = "Trait", y="Effect Size") +
+  labs(x = "Trait", y="Effect Size (log-odds)") +
   theme_bw() + 
   theme(axis.text.x = element_text( hjust= 0.5, vjust=1, size=20), 
         axis.text.y = element_text(size =20), 
