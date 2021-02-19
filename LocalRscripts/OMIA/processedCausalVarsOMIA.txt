@@ -2,7 +2,6 @@ OMIA_ID	Breed	Gene	Phenotype	NCBI_gene_ID
 OMIA_002179-9615	labrador_retriever	ABCA4	Stargardt disease 1	NA
 OMIA_001402-9615	border_collie	ABCB1	Multidrug resistance 1	403879
 OMIA_001402-9615	australian_shepherd	ABCB1	Multidrug resistance 1	403879
-OMIA_001402-9615	border_collie	ABCB1	Multidrug resistance 1	403879
 OMIA_001402-9615	collie	ABCB1	Multidrug resistance 1	403879
 OMIA_001402-9615	german_shepherd_dog	ABCB1	Multidrug resistance 1	403879
 OMIA_001402-9615	longhaired_whippet	ABCB1	Multidrug resistance 1	403879
@@ -12,7 +11,6 @@ OMIA_001402-9615	shetland_sheepdog	ABCB1	Multidrug resistance 1	403879
 OMIA_001402-9615	silken_windhound	ABCB1	Multidrug resistance 1	403879
 OMIA_001402-9615	waller	ABCB1	Multidrug resistance 1	403879
 OMIA_001402-9615	white_swiss_shepherd	ABCB1	Multidrug resistance 1	403879
-OMIA_001402-9615	border_collie	ABCB1	Multidrug resistance 1	403879
 OMIA_001524-9615	shetland_sheepdog	ABCB4	Gallbladder mucoceles	482284
 OMIA_002140-9615	german_hunting_terrier	ACADVL	Exercise induced metabolic myopathy	489463
 OMIA_002177-9615	akita	ACPT	Amelogenesis imperfecta, ACP4-related	NA
@@ -21,7 +19,7 @@ OMIA_001520-9615	glen_of_imaal_terrier	ADAM9	Cone-rod dystrophy 3	475579
 OMIA_001870-9615	beagle	ADAMTS10	Glaucoma, primary open angle	611267
 OMIA_001870-9615	norwegian_elkhound	ADAMTS10	Glaucoma, primary open angle	611267
 OMIA_000588-9615,_OMIA_001976-9615	chinese_sharpei	ADAMTS17	Primary open-angle glaucoma (POAG), primary lens luxation (PLL), or both	488708
-OMIA_001976-9615	petit_basset_griffon_vendéen	ADAMTS17	Glaucoma, primary open angle, ADAMTS17-related	488708
+OMIA_001976-9615	petit_basset_griffon_vendÃ©en	ADAMTS17	Glaucoma, primary open angle, ADAMTS17-related	488708
 OMIA_001976-9615	basset_hound	ADAMTS17	Glaucoma, primary open angle, ADAMTS17-related	488708
 OMIA_000588-9615	american_hairless	ADAMTS17	Lens luxation	488708
 OMIA_000588-9615	chinese_crested	ADAMTS17	Lens luxation	488708
@@ -93,7 +91,7 @@ OMIA_001482-9615	golden_retriever	CLN5	Neuronal ceroid lipofuscinosis, 5	1000346
 OMIA_001482-9615	australian_cattle_dog	CLN5	Neuronal ceroid lipofuscinosis, 5	100034668
 OMIA_001482-9615	border_collie	CLN5	Neuronal ceroid lipofuscinosis, 5	100034668
 OMIA_001443-9615	australian_shepherd	CLN6	Neuronal ceroid lipofuscinosis, 6	678673
-OMIA_001506-9615	alpenländische_dachsbracke	CLN8	Neuronal ceroid lipofuscinosis, 8	488558
+OMIA_001506-9615	alpenlÃ¤ndische_dachsbracke	CLN8	Neuronal ceroid lipofuscinosis, 8	488558
 OMIA_001506-9615	saluki	CLN8	Neuronal ceroid lipofuscinosis, 8	488558
 OMIA_001506-9615	english_setter	CLN8	Neuronal ceroid lipofuscinosis, 8	488558
 OMIA_001506-9615	australian_shepherd	CLN8	Neuronal ceroid lipofuscinosis, 8	488558
@@ -101,7 +99,7 @@ OMIA_001977-9615	shetland_sheepdog	CNGA1	Progressive retinal atrophy, due to CNG
 OMIA_001481-9615	german_shepherd_dog	CNGA3	Achromatopsia-2	100233164
 OMIA_001481-9615	labrador_retriever	CNGA3	Achromatopsia-2	100233164
 OMIA_000830-9615	papillon	CNGB1	Progressive retinal atrophy	611173
-OMIA_000830-9615	phalène	CNGB1	Progressive retinal atrophy	611173
+OMIA_000830-9615	phalÃ¨ne	CNGB1	Progressive retinal atrophy	611173
 OMIA_001365-9615	alaskan_malamute	CNGB3	Achromatopsia (cone degeneration, hemeralopia), AMAL	403554
 OMIA_001365-9615	miniature_australian_shepherd	CNGB3	Achromatopsia (cone degeneration, hemeralopia), AMAL	403554
 OMIA_001676-9615	german_shorthair_pointer	CNGB3	Achromatopsia (cone degeneration, hemeralopia), GSPT	403554
@@ -145,7 +143,6 @@ OMIA_001081-9615	labrador_retriever	DMD	Muscular dystrophy, Duchenne type	100750
 OMIA_001081-9615	japanese_spitz	DMD	Muscular dystrophy, Duchenne type	100750243
 OMIA_001081-9615	rottweiler	DMD	Muscular dystrophy, Duchenne type	100750243
 OMIA_001081-9615	miniature_poodle	DMD	Muscular dystrophy, Duchenne type	100750243
-OMIA_001081-9615	cavalier_king_charles_spaniel	DMD	Muscular dystrophy, Duchenne type	100750243
 OMIA_001081-9615	norfolk_terrier	DMD	Muscular dystrophy, Duchenne type	100750243
 OMIA_001466-9615	chesapeake_bay_retriever	DNM1	Exercise-induced collapse	491319
 OMIA_001466-9615	curlycoated_retriever	DNM1	Exercise-induced collapse	491319
@@ -162,10 +159,8 @@ OMIA_000437-9615	miniature_schnauzer	F8	Haemophilia A	403875
 OMIA_000437-9615	boxer	F8	Haemophilia A	403875
 OMIA_000437-9615	german_shepherd_dog	F8	Haemophilia A	403875
 OMIA_000437-9615	old_english_sheepdog	F8	Haemophilia A	403875
-OMIA_000437-9615	german_shepherd_dog	F8	Haemophilia A	403875
 OMIA_000438-9615	lhasa_apso	F9	Haemophilia B	493973
 OMIA_000438-9615	labrador_retriever	F9	Haemophilia B	493973
-OMIA_000438-9615	airedale_terrier	F9	Haemophilia B	493973
 OMIA_000438-9615	airedale_terrier	F9	Haemophilia B	493973
 OMIA_000438-9615	hovawart	F9	Haemophilia B	493973
 OMIA_000438-9615	german_wirehaired_pointer	F9	Haemophilia B	493973
@@ -177,7 +172,7 @@ OMIA_001918-9615	tibetan_spaniel	FAM161A	Progressive retinal atrophy, type 3, FA
 OMIA_001918-9615	tibetan_terrier	FAM161A	Progressive retinal atrophy, type 3, FAM161A-related	481385
 OMIA_002015-9615	border_collie	FAM20C	Dental hypomineralization	491596
 OMIA_001327-9615	irish_terrier	FAM83G	Hyperkeratosis, palmoplantar	100682814
-OMIA_001327-9615	kromfohrländer	FAM83G	Hyperkeratosis, palmoplantar	100682814
+OMIA_001327-9615	kromfohrlÃ¤nder	FAM83G	Hyperkeratosis, palmoplantar	100682814
 OMIA_001683-9615	cavalier_king_charles_spaniel	FAM83H	Congenital keratoconjunctivitis sicca and ichthyosiform dermatosis	482081
 OMIA_000366-9615	basenji	FAN1	Fanconi syndrome	479017
 OMIA_001525-9615	german_shepherd_dog	FERMT3	Leukocyte adhesion deficiency, type III	483766
@@ -192,7 +187,7 @@ OMIA_000187-9615	lancashire_heeler	FGF4	Chondrodysplasia	483680
 OMIA_000187-9615	norwich_terrier	FGF4	Chondrodysplasia	483680
 OMIA_000187-9615	pekingese	FGF4	Chondrodysplasia	483680
 OMIA_000187-9615	pembroke_welsh_corgi	FGF4	Chondrodysplasia	483680
-OMIA_000187-9615	petit_basset_griffon_vendéen	FGF4	Chondrodysplasia	483680
+OMIA_000187-9615	petit_basset_griffon_vendÃ©en	FGF4	Chondrodysplasia	483680
 OMIA_000187-9615	shih_tzu	FGF4	Chondrodysplasia	483680
 OMIA_000187-9615	skye_terrier	FGF4	Chondrodysplasia	483680
 OMIA_000187-9615	swedish_vallhund	FGF4	Chondrodysplasia	483680
@@ -235,7 +230,7 @@ OMIA_002207-9615	cocker_spaniel	GP9	Bernard-Soulier syndrome, type C	NA
 OMIA_000078-9615	coton_de_tulear	GRM1	Ataxia, cerebellar	484024
 OMIA_000667-9615	brazilian_terrier	GUSB	Mucopolysaccharidosis VII	493879
 OMIA_000667-9615	german_shepherd_dog	GUSB	Mucopolysaccharidosis VII	493879
-OMIA_001374-9615	labrador	HACD1	Myopathy, centronuclear	574011
+OMIA_001374-9615	labrador_retriever	HACD1	Myopathy, centronuclear	574011
 OMIA_001561-9615	shar_pei	HAS2	Periodic Fever Syndrome	482032
 OMIA_000703-9615	labrador_retriever	HCRTR2	Narcolepsy	399545
 OMIA_000703-9615	doberman	HCRTR2	Narcolepsy	399545
@@ -264,8 +259,6 @@ OMIA_002089-9615	smooth_haired_fox_terrier	KCNJ10	Ataxia, cerebellar, KCNJ10-rel
 OMIA_002089-9615	jack_russell_terrier	KCNJ10	Ataxia, cerebellar, KCNJ10-related	488635
 OMIA_002089-9615	parson_russell_terrier	KCNJ10	Ataxia, cerebellar, KCNJ10-related	488635
 OMIA_002089-9615	malinois	KCNJ10	Spongy degeneration with cerebellar ataxia 1 (SDCA1)	488635
-OMIA_002089-9615	jack_russell_terrier	KCNJ10	Ataxia, cerebellar, KCNJ10-related	488635
-OMIA_001516-9615	NA	KIT	Gastrointestinal stromal tumor	280832
 OMIA_001516-9615	NA	KIT	Gastrointestinal stromal tumor	280832
 OMIA_001787-9615	poodle	KITLG	Squamous cell carcinoma of the digit	281885
 OMIA_000819-9615	shih_tzu	KLKB1	Prekallikrein deficiency	475624
@@ -286,7 +279,6 @@ OMIA_001596-9615	lagotto_romagnolo	LGI2	Epilepsy, benign familial juvenile	48885
 OMIA_000307-9615	czechoslovakian_wolfdog	LHX3	Pituitary dwarfism	607584
 OMIA_000307-9615	german_shepherd_dog	LHX3	Pituitary dwarfism	607584
 OMIA_000307-9615	saarloo	LHX3	Pituitary dwarfism	607584
-OMIA_000307-9615	german_shepherd_dog	LHX3	Pituitary dwarfism	607584
 OMIA_001040-9615	rhodesian_ridgeback	LOC100683626	Ventricular arrhythmias and sudden death	NA
 OMIA_002071-9615	labrador_retriever	LOC489707	Macular corneal dystrophy	489707
 OMIA_001928-9615	labrador_retriever	LOC608697	Myasthenic syndrome, congenital	608697
@@ -355,6 +347,9 @@ OMIA_002080-9615	eurasier	PLEC	Epidermolysis bullosa, simplex, PLEC	482083
 OMIA_002020-9615	scottish_terrier	PLG	Ligneous membranitis	403602
 OMIA_002195-9615	welsh_springer_spaniel	PLN	Cardiomyopathy, dilated, PLN-related	NA
 OMIA_000770-9615	springer_spaniel	PLP1	Tremor, X-linked	100009169
+OMIA_000211-9615	numerous_breeds	PMEL	No Merle pattern â€“ solid coat	481102
+OMIA_000211-9615	numerous_breeds	PMEL	No Merle pattern â€“ dilutedâ€“brownish hue	481102
+OMIA_000211-9615	numerous_breeds	PMEL	Muted, undefined, dilutedâ€“brownish hue	481102
 OMIA_001588-9615	golden_retriever	PNPLA1	Ichthyosis, PNPLA1-related	481763
 OMIA_001258-9615	labrador_retriever	POMC	Obesity	NA
 OMIA_001504-9615	dachshund	PPT1	Neuronal ceroid lipofuscinosis, 1	475316
@@ -411,8 +406,6 @@ OMIA_002016-9615	wire_fox_terrier	SCARF2	Van den Ende-Gupta syndrome	100684936
 OMIA_002194-9615	alpine_dachsbracke	SCN8A	Ataxia, spinocerebellar, SCN8A-related	NA
 OMIA_001692-9615	finnish_hound	SEL1L	Ataxia, cerebellar, progressive early-onset	480409
 OMIA_001483-9615	dachshund	SERPINH1	Osteogenesis imperfecta_Dachshund	485187
-OMIA_001483-9615	dachshund	SERPINH1	Osteogenesis imperfecta_Dachshund	485187
-OMIA_002122-9615	boston_terrier	SGCD	Muscular dystrophy, limb-girdle, type 2F	101837953
 OMIA_002122-9615	boston_terrier	SGCD	Muscular dystrophy, limb-girdle, type 2F	101837953
 OMIA_001279-9615	scottish_deerhound	SGK3	Hypotrichosis, recessive	486981
 OMIA_001279-9615	american_hairless	SGK3	Hypotrichosis, recessive	486981
@@ -427,7 +420,7 @@ OMIA_000236-9615	cairn_terrier	SLC37A2	Craniomandibular osteopathy	489303
 OMIA_000236-9615	scottish_terrier	SLC37A2	Craniomandibular osteopathy	489303
 OMIA_000236-9615	west_highland_white_terrier	SLC37A2	Craniomandibular osteopathy	489303
 OMIA_001879-9615	australian_cattle_dog	SLC3A1	Cystinuria, type II - A	403700
-OMIA_000256-9615	labrador	SLC3A1	Cystinuria, type I - A	403700
+OMIA_000256-9615	labrador_retriever	SLC3A1	Cystinuria, type I - A	403700
 OMIA_000256-9615	newfoundland	SLC3A1	Cystinuria, type I -A	403700
 OMIA_001821-9615	doberman_pinscher	SLC45A2	Coat colour, albinism, oculocutaneous type IV	431665
 OMIA_001821-9615	lhasa_apso	SLC45A2	Coat colour, albinism, oculocutaneous type IV	431665
@@ -481,7 +474,5 @@ OMIA_001058-9615	shetland_sheepdog	VWF	Von Willebrand disease III	399544
 OMIA_001339-9615	chinese_crested	VWF	Von Willebrand disease II	399544
 OMIA_001339-9615	german_shorthair_pointer	VWF	Von Willebrand disease II	399544
 OMIA_001339-9615	german_wirehaired_pointer	VWF	Von Willebrand disease II	399544
-OMIA_001339-9615	german_shorthair_pointer	VWF	Von Willebrand disease II	399544
-OMIA_001339-9615	german_wirehaired_pointer	VWF	Von Willebrand disease II	399544
 OMIA_001057-9615	doberman_pinscher	VWF	Von Willebrand disease I	399544
-OMIA_001057-9615	kromfohrländer	VWF	Von Willebrand disease I	399544
+OMIA_001057-9615	kromfohrlÃ¤nder	VWF	Von Willebrand disease I	399544
