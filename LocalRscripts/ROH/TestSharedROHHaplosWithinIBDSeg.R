@@ -331,7 +331,7 @@ IBD = IBDSharing %>%
 plotIBD = IBD + 
   annotation_custom(grob=ggplotGrob(IBD_inset), xmin = 1000, xmax=2500, ymin = "between breed case", ymax="between breed control")
 
-#pdf(file = "HaplotypeSharingInIBDandROH.pdf", height = 8, width = 30)
+#pdf(file = "HaplotypeSharingInIBDandROH.pdf", height = 8, width = 24)
 print(ggarrange(plotROH, 
           plotIBD, 
           common.legend =TRUE, 
