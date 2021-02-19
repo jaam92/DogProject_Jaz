@@ -2,6 +2,8 @@
 library(tidyverse)
 library(data.table)
 library(mgsub)
+library(cowplot)
+library(ggpubr)
 
 #Empty lists
 allTraits_ROH = list()
@@ -257,9 +259,9 @@ ROH = ROHSharing %>%
   summarise(medianSharing = median(NormGroupScorePerMb)) %>%
   ggplot(., aes(y=FinalStatus, x=medianSharing)) +
   geom_boxplot() +
-  geom_point(aes(colour=trait)) +
-  labs(x="Median sharing within\nROH and IBD segement (Mb)", y="Trait") +
-  scale_colour_manual(name = "Trait", values = cbPalette) + 
+  geom_point(aes(colour=trait), size = 3) +
+  labs(x="Median sharing within\nROH and IBD segement (Mb)", y="Group") +
+  scale_colour_manual(name = "Group", values = cbPalette) + 
   theme_bw() +
   theme(axis.text.x = element_text(size  = 20), 
         axis.text.y = element_text(size  = 20), 
@@ -275,8 +277,8 @@ ROH_inset = ROHSharing %>%
   filter(str_detect(FinalStatus, "between*")) %>%
   ggplot(., aes(y=FinalStatus, x=medianSharing)) +
   geom_boxplot() +
-  geom_point(aes(colour=trait)) +
-  labs(x="Median sharing within\nROH and IBD segement (Mb)", y="Trait") +
+  geom_point(aes(colour=trait), size = 3) +
+  labs(x="Median sharing within\nROH and IBD segement (Mb)", y="Group") +
   scale_colour_manual(name = "Trait", values = cbPalette) + 
   theme_bw() +
   theme(axis.text.x = element_text(size  = 20), 
@@ -296,8 +298,8 @@ IBD_inset = IBDSharing %>%
   filter(str_detect(FinalStatus, "between*")) %>%
   ggplot(., aes(y=FinalStatus, x=medianSharing)) +
   geom_boxplot() +
-  geom_point(aes(colour=trait)) +
-  labs(x="Median sharing outside of ROH \nwithin IBD segement (Mb)", y="Trait") +
+  geom_point(aes(colour=trait), size = 3) +
+  labs(x="Median sharing outside of ROH \nwithin IBD segement (Mb)", y="Group") +
   scale_colour_manual(name = "Trait", values = cbPalette) + 
   theme_bw() +
   theme(axis.text.x = element_text(size  = 20), 
@@ -313,8 +315,8 @@ IBD = IBDSharing %>%
   summarise(medianSharing = median(NormGroupScorePerMb)) %>%
   ggplot(., aes(y=FinalStatus, x=medianSharing)) +
   geom_boxplot() +
-  geom_point(aes(colour=trait)) +
-  labs(x="Median sharing outside of ROH \nwithin IBD segement (Mb)", y="Trait") +
+  geom_point(aes(colour=trait), size = 3) +
+  labs(x="Median sharing outside of ROH \nwithin IBD segement (Mb)", y="Group") +
   scale_colour_manual(name = "Trait", values = cbPalette) + 
   theme_bw() +
   theme(axis.text.x = element_text(size  = 20), 
