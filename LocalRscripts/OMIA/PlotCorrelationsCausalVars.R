@@ -45,7 +45,8 @@ plotCausal = function(dataFrame, scoreCutOff, xaxisLabel, indicator){
           axis.title=element_text(size= 24), 
           legend.title=element_text(size= 24), 
           legend.text=element_text(size= 18)) +
-  labs(x=paste(xaxisLabel), y="Count Causal Variants")
+  labs(x=paste(xaxisLabel), y="Count Causal Variants") + 
+  ylim(-5,25)
   
   return(Causualplot)
 }
@@ -73,7 +74,8 @@ plotCausalCorrs = function(regModel, dataFrame, varOfInterest, scoreCutOff, xaxi
             axis.title=element_text(size= 24), 
             legend.title=element_text(size= 24), 
             legend.text=element_text(size= 18)) +
-      labs(x=paste(xaxisLabel), y="Count Causal Variants") 
+      labs(x=paste(xaxisLabel), y="Count Causal Variants") +
+      ylim(-5,25)
   }else{
     ggplotRegression(regModel)   + 
       geom_point(aes(colour = cut(dataFrame$CausalVars_nonFitness, c(-Inf, 0, 1, 2))),
@@ -85,7 +87,7 @@ plotCausalCorrs = function(regModel, dataFrame, varOfInterest, scoreCutOff, xaxi
                          labels = c("0",
                                     "1", 
                                     "2")) +
-      geom_text_repel(aes(label=ifelse(dataFrame$CausalVars_nonFitness > 1 | dataFrame[,varOfInterest] > scoreCutOff, gsub("_", " ", as.character(dataFrame$Population)),'')), size = 6) + 
+      geom_text_repel(aes(label=ifelse(dataFrame$CausalVars_nonFitness > 1 | dataFrame[,varOfInterest] > scoreCutOff, gsub("_", " ", as.character(dataFrame$Population)),'')), size = 6, max.overlaps = 15) + 
       theme_bw() +
       theme(plot.title=element_text(size = 18, face = "bold", hjust= 0.5), 
             axis.text.x = element_text(size = 24, vjust= 1, hjust= 0.5), 
@@ -93,7 +95,8 @@ plotCausalCorrs = function(regModel, dataFrame, varOfInterest, scoreCutOff, xaxi
             axis.title=element_text(size= 24), 
             legend.title=element_text(size= 24), 
             legend.text=element_text(size= 18)) +
-      labs(x=paste(xaxisLabel), y="Count Causal Variants")
+      labs(x=paste(xaxisLabel), y="Count Causal Variants") + 
+      ylim(-1,3)
   }
   
 }
@@ -169,7 +172,7 @@ OMIAplots_addAxes_nonFitness = annotate_figure(OMIAplots_nonFitness,
                                                      size = 24, 
                                                      face = "bold", 
                                                      rot = 90))
-print(OMIAplots_addAxes_nonFitness) #supplementary figure
+print(OMIAplots_addAxes_nonFitness) #supplementary figure height 16 width 32
 ####fitness-related traits
 OMIAplots = ggarrange(plotFinalROHScoresCausVars + theme(axis.title.y = element_blank()), 
                       plotFinalIBDScoresCausVars + theme(axis.title.y = element_blank(), axis.text.y =element_blank()),
