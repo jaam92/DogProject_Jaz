@@ -8,10 +8,16 @@ library(randomcoloR)
 ######Plot Linear Regression Function###
 ggplotRegression = function (fit) {
   ggplot(fit$model, aes_string(x = names(fit$model)[2], y = names(fit$model)[1])) + 
-    geom_point(size = 2) + 
+    geom_point(size = 3) + 
     stat_smooth( method = 'lm', col = "blue") +  
-    theme_bw() + 
-    labs(title = bquote(R^2== ~.(signif(summary(fit)$adj.r.squared, 5))~"&"~"p"==~.(signif(summary(fit)$coef[2,4], 5))))
+    theme_bw() +
+    theme(plot.title=element_text(size = 34,  hjust= 0.5), 
+          axis.text.x = element_text(size = 34, vjust= 1, hjust= 0.5), 
+          axis.text.y = element_text(size = 34), 
+          axis.title=element_text(size= 34), 
+          legend.title=element_text(size= 34), 
+          legend.text=element_text(size= 26)) +
+    labs(title = bquote(R^2== ~.(signif(summary(fit)$adj.r.squared, 4))~"&"~"p"==~.(signif(summary(fit)$coef[2,4], 4))))
   
 }
 ######Plot Causal Vars Fxn######
@@ -39,12 +45,12 @@ plotCausal = function(dataFrame, scoreCutOff, xaxisLabel, indicator){
                                   "5 < variants <= 25")) + 
   geom_text_repel(aes(label=ifelse(newDF$CausalVars >= 10 | newDF$NormPopScore > scoreCutOff, gsub("_", " ", as.character(newDF$Population)),'')), size = 6) + 
   theme_bw() +
-  theme(plot.title=element_text(size = 18, face = "bold", hjust= 0.5), 
-          axis.text.x = element_text(size = 24, vjust= 1, hjust= 0.5), 
-          axis.text.y = element_text(size = 24), 
-          axis.title=element_text(size= 24), 
-          legend.title=element_text(size= 24), 
-          legend.text=element_text(size= 18)) +
+  theme(plot.title=element_text(size = 34,  hjust= 0.5), 
+          axis.text.x = element_text(size = 34, vjust= 1, hjust= 0.5), 
+          axis.text.y = element_text(size = 34), 
+          axis.title=element_text(size= 34), 
+          legend.title=element_text(size= 34), 
+          legend.text=element_text(size= 26)) +
   labs(x=paste(xaxisLabel), y="Count Causal Variants") + 
   ylim(-5,25)
   
@@ -66,14 +72,14 @@ plotCausalCorrs = function(regModel, dataFrame, varOfInterest, scoreCutOff, xaxi
                                     "1", 
                                     "1 < variants <= 5", 
                                     "5 < variants <= 25")) +
-      geom_text_repel(aes(label=ifelse(dataFrame$CausalVars >= 10 | dataFrame[,varOfInterest] > scoreCutOff, gsub("_", " ", as.character(dataFrame$Population)),'')), size = 6) + 
+      geom_text_repel(aes(label=ifelse(dataFrame$CausalVars >= 10 | dataFrame[,varOfInterest] > scoreCutOff, gsub("_", " ", as.character(dataFrame$Population)),'')), size = 10) + 
       theme_bw() +
-      theme(plot.title=element_text(size = 18, face = "bold", hjust= 0.5), 
-            axis.text.x = element_text(size = 24, vjust= 1, hjust= 0.5), 
-            axis.text.y = element_text(size = 24), 
-            axis.title=element_text(size= 24), 
-            legend.title=element_text(size= 24), 
-            legend.text=element_text(size= 18)) +
+      theme(plot.title=element_text(size = 34,  hjust= 0.5), 
+            axis.text.x = element_text(size = 34, vjust= 1, hjust= 0.5), 
+            axis.text.y = element_text(size = 34), 
+            axis.title=element_text(size= 34), 
+            legend.title=element_text(size= 34), 
+            legend.text=element_text(size= 26)) +
       labs(x=paste(xaxisLabel), y="Count Causal Variants") +
       ylim(-5,25)
   }else{
@@ -87,14 +93,14 @@ plotCausalCorrs = function(regModel, dataFrame, varOfInterest, scoreCutOff, xaxi
                          labels = c("0",
                                     "1", 
                                     "2")) +
-      geom_text_repel(aes(label=ifelse(dataFrame$CausalVars_nonFitness > 1 | dataFrame[,varOfInterest] > scoreCutOff, gsub("_", " ", as.character(dataFrame$Population)),'')), size = 6, max.overlaps = 15) + 
+      geom_text_repel(aes(label=ifelse(dataFrame$CausalVars_nonFitness > 1 | dataFrame[,varOfInterest] > scoreCutOff, gsub("_", " ", as.character(dataFrame$Population)),'')), size = 10, max.overlaps = 15) + 
       theme_bw() +
-      theme(plot.title=element_text(size = 18, face = "bold", hjust= 0.5), 
-            axis.text.x = element_text(size = 24, vjust= 1, hjust= 0.5), 
-            axis.text.y = element_text(size = 24), 
-            axis.title=element_text(size= 24), 
-            legend.title=element_text(size= 24), 
-            legend.text=element_text(size= 18)) +
+      theme(plot.title=element_text(size = 34,  hjust= 0.5), 
+            axis.text.x = element_text(size = 34, vjust= 1, hjust= 0.5), 
+            axis.text.y = element_text(size = 34), 
+            axis.title=element_text(size= 34), 
+            legend.title=element_text(size= 34), 
+            legend.text=element_text(size= 26)) +
       labs(x=paste(xaxisLabel), y="Count Causal Variants") + 
       ylim(-1,3)
   }
@@ -105,7 +111,7 @@ plotRainClouds = function(dataFrame, ylabTitle){
   dataFrame$Bin = cut(dataFrame$CausalVars, c(-Inf, 0, 1, 5, 25))
   ggplot(dataFrame, aes(x=Bin, y= NormPopScore, fill = Bin, colour = Bin)) +
   geom_flat_violin(size=2,position = position_nudge(x = .25, y = 0),adjust =2, trim = FALSE) +
-  geom_point(aes(x = as.numeric(Bin)-.15, y = NormPopScore, colour = Bin), position = position_jitter(width = .05), size = 1, shape = 20) +
+  geom_point(aes(x = as.numeric(Bin)-.15, y = NormPopScore, colour = Bin), position = position_jitter(width = .05), size = 1, shape = 26) +
   geom_boxplot(aes(as.numeric(Bin), y = NormPopScore, fill = Bin), outlier.shape = NA, alpha = .5, width = .1, colour = "black") +
   coord_flip() +
   guides(fill = FALSE, colour = FALSE) +
@@ -116,12 +122,12 @@ plotRainClouds = function(dataFrame, ylabTitle){
                             "(1,5]" = "1 < variants <= 5", 
                             "(5,25]" = "5 < variants <= 25"))+ 
     theme_bw() +
-    theme(plot.title=element_text(size = 18, face = "bold", hjust= 0.5), 
-          axis.text.x = element_text(size = 24, vjust= 1, hjust= 0.5), 
-          axis.text.y = element_text(size = 24), 
-          axis.title=element_text(size= 24), 
-          legend.title=element_text(size= 24), 
-          legend.text=element_text(size= 18)) +
+    theme(plot.title=element_text(size = 34,  hjust= 0.5), 
+          axis.text.x = element_text(size = 34, vjust= 1, hjust= 0.5), 
+          axis.text.y = element_text(size = 34), 
+          axis.title=element_text(size= 34), 
+          legend.title=element_text(size= 34), 
+          legend.text=element_text(size= 26)) +
     labs(y=paste(ylabTitle), x="Count Causal Variants") 
   }
 
@@ -162,74 +168,76 @@ OMIAplots_nonFitness = ggarrange(plotFinalROHScoresCausVars_nonFitness + theme(a
                       plotFinalIBDScoresCausVars_nonFitness + theme(axis.title.y = element_blank(), axis.text.y =element_blank()),
                       plotPopularityCausVars_nonFitness  + theme(axis.title.y = element_blank(), axis.text.y =element_blank()), 
                       ncol = 3, 
-                      labels = c("A","B","C") , 
+                      labels = c("A","B","C"),
+                      font.label = list(size = 20), 
                       common.legend = T,
                       legend = "bottom"
 ) 
 
 OMIAplots_addAxes_nonFitness = annotate_figure(OMIAplots_nonFitness, 
-                                    left = text_grob("Count Causal Variants", 
-                                                     size = 24, 
-                                                     face = "bold", 
+                                    left = text_grob("Count Causal Variants",
+                                                     size = 30, 
                                                      rot = 90))
-print(OMIAplots_addAxes_nonFitness) #supplementary figure height 16 width 32
+print(OMIAplots_addAxes_nonFitness) #supplementary figure height 18 width 36
 ####fitness-related traits
 OMIAplots = ggarrange(plotFinalROHScoresCausVars + theme(axis.title.y = element_blank()), 
                       plotFinalIBDScoresCausVars + theme(axis.title.y = element_blank(), axis.text.y =element_blank()),
                       plotPopularityCausVars  + theme(axis.title.y = element_blank(), axis.text.y =element_blank()), 
                       ncol = 3, 
-                      labels = c("A","B","C") , 
+                      labels = c("A","B","C"),
+                      font.label = list(size = 20), 
                       common.legend = T,
                       legend = "bottom"
 ) 
 
 OMIAplots_addAxes = annotate_figure(OMIAplots, 
-                                    left = text_grob("Count Causal Variants", 
-                                                     size = 24, 
-                                                     face = "bold", 
+                                    left = text_grob("Count Causal Variants",
+                                                     size = 30, 
                                                      rot = 90))
 
 ROHvsIBDCausals = ggarrange(plotFinalROHScoresCausVars + theme(axis.title.y = element_blank()), 
                             plotFinalIBDScoresCausVars + theme(axis.title.y = element_blank()),
                             nrow = 1, 
                             labels = c("A", "B"),
+                            font.label = list(size = 20),
                             common.legend = T,
                             legend = "right")
 
 ROHvsIBDCausals_addAxes = annotate_figure(ROHvsIBDCausals, 
                 left = text_grob("Count Causal Variants", 
-                                 size = 24, 
-                                 face = "bold", 
+                                 size = 30, 
+                                  
                                  rot = 90))
-print(OMIAplots_addAxes)
+print(OMIAplots_addAxes) #height 18 width 36
 print(ROHvsIBDCausals_addAxes)
 ###Plot the ROH vs IBD relationship
 plotROHvsIBD = ggplotRegression(corrROHvsIBD) + 
   labs(x="IBD Score (Mb)", y = "ROH Score (Mb)") +
   theme_bw() +
-  theme(plot.title=element_text(size =18, face = "bold", hjust=0.5), 
-        axis.text.x = element_text(size  = 24, vjust=1, hjust=0.5), 
-        axis.text.y = element_text(size  = 24), 
-        axis.title=element_text(size=24),
-        legend.title=element_text(size=24), 
-        legend.text=element_text(size=18), 
+  theme(plot.title=element_text(size =28,  hjust=0.5), 
+        axis.text.x = element_text(size  = 28, vjust=1, hjust=0.5), 
+        axis.text.y = element_text(size  = 28), 
+        axis.title=element_text(size=28),
+        legend.title=element_text(size=28), 
+        legend.text=element_text(size=20), 
         legend.position = "bottom") 
 
 plotROHvsIBDScores = ggplotRegression(corrROHScorevsIBDScore) + 
   labs(x="IBD Score(Mb) Normalized ", y = "ROH Score(Mb) Normalized") +
   theme_bw() +
-  theme(plot.title=element_text(size =18, face = "bold", hjust=0.5), 
-        axis.text.x = element_text(size  = 24, vjust=1, hjust=0.5), 
-        axis.text.y = element_text(size  = 24), 
-        axis.title=element_text(size=24),
-        legend.title=element_text(size=24), 
-        legend.text=element_text(size=18), 
+  theme(plot.title=element_text(size =28,  hjust=0.5), 
+        axis.text.x = element_text(size  = 28, vjust=1, hjust=0.5), 
+        axis.text.y = element_text(size  = 28), 
+        axis.title=element_text(size=28),
+        legend.title=element_text(size=28), 
+        legend.text=element_text(size=20), 
         legend.position = "bottom")
 
 ggarrange(plotROHvsIBD, 
           plotROHvsIBDScores,
           ncol = 2, 
-          labels = c("A", "B"))
+          labels = c("A", "B"),
+          font.label = list(size = 20))
 
 
 #color by clade
@@ -240,12 +248,12 @@ plotNormROHScorevsNormIBDScore = ggplotRegression(corrROHScorevsIBDScore) +
   scale_colour_manual(name= "Clade", values = palette, na.value="grey") +
   geom_text_repel(data=subset(comboDF, NormPopScore_ROH >= 200 | NormPopScore_IBD > 900), aes(label=paste(Population,",",CausalVars)), size = 6) + 
   labs(x="IBD Score in Mb (Normalized)", y="ROH Score in Mb (Normalized)") +
-  theme(plot.title=element_text(size =18, face = "bold", hjust=0.5), 
-        axis.text.x = element_text(size  = 24, vjust=1, hjust=0.5), 
-        axis.text.y = element_text(size  = 24), 
-        axis.title=element_text(size=24),
-        legend.title=element_text(size=24), 
-        legend.text=element_text(size=18), 
+  theme(plot.title=element_text(size =28,  hjust=0.5), 
+        axis.text.x = element_text(size  = 28, vjust=1, hjust=0.5), 
+        axis.text.y = element_text(size  = 28), 
+        axis.title=element_text(size=28),
+        legend.title=element_text(size=28), 
+        legend.text=element_text(size=20), 
         legend.position = "bottom") + 
   guides(colour = guide_legend(nrow = 6))
 
@@ -264,4 +272,5 @@ ggarrange(ggplotRegression(corrPopularityROHScore) +
           ggplotRegression(corrPopularityIBDScore) + 
             labs(x="Breed Popularity", y = "IBD Score(Mb) Normalized"),
           ncol = 2, 
-          labels = c("A", "B"))
+          labels = c("A", "B"),
+          font.label = list(size = 20))
