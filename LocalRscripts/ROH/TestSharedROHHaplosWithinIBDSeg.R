@@ -48,10 +48,12 @@ for (i in seq_along(fnames)) {
            status = ifelse(status_INDV1 == 1 & status == "same", "control", status),
            status = ifelse(status_INDV1 == 2 & status == "same", "case", status),
            Breed1 = popmapDryad$breed[match(INDV1, popmapDryad$dogID)],
-           Breed2 = popmapDryad$breed[match(INDV2, popmapDryad$dogID)]) %>%
-    group_by(status, Breed1, Breed2) %>%
+           Breed2 = popmapDryad$breed[match(INDV2, popmapDryad$dogID)],
+           key = paste(pmin(Breed1, Breed2), pmax(Breed1, Breed2), sep = "-")) %>%
+    group_by(status, key) %>%
     summarise(GroupScore = sum(as.numeric(LenOverlap))) %>% #sum up shared ROH within IBD for group
     ungroup() %>%
+    separate(col = key, into = c("Breed1", "Breed2"), sep = "-") %>% #get breed info back
     mutate(FinalStatus = case_when(
       (Breed1 == Breed2 & status == "control") ~ "within breed control", 
       (Breed1 != Breed2 & status == "control") ~ "between breed control",
@@ -119,10 +121,12 @@ for (i in seq_along(fnames)) {
            status = ifelse(status_INDV1 == 1 & status == "same", "control", status),
            status = ifelse(status_INDV1 == 2 & status == "same", "case", status),
            Breed1 = popmapDryad$breed[match(INDV1, popmapDryad$dogID)],
-           Breed2 = popmapDryad$breed[match(INDV2, popmapDryad$dogID)]) %>%
-    group_by(status, Breed1, Breed2) %>%
-    summarise(GroupScore = sum(as.numeric(NotCoveredROH))) %>% #sum up IBD not covered by ROH for group
+           Breed2 = popmapDryad$breed[match(INDV2, popmapDryad$dogID)],
+           key = paste(pmin(Breed1, Breed2), pmax(Breed1, Breed2), sep = "-")) %>%
+    group_by(status, key) %>%
+    summarise(GroupScore = sum(as.numeric(NotCoveredROH))) %>% #sum up shared IBD for group
     ungroup() %>%
+    separate(col = key, into = c("Breed1", "Breed2"), sep = "-") %>% #get breed info back 
     mutate(FinalStatus = case_when(
       (Breed1 == Breed2 & status == "control") ~ "within breed control", 
       (Breed1 != Breed2 & status == "control") ~ "between breed control",
@@ -194,7 +198,7 @@ ROH_allTraitsSummary = ROHSharing %>%
             min = min(NormGroupScorePerMb),
             numIndivs = sum(finalSamp))
 
-Pvals_temp = pairwise.wilcox.test(ROH_allTraits$NormGroupScorePerMb, ROH_allTraits$FinalStatus, p.adjust.method="none")$p.value
+Pvals_temp = pairwise.wilcox.test(ROHSharing$NormGroupScorePerMb, ROHSharing$FinalStatus, p.adjust.method="none")$p.value
 
 Pvals_ROH_allTraits = data.frame(expand.grid(dimnames(Pvals_temp)),array(Pvals_temp)) %>%
   rename("pvalue" = "array.Pvals_temp.")  %>% 
@@ -220,7 +224,7 @@ IBD_allTraitsSummary = IBDSharing %>%
             min = min(NormGroupScorePerMb),
             numIndivs = sum(finalSamp))
 
-Pvals_temp = pairwise.wilcox.test(IBD_allTraits$NormGroupScorePerMb, IBD_allTraits$FinalStatus, p.adjust.method="none")$p.value
+Pvals_temp = pairwise.wilcox.test(IBDSharing$NormGroupScorePerMb, IBDSharing$FinalStatus, p.adjust.method="none")$p.value
 
 Pvals_IBD_allTraits = data.frame(expand.grid(dimnames(Pvals_temp)),array(Pvals_temp)) %>%
   rename("pvalue" = "array.Pvals_temp.")  %>% 
@@ -253,15 +257,11 @@ withinBreedComps = merged %>%
 ####Plots
 cbPalette = c("All traits" = "gray25", "CLLD" = "#D55E00",  "PSVA" = "steelblue", "lymphoma" = "#009E73", "MCT" = "gold3", "MVD" = "mediumpurple4", "GC" = "#CC79A7", "ED" = "#867BCF")
 
-ROH = ROHSharing %>%
-  ungroup() %>%
-  group_by(FinalStatus, trait) %>%
-  summarise(medianSharing = median(NormGroupScorePerMb)) %>%
-  ggplot(., aes(y=FinalStatus, x=medianSharing)) +
-  geom_boxplot() +
-  geom_point(aes(colour=trait), size = 3) +
-  labs(x="Median sharing within\nROH and IBD segement (Mb)", y="Group") +
-  scale_colour_manual(name = "Group", values = cbPalette) + 
+ROH = ggplot(ROHSharing, aes(y=FinalStatus, x=NormGroupScorePerMb)) +
+  geom_boxplot(outlier.shape = NA) + #remove outlier points and only use jitter
+  geom_jitter(aes(colour=trait), size = 3) +
+  labs(x="Pairwise sharing within\nROH and IBD segement (Mb)", y="Comparison group") +
+  scale_colour_manual(name = "Trait", values = cbPalette) + 
   theme_bw() +
   theme(axis.text.x = element_text(size  = 20), 
         axis.text.y = element_text(size  = 20), 
@@ -271,14 +271,11 @@ ROH = ROHSharing %>%
         legend.text=element_text(size=20))
 
 ROH_inset = ROHSharing %>%
-  ungroup() %>%
-  group_by(FinalStatus, trait) %>%
-  summarise(medianSharing = median(NormGroupScorePerMb)) %>%
   filter(str_detect(FinalStatus, "between*")) %>%
-  ggplot(., aes(y=FinalStatus, x=medianSharing)) +
-  geom_boxplot() +
-  geom_point(aes(colour=trait), size = 3) +
-  labs(x="Median sharing within\nROH and IBD segement (Mb)", y="Group") +
+  ggplot(., aes(y=FinalStatus, x=NormGroupScorePerMb)) +
+  geom_boxplot(outlier.shape = NA) + #remove outlier points and only use jitter
+  geom_jitter(aes(colour=trait), size = 3) +
+  labs(x="Pairwise sharing within\nROH and IBD segement (Mb)", y="Comparison group") +
   scale_colour_manual(name = "Trait", values = cbPalette) + 
   theme_bw() +
   theme(axis.text.x = element_text(size  = 20), 
@@ -289,17 +286,14 @@ ROH_inset = ROHSharing %>%
         legend.position = "none")
 
 plotROH = ROH + 
-  annotation_custom(grob=ggplotGrob(ROH_inset), xmin = 100, xmax=350, ymin = "between breed case", ymax="between breed control")
+  annotation_custom(grob=ggplotGrob(ROH_inset), xmin = 500, xmax=1500, ymin = "between breed case", ymax="between breed control")
 
 IBD_inset = IBDSharing %>%
-  ungroup() %>%
-  group_by(FinalStatus, trait) %>%
-  summarise(medianSharing = median(NormGroupScorePerMb)) %>%
   filter(str_detect(FinalStatus, "between*")) %>%
-  ggplot(., aes(y=FinalStatus, x=medianSharing)) +
-  geom_boxplot() +
-  geom_point(aes(colour=trait), size = 3) +
-  labs(x="Median sharing outside of ROH \nwithin IBD segement (Mb)", y="Group") +
+  ggplot(., aes(y=FinalStatus, x=NormGroupScorePerMb)) +
+  geom_boxplot(outlier.shape = NA) + #remove outlier points and only use jitter
+  geom_jitter(aes(colour=trait), size = 3) +
+  labs(x="Pairwise sharing outside of ROH\nwithin IBD segement (Mb)", y="Comparison group") +
   scale_colour_manual(name = "Trait", values = cbPalette) + 
   theme_bw() +
   theme(axis.text.x = element_text(size  = 20), 
@@ -309,14 +303,10 @@ IBD_inset = IBDSharing %>%
         axis.title.y=element_blank(),
         legend.position = "none")
 
-IBD = IBDSharing %>%
-  ungroup() %>%
-  group_by(FinalStatus, trait) %>%
-  summarise(medianSharing = median(NormGroupScorePerMb)) %>%
-  ggplot(., aes(y=FinalStatus, x=medianSharing)) +
-  geom_boxplot() +
-  geom_point(aes(colour=trait), size = 3) +
-  labs(x="Median sharing outside of ROH \nwithin IBD segement (Mb)", y="Group") +
+IBD = ggplot(IBDSharing, aes(y=FinalStatus, x=NormGroupScorePerMb)) +
+  geom_boxplot(outlier.shape = NA) + #remove outlier points and only use jitter
+  geom_jitter(aes(colour=trait), size = 3) +
+  labs(x="Pairwise sharing outside of ROH\nwithin IBD segement (Mb)", y="Comparison group") +
   scale_colour_manual(name = "Trait", values = cbPalette) + 
   theme_bw() +
   theme(axis.text.x = element_text(size  = 20), 
@@ -329,9 +319,9 @@ IBD = IBDSharing %>%
 
 
 plotIBD = IBD + 
-  annotation_custom(grob=ggplotGrob(IBD_inset), xmin = 1000, xmax=2500, ymin = "between breed case", ymax="between breed control")
+  annotation_custom(grob=ggplotGrob(IBD_inset), xmin = 5000, xmax=15000, ymin = "between breed case", ymax="between breed control")
 
-#pdf(file = "HaplotypeSharingInIBDandROH.pdf", height = 8, width = 24)
+#pdf(file = "HaplotypeSharingInIBDandROH.pdf", height = 10, width = 24)
 print(ggarrange(plotROH, 
           plotIBD, 
           common.legend =TRUE, 
