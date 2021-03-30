@@ -260,7 +260,7 @@ cbPalette = c("All traits" = "gray25", "CCLD" = "#D55E00",  "PSVA" = "steelblue"
 ROH = ggplot(ROHSharing, aes(y=FinalStatus, x=NormGroupScorePerMb)) +
   geom_boxplot(outlier.shape = NA) + #remove outlier points and only use jitter
   geom_jitter(aes(colour=trait), size = 3) +
-  labs(x="Pairwise sharing within\nROH and IBD segement (Mb)", y="Comparison group") +
+  labs(x="Pairwise sharing within\nROH and IBD segment (Mb)", y="Comparison group") +
   scale_colour_manual(name = "Trait", values = cbPalette) + 
   theme_bw() +
   theme(axis.text.x = element_text(size  = 20), 
@@ -275,7 +275,7 @@ ROH_inset = ROHSharing %>%
   ggplot(., aes(y=FinalStatus, x=NormGroupScorePerMb)) +
   geom_boxplot(outlier.shape = NA) + #remove outlier points and only use jitter
   geom_jitter(aes(colour=trait), size = 3) +
-  labs(x="Pairwise sharing within\nROH and IBD segement (Mb)", y="Comparison group") +
+  labs(x="Pairwise sharing within\nROH and IBD segment (Mb)", y="Comparison group") +
   scale_colour_manual(name = "Trait", values = cbPalette) + 
   theme_bw() +
   theme(axis.text.x = element_text(size  = 20), 
@@ -293,7 +293,7 @@ IBD_inset = IBDSharing %>%
   ggplot(., aes(y=FinalStatus, x=NormGroupScorePerMb)) +
   geom_boxplot(outlier.shape = NA) + #remove outlier points and only use jitter
   geom_jitter(aes(colour=trait), size = 3) +
-  labs(x="Pairwise sharing outside of ROH\nwithin IBD segement (Mb)", y="Comparison group") +
+  labs(x="Pairwise sharing outside of ROH\nwithin IBD segment (Mb)", y="Comparison group") +
   scale_colour_manual(name = "Trait", values = cbPalette) + 
   theme_bw() +
   theme(axis.text.x = element_text(size  = 20), 
@@ -306,7 +306,7 @@ IBD_inset = IBDSharing %>%
 IBD = ggplot(IBDSharing, aes(y=FinalStatus, x=NormGroupScorePerMb)) +
   geom_boxplot(outlier.shape = NA) + #remove outlier points and only use jitter
   geom_jitter(aes(colour=trait), size = 3) +
-  labs(x="Pairwise sharing outside of ROH\nwithin IBD segement (Mb)", y="Comparison group") +
+  labs(x="Pairwise sharing outside of ROH\nwithin IBD segment (Mb)", y="Comparison group") +
   scale_colour_manual(name = "Trait", values = cbPalette) + 
   theme_bw() +
   theme(axis.text.x = element_text(size  = 20), 
@@ -326,5 +326,5 @@ print(ggarrange(plotROH,
           plotIBD, 
           common.legend =TRUE, 
           legend = "bottom",
-          align = "h"))
+          align = "hv"))
 #dev.off()
