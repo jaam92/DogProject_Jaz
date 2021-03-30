@@ -255,7 +255,7 @@ withinBreedComps = merged %>%
 #write.table(withinBreedComps, "Pvalues_sharedROHwithIBD_sepByTrait_withinBreeds.txt", row.names = F, col.names = T, sep = "\t", quote = F)
 
 ####Plots
-cbPalette = c("All traits" = "gray25", "CLLD" = "#D55E00",  "PSVA" = "steelblue", "lymphoma" = "#009E73", "MCT" = "gold3", "MVD" = "mediumpurple4", "GC" = "#CC79A7", "ED" = "#867BCF")
+cbPalette = c("All traits" = "gray25", "CCLD" = "#D55E00",  "PSVA" = "steelblue", "lymphoma" = "#009E73", "MCT" = "gold3", "MVD" = "mediumpurple4", "GC" = "#CC79A7", "ED" = "#867BCF")
 
 ROH = ggplot(ROHSharing, aes(y=FinalStatus, x=NormGroupScorePerMb)) +
   geom_boxplot(outlier.shape = NA) + #remove outlier points and only use jitter
@@ -286,7 +286,7 @@ ROH_inset = ROHSharing %>%
         legend.position = "none")
 
 plotROH = ROH + 
-  annotation_custom(grob=ggplotGrob(ROH_inset), xmin = 500, xmax=1500, ymin = "between breed case", ymax="between breed control")
+  annotation_custom(grob=ggplotGrob(ROH_inset), xmin = 500, xmax=2000, ymin = "between breed case", ymax="between breed control")
 
 IBD_inset = IBDSharing %>%
   filter(str_detect(FinalStatus, "between*")) %>%
@@ -325,6 +325,6 @@ plotIBD = IBD +
 print(ggarrange(plotROH, 
           plotIBD, 
           common.legend =TRUE, 
-          legend = "right",
+          legend = "bottom",
           align = "h"))
 #dev.off()
