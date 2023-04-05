@@ -8,7 +8,7 @@ library(ggpubr)
 `%nin%` = Negate(`%in%`)
 
 #load files
-ccrs = read_delim("~/Documents/DogProject_Jaz/LocalRscripts/InbreedingDepAnalyses/VettingResults/ccrs.autosomes.v2.20180420.bed", delim = "\t")
+ccrs = read_delim("~/Documents/DogProject_Jaz/LocalRscripts/InbreedingDepAnalyses/VettingResults/ccrs.autosomes.v2.20180420.bed.gz", delim = "\t")
 
 t10_ccr = ccrs %>%
   filter(ccr_pct >= 90.0) %>%
